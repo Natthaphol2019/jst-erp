@@ -1,9 +1,20 @@
 <?php
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\HR\EmployeeController;
+use App\Http\Controllers\HR\DepartmentController;
+use App\Http\Controllers\HR\PositionController;
+use App\Http\Controllers\HR\TimeRecordController;
 
-// หน้า Login ทั่วไป
-Route::get('/', [AuthController::class, 'showLoginForm'])->name('login');
+// 1. ถ้ามีคนพิมพ์หน้าแรก (/) ให้ Redirect ไปที่ /login
+Route::get('/', function () {
+    return redirect()->route('login');
+});
+
+// 2. แสดงหน้าฟอร์ม Login (รองรับการพิมพ์ /login แบบ GET)
+Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
+
+// 3. รับข้อมูลตอนกดปุ่มเข้าสู่ระบบ (แบบ POST)
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
@@ -51,7 +62,18 @@ Route::middleware('auth')->group(function () {
         Route::get('/dashboard', function () {
             return 'หน้า Dashboard จัดการพนักงาน (HR/Admin)';
         });
-        // Route::resource('employees', EmployeeController::class);
+        // ระบบจัดการพนักงาน (Employees)
+        Route::resource('employees', EmployeeController::class);
+        // ระบบจัดการแผนก (Departments) เผื่อไว้สำหรับทำระบบ Workflow ส่งต่องานในอนาคต
+        Route::resource('departments', DepartmentController::class);
+        // ระบบจัดการตำแหน่งงาน (Positions) เผื่อไว้สำหรับทำระบบ Workflow ส่งต่องานในอนาคต
+        Route::resource('positions', PositionController::class);
+
+        // ระบบบันทึกเวลาทำงาน (Time Records)
+        Route::get('/time-records/batch', [TimeRecordController::class, 'batchCreate'])->name('time-records.batch');
+        Route::post('/time-records/batch', [TimeRecordController::class, 'batchStore'])->name('time-records.batch.store');
+        // รายงานสรุปเวลาทำงานรายเดือน
+        Route::get('/time-records/summary', [TimeRecordController::class, 'summary'])->name('time-records.summary');
     });
 
     // ==============================

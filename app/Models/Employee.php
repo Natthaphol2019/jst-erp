@@ -11,12 +11,12 @@ class Employee extends Model
 
     protected $fillable = [
         'department_id',
+        'position_id',
         'employee_code',
         'prefix',
         'firstname',
         'lastname',
         'gender',
-        'position',
         'start_date',
         'status',
         'profile_image'
@@ -27,8 +27,18 @@ class Employee extends Model
         return $this->belongsTo(Department::class);
     }
 
+    public function position()
+    {
+        return $this->belongsTo(Position::class);
+    }
+
     public function user()
     {
         return $this->hasOne(User::class);
+    }
+
+    public function timeRecords()
+    {
+        return $this->hasMany(TimeRecord::class);
     }
 }

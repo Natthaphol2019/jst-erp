@@ -14,6 +14,8 @@ return new class extends Migration {
             $table->id();
             $table->string('name', 100);
             $table->text('description')->nullable();
+            // เพิ่มคอลัมน์นี้เผื่อทำระบบ Workflow ส่งต่องานในอนาคต (เช่น ส่งจาก Sales ไป Engineering)
+            $table->foreignId('next_department_id')->nullable()->constrained('departments')->nullOnDelete();
             $table->timestamps();
         });
     }
