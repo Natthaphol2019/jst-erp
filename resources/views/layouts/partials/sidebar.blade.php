@@ -16,7 +16,9 @@
     </a>
 
     @if (in_array(auth()->user()->role, ['admin', 'hr']))
-        <div class="text-secondary px-3 mt-3 mb-1" style="font-size: 0.8rem;">ระบบจัดการบุคคล (HR)</div>
+        <div class="text-secondary fw-bold px-3 mt-4 mb-2" style="font-size: 0.85rem; letter-spacing: 0.5px;">
+            ระบบจัดการบุคคล (HR)
+        </div>
 
         <a href="{{ route('hr.employees.index') }}"
             class="text-decoration-none text-light px-4 py-2 d-block {{ request()->routeIs('hr.employees.*') ? 'bg-secondary' : '' }}">
@@ -31,29 +33,44 @@
             class="text-decoration-none text-light px-4 py-2 d-block {{ request()->routeIs('hr.positions.*') ? 'bg-secondary' : '' }}">
             💼 จัดการตำแหน่ง
         </a>
-        <div class="text-secondary px-3 mt-4 mb-1" style="font-size: 0.8rem;">ระบบลงเวลา (Time)</div>
-        <a href="{{ route('hr.time-records.batch') }}"
-            class="text-decoration-none text-light px-4 py-2 d-block {{ request()->routeIs('hr.time-records.batch*') ? 'bg-secondary' : '' }}">
-            ⏱️ บันทึกเวลา (รายวัน)
+
+        <div class="text-secondary fw-bold px-3 mt-4 mb-2" style="font-size: 0.85rem; letter-spacing: 0.5px;">
+            ระบบลงเวลา (Time)
+        </div>
+        
+        <a href="{{ route('hr.time-records.batch.select') }}"
+            class="text-decoration-none text-light px-4 py-2 d-block {{ request()->routeIs('hr.time-records.batch.*') ? 'bg-secondary' : '' }}">
+            ⏱️ บันทึกเวลาจากบัตร
         </a>
+        
         <a href="{{ route('hr.time-records.summary') }}"
             class="text-decoration-none text-light px-4 py-2 d-block {{ request()->routeIs('hr.time-records.summary') ? 'bg-secondary' : '' }}">
-            📊 รายงานสรุป (รายเดือน)
+            📊 รายงานสรุปรายเดือน
         </a>
     @endif
 
     @if (in_array(auth()->user()->role, ['admin', 'inventory']))
-        <div class="text-secondary px-3 mt-3 mb-1" style="font-size: 0.8rem;">ระบบคลังสินค้า</div>
+        <div class="text-secondary fw-bold px-3 mt-4 mb-2" style="font-size: 0.85rem; letter-spacing: 0.5px;">
+            ระบบคลังสินค้า
+        </div>
         <a href="#" class="text-decoration-none text-light px-4 py-2 d-block">📦 รายการสินค้า/อุปกรณ์</a>
         <a href="#" class="text-decoration-none text-light px-4 py-2 d-block">📝 จัดการใบเบิก-ยืม</a>
     @endif
 
     <div class="mt-auto border-top border-secondary">
-        <form action="{{ route('logout') }}" method="POST">
+        <form action="{{ route('logout') }}" method="POST" class="m-0">
             @csrf
-            <button type="submit" class="btn btn-link text-danger w-100 text-start p-3 text-decoration-none">
-                🚪 ออกจากระบบ
+            <button type="submit" class="btn btn-link text-danger w-100 text-start p-3 text-decoration-none rounded-0 hover-bg-dark">
+                <i class="bi bi-box-arrow-right me-2"></i> 🚪 ออกจากระบบ
             </button>
         </form>
     </div>
 </div>
+
+<style>
+    /* เพิ่มลูกเล่นนิดหน่อยตอนเอาเมาส์ชี้ปุ่มออกจากระบบ */
+    .hover-bg-dark:hover {
+        background-color: #212529 !important;
+        color: #ff6b6b !important;
+    }
+</style>

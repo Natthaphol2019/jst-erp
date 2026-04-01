@@ -73,7 +73,13 @@ Route::middleware('auth')->group(function () {
         Route::get('/time-records/batch', [TimeRecordController::class, 'batchCreate'])->name('time-records.batch');
         Route::post('/time-records/batch', [TimeRecordController::class, 'batchStore'])->name('time-records.batch.store');
         // รายงานสรุปเวลาทำงานรายเดือน
+        Route::get('/time-records/batch-select', [TimeRecordController::class, 'batchSelect'])->name('time-records.batch.select');
+        Route::get('/time-records/batch-form', [TimeRecordController::class, 'batchForm'])->name('time-records.batch.form');
+        Route::post('/time-records/batch-store', [TimeRecordController::class, 'batchStore'])->name('time-records.batch.store');
         Route::get('/time-records/summary', [TimeRecordController::class, 'summary'])->name('time-records.summary');
+// ระบบปิดงวดเวลา (Lock Period)
+        Route::get('/time-records/lock', [TimeRecordController::class, 'lockPeriod'])->name('time-records.lock');
+        Route::post('/time-records/lock', [TimeRecordController::class, 'lockPeriodStore'])->name('time-records.lock.store');
     });
 
     // ==============================
