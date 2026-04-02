@@ -13,6 +13,7 @@ return new class extends Migration {
         Schema::create('item_categories', function (Blueprint $table) {
             $table->id();
             $table->string('name', 100);
+            $table->string('prefix', 10)->nullable()->unique()->comment('ตัวย่อหมวดหมู่ เช่น SAF, TLS'); // 🌟 เพิ่มฟิลด์นี้
             $table->text('description')->nullable();
             $table->timestamps();
         });

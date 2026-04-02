@@ -4,14 +4,14 @@
     </h4>
 
     @php
-        // 🌟 ชี้เป้าให้ครบทุก Role ตามโฟลเดอร์ที่มีเลยครับ
+        // กำหนดเป้าหมาย Dashboard ตาม Role ของผู้ใช้งาน
         $dashRoute = match (auth()->user()->role) {
             'admin' => route('admin.dashboard'),
             'manager' => route('manager.dashboard'),
             'employee' => route('employee.dashboard'),
-            'hr' => route('hr.dashboard'), // 👈 ชี้ไปที่ของ HR
-            'inventory' => route('inventory.dashboard'), // 👈 ชี้ไปที่ของ Inventory
-            default => url('/'), // กันเหนียวให้กลับหน้าแรกสุด
+            'hr' => route('hr.dashboard'),
+            'inventory' => route('inventory.dashboard'),
+            default => url('/'),
         };
     @endphp
 
@@ -35,6 +35,7 @@
                 class="sidebar-link text-decoration-none text-light px-4 py-2 d-block {{ request()->routeIs('hr.departments.*') ? 'bg-secondary border-start border-4 border-primary' : '' }}">
                 🏢 จัดการแผนก
             </a>
+
             <a href="{{ route('hr.positions.index') }}"
                 class="sidebar-link text-decoration-none text-light px-4 py-2 d-block {{ request()->routeIs('hr.positions.*') ? 'bg-secondary border-start border-4 border-primary' : '' }}">
                 💼 จัดการตำแหน่ง
@@ -64,10 +65,15 @@
             <div class="text-secondary fw-bold px-3 mt-4 mb-2" style="font-size: 0.85rem; letter-spacing: 0.5px;">
                 ระบบคลังสินค้า
             </div>
-            <a href="#" class="sidebar-link text-decoration-none text-light px-4 py-2 d-block">📦
-                รายการสินค้า/อุปกรณ์</a>
-            <a href="#" class="sidebar-link text-decoration-none text-light px-4 py-2 d-block">📝
-                จัดการใบเบิก-ยืม</a>
+
+            <a href="{{ route('inventory.items.index') }}" 
+                class="sidebar-link text-decoration-none text-light px-4 py-2 d-block {{ request()->routeIs('inventory.items.*') ? 'bg-secondary border-start border-4 border-primary' : '' }}">
+                📦 รายการสินค้า/อุปกรณ์
+            </a>
+
+            <a href="#" class="sidebar-link text-decoration-none text-light px-4 py-2 d-block">
+                📝 จัดการใบเบิก-ยืม
+            </a>
         @endif
     </div>
 
@@ -83,20 +89,16 @@
 </div>
 
 <style>
-    /* ลูกเล่นให้เมนูดูลื่นไหลและน่าใช้งานขึ้น */
+    /* สไตล์สำหรับการ Hover และสถานะ Active เพื่อให้เมนูดูลื่นไหล */
     .sidebar-link {
         transition: all 0.2s ease-in-out;
-        border-start: 4px solid transparent;
-        /* เตรียมพื้นที่ไว้เผื่อตอน Active */
     }
 
-    /* ตอนเอาเมาส์ชี้ เมนูจะขยับไปทางขวานิดนึงและสว่างขึ้น */
     .sidebar-link:hover {
         background-color: rgba(255, 255, 255, 0.05);
         padding-left: 1.8rem !important;
     }
 
-    /* ปุ่ม Logout ตอน Hover จะเป็นสีแดงเด่นๆ */
     .hover-bg-dark:hover {
         background-color: #212529 !important;
         color: #ff4d4d !important;

@@ -5,6 +5,8 @@ use App\Http\Controllers\HR\EmployeeController;
 use App\Http\Controllers\HR\DepartmentController;
 use App\Http\Controllers\HR\PositionController;
 use App\Http\Controllers\HR\TimeRecordController;
+use App\Http\Controllers\Inventory\ItemController;
+use App\Http\Controllers\Inventory\DashboardController;
 
 // 1. ถ้ามีคนพิมพ์หน้าแรก (/) ให้ Redirect ไปที่ /login
 Route::get('/', function () {
@@ -77,7 +79,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/time-records/batch-form', [TimeRecordController::class, 'batchForm'])->name('time-records.batch.form');
         Route::post('/time-records/batch-store', [TimeRecordController::class, 'batchStore'])->name('time-records.batch.store');
         Route::get('/time-records/summary', [TimeRecordController::class, 'summary'])->name('time-records.summary');
-// ระบบปิดงวดเวลา (Lock Period)
+        // ระบบปิดงวดเวลา (Lock Period)
         Route::get('/time-records/lock', [TimeRecordController::class, 'lockPeriod'])->name('time-records.lock');
         Route::post('/time-records/lock', [TimeRecordController::class, 'lockPeriodStore'])->name('time-records.lock.store');
     });
@@ -86,10 +88,12 @@ Route::middleware('auth')->group(function () {
     // โซนคลังสินค้า (Module 3 - Admin และ Inventory)
     // ==============================
     Route::middleware('role:admin,inventory')->prefix('inventory')->name('inventory.')->group(function () {
-        Route::get('/dashboard', function () {
-            return 'หน้า Dashboard จัดการคลังสินค้า (Inventory/Admin)';
-        });
-        // Route::resource('items', ItemController::class);
+
+        // 🌟 เรียกใช้ DashboardController เพื่อให้มันประมวลผลข้อมูลก่อนโชว์หน้าจอ
+        Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+        // ระบบจัดการสินค้า (Items)
+        Route::resource('items', ItemController::class);
     });
 
 });
