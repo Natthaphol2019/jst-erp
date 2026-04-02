@@ -98,6 +98,31 @@
                         </div>
                     </div>
 
+                    <h5 class="text-primary border-bottom pb-2 mb-3 mt-4">🔐 ข้อมูลการเข้าสู่ระบบ (Login)</h5>
+                    <div class="row mb-4">
+                        <div class="col-md-4">
+                            <label class="form-label">ชื่อผู้ใช้งาน (Username) <span class="text-danger">*</span></label>
+                            <input type="text" name="username" class="form-control fw-bold text-primary" 
+                                value="{{ old('username', strtolower($nextEmployeeCode)) }}" required>
+                            <small class="text-muted">ระบบแนะนำให้ใช้รหัสพนักงาน</small>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">รหัสผ่าน (Password)</label>
+                            <input type="text" name="password" class="form-control" placeholder="กำหนดรหัสผ่าน...">
+                            <small class="text-muted text-danger">ถ้าว่างไว้ จะใช้ <code>password123</code></small>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">สิทธิ์การใช้งานระบบ (Role) <span class="text-danger">*</span></label>
+                            <select name="role" class="form-select border-primary fw-bold" required>
+                                <option value="employee" selected>👤 พนักงานทั่วไป (Employee)</option>
+                                <option value="hr">👥 ฝ่ายบุคคล (HR)</option>
+                                <option value="manager">👔 ผู้จัดการ (Manager)</option>
+                                <option value="inventory">📦 ฝ่ายคลังสินค้า (Inventory)</option>
+                                <option value="admin">⚙️ ผู้ดูแลระบบ (Admin)</option>
+                            </select>
+                        </div>
+                    </div>
+
                     <hr>
                     <div class="text-end mt-3">
                         <button type="reset" class="btn btn-light me-2">ล้างค่า</button>

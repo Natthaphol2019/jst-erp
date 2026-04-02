@@ -27,14 +27,12 @@ class AuthController extends Controller
 
         \Log::info('=== Login Attempt ===');
         \Log::info('Username: ' . $request->username);
-        \Log::info('Password: ' . $request->password);
-        
+
         // Check if user exists
         $user = \App\Models\User::where('username', $request->username)->first();
         \Log::info('User found: ' . ($user ? 'Yes' : 'No'));
-        
+
         if ($user) {
-            \Log::info('Password hash: ' . $user->password);
             \Log::info('Password check: ' . (password_verify($request->password, $user->password) ? 'true' : 'false'));
         }
 
@@ -45,12 +43,14 @@ class AuthController extends Controller
             $user = Auth::user();
             \Log::info('User role: ' . $user->role);
 
-            // Redirect based on role
+            // 🌟 Redirect วิ่งไปตาม Role ที่ตั้งไว้ใน routes/web.php
             return match ($user->role) {
                 'admin' => redirect()->route('admin.dashboard'),
                 'manager' => redirect()->route('manager.dashboard'),
                 'employee' => redirect()->route('employee.dashboard'),
-                default => redirect()->route('dashboard'),
+                'hr' => redirect()->route('hr.dashboard'), // 👈 ชี้มาที่ Dashboard ของ HR
+                'inventory' => redirect()->route('inventory.dashboard'), // 👈 ชี้มาที่ Dashboard ของคลัง
+                default => redirect('/'),
             };
         }
 

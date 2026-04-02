@@ -6,6 +6,7 @@ use App\Models\Employee;
 use App\Models\Department;
 use App\Models\Position;
 use App\Models\TimeRecord;
+use App\Models\TimeRecordDetail;
 use Illuminate\Http\Request;
 use Carbon\CarbonPeriod;
 
@@ -112,13 +113,13 @@ class TimeRecordController extends Controller
                         $outTime = $data[$outKey] ?? null;
 
                         if ($inTime || $outTime) {
-                            \App\Models\TimeRecordDetail::updateOrCreate(
+                            TimeRecordDetail::updateOrCreate(
                                 ['time_record_id' => $tr->id, 'period_type' => $p],
                                 ['check_in_time' => $inTime, 'check_out_time' => $outTime]
                             );
                         } else {
                             // ถ้าลบเวลาบนหน้าจอ ให้ลบในฐานข้อมูลด้วย
-                            \App\Models\TimeRecordDetail::where('time_record_id', $tr->id)->where('period_type', $p)->delete();
+                            TimeRecordDetail::where('time_record_id', $tr->id)->where('period_type', $p)->delete();
                         }
                     }
                 }
