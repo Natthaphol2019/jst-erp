@@ -39,6 +39,19 @@
 @endphp
 
 @section('content')
+<style>
+@media print {
+    .no-print, .no-print *, .d-print-none { display: none !important; }
+    .sidebar, .navbar, .btn, .alert { display: none !important; }
+    .content { padding: 0 !important; margin: 0 !important; }
+    .card { border: 1px solid #dee2e6 !important; box-shadow: none !important; margin-bottom: 1rem !important; }
+    table { font-size: 10pt !important; }
+    th, td { border: 1px solid #dee2e6 !important; }
+    body { background-color: #fff !important; }
+    .container-fluid { width: 100% !important; max-width: 100% !important; }
+    @page { margin: 1.5cm; }
+}
+</style>
 
 @php
     // =========================================================
@@ -108,9 +121,14 @@
             <h2 class="fw-bold m-0 text-primary">📊 รายงานสรุปเวลาทำงาน (รายเดือน)</h2>
             <small class="text-muted">สรุปยอดวันมาทำงาน สาย ลา ขาด พร้อมคำนวณชั่วโมงทำงานและ OT อัตโนมัติ</small>
         </div>
-        <button class="btn btn-outline-success shadow-sm fw-bold px-4" onclick="window.print()">
-            🖨️ พิมพ์ภาพรวม
-        </button>
+        <div class="d-print-none">
+            <a href="{{ route('exports.time-records', ['month_year' => $selectedMonth]) }}" class="btn btn-success shadow-sm fw-bold px-4 me-2">
+                <i class="bi bi-file-earmark-excel me-1"></i> Export Excel
+            </a>
+            <button class="btn btn-outline-success shadow-sm fw-bold px-4" onclick="window.print()">
+                🖨️ พิมพ์ภาพรวม
+            </button>
+        </div>
     </div>
 
     <div class="card shadow-sm border-0 mb-4 bg-white d-print-none">

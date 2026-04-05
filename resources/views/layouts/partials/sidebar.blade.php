@@ -66,15 +66,117 @@
                 ระบบคลังสินค้า
             </div>
 
-            <a href="{{ route('inventory.items.index') }}" 
+            <a href="{{ route('inventory.items.index') }}"
                 class="sidebar-link text-decoration-none text-light px-4 py-2 d-block {{ request()->routeIs('inventory.items.*') ? 'bg-secondary border-start border-4 border-primary' : '' }}">
                 📦 รายการสินค้า/อุปกรณ์
             </a>
 
-            <a href="#" class="sidebar-link text-decoration-none text-light px-4 py-2 d-block">
-                📝 จัดการใบเบิก-ยืม
+            <a href="{{ route('inventory.categories.index') }}"
+                class="sidebar-link text-decoration-none text-light px-4 py-2 d-block {{ request()->routeIs('inventory.categories.*') ? 'bg-secondary border-start border-4 border-primary' : '' }}">
+                🏷️ จัดการหมวดหมู่สินค้า
+            </a>
+
+            <div class="text-secondary fw-bold px-3 mt-4 mb-2" style="font-size: 0.85rem; letter-spacing: 0.5px;">
+                ระบบยืม-คืนอุปกรณ์
+            </div>
+
+            <a href="{{ route('inventory.borrowing.index') }}"
+                class="sidebar-link text-decoration-none text-light px-4 py-2 d-block {{ request()->routeIs('inventory.borrowing.*') ? 'bg-secondary border-start border-4 border-primary' : '' }}">
+                🛍️ รายการยืมทั้งหมด
+            </a>
+
+            <a href="{{ route('inventory.borrowing.create') }}"
+                class="sidebar-link text-decoration-none text-light px-4 py-2 d-block {{ request()->routeIs('inventory.borrowing.create') ? 'bg-secondary border-start border-4 border-primary' : '' }}">
+                ➕ สร้างใบยืมใหม่
+            </a>
+
+            <div class="text-secondary fw-bold px-3 mt-4 mb-2" style="font-size: 0.85rem; letter-spacing: 0.5px;">
+                ระบบเบิกอุปทาน
+            </div>
+
+            <a href="{{ route('inventory.requisition.index') }}"
+                class="sidebar-link text-decoration-none text-light px-4 py-2 d-block {{ request()->routeIs('inventory.requisition.*') ? 'bg-secondary border-start border-4 border-primary' : '' }}">
+                📋 รายการเบิกทั้งหมด
+            </a>
+
+            <a href="{{ route('inventory.requisition.create') }}"
+                class="sidebar-link text-decoration-none text-light px-4 py-2 d-block {{ request()->routeIs('inventory.requisition.create') ? 'bg-secondary border-start border-4 border-primary' : '' }}">
+                ➕ สร้างใบเบิกใหม่
+            </a>
+
+            <div class="text-secondary fw-bold px-3 mt-4 mb-2" style="font-size: 0.85rem; letter-spacing: 0.5px;">
+                รายงานคลังสินค้า
+            </div>
+
+            <a href="{{ route('inventory.transactions.index') }}"
+                class="sidebar-link text-decoration-none text-light px-4 py-2 d-block {{ request()->routeIs('inventory.transactions.*') ? 'bg-secondary border-start border-4 border-primary' : '' }}">
+                📊 ประวัติเคลื่อนไหวสต๊อก
+            </a>
+
+            <a href="{{ route('inventory.transactions.summary') }}"
+                class="sidebar-link text-decoration-none text-light px-4 py-2 d-block {{ request()->routeIs('inventory.transactions.summary') ? 'bg-secondary border-start border-4 border-primary' : '' }}">
+                📈 สรุปยอดคงเหลือ
             </a>
         @endif
+    </div>
+
+    @if (auth()->user()->role === 'admin')
+    <div class="border-top border-secondary">
+        <div class="text-secondary fw-bold px-3 mt-3 mb-2" style="font-size: 0.85rem; letter-spacing: 0.5px;">
+            ระบบผู้ดูแล (Admin)
+        </div>
+
+        <a href="{{ route('admin.activity-logs.index') }}"
+            class="sidebar-link text-decoration-none text-light px-4 py-2 d-block {{ request()->routeIs('admin.activity-logs.*') ? 'bg-secondary border-start border-4 border-primary' : '' }}">
+            <i class="bi bi-clipboard2-pulse me-2"></i> บันทึกกิจกรรม
+        </a>
+
+        <div class="text-secondary fw-bold px-3 mt-3 mb-2" style="font-size: 0.85rem; letter-spacing: 0.5px;">
+            เครื่องมือระบบ
+        </div>
+
+        <a href="{{ route('admin.imports.employees.form') }}"
+            class="sidebar-link text-decoration-none text-light px-4 py-2 d-block {{ request()->routeIs('admin.imports.*') ? 'bg-secondary border-start border-4 border-primary' : '' }}">
+            <i class="bi bi-file-earmark-arrow-up me-2"></i> นําเข้าข้อมูล
+        </a>
+
+        <a href="{{ route('admin.backups.index') }}"
+            class="sidebar-link text-decoration-none text-light px-4 py-2 d-block {{ request()->routeIs('admin.backups.*') ? 'bg-secondary border-start border-4 border-primary' : '' }}">
+            <i class="bi bi-database me-2"></i> สํารองข้อมูล
+        </a>
+
+        <a href="{{ route('admin.health') }}"
+            class="sidebar-link text-decoration-none text-light px-4 py-2 d-block {{ request()->routeIs('admin.health') ? 'bg-secondary border-start border-4 border-primary' : '' }}">
+            <i class="bi bi-heart-pulse me-2"></i> ตรวจสอบระบบ
+        </a>
+    </div>
+    @endif
+
+    <div class="border-top border-secondary">
+        <div class="text-secondary fw-bold px-3 mt-3 mb-2" style="font-size: 0.85rem; letter-spacing: 0.5px;">
+            บัญชีผู้ใช้
+        </div>
+
+        @php
+            $sidebarUnreadCount = auth()->user()->unreadNotifications()->count();
+        @endphp
+        <a href="{{ route('notifications.index') }}"
+            class="sidebar-link text-decoration-none text-light px-4 py-2 d-block {{ request()->routeIs('notifications.*') ? 'bg-secondary border-start border-4 border-primary' : '' }}">
+            <i class="bi bi-bell me-2"></i> การแจ้งเตือน
+            @if($sidebarUnreadCount > 0)
+                <span class="badge bg-danger ms-1">{{ $sidebarUnreadCount > 99 ? '99+' : $sidebarUnreadCount }}</span>
+            @endif
+        </a>
+
+        <a href="{{ route('profile.edit') }}"
+            class="sidebar-link text-decoration-none text-light px-4 py-2 d-block {{ request()->routeIs('profile.edit') ? 'bg-secondary border-start border-4 border-primary' : '' }}">
+            👤 แก้ไขข้อมูลส่วนตัว
+        </a>
+
+        <a href="{{ route('profile.change-password') }}"
+            class="sidebar-link text-decoration-none text-light px-4 py-2 d-block {{ request()->routeIs('profile.change-password') ? 'bg-secondary border-start border-4 border-primary' : '' }}">
+            🔑 เปลี่ยนรหัสผ่าน
+        </a>
     </div>
 
     <div class="mt-auto border-top border-secondary bg-dark">

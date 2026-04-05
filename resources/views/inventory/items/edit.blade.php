@@ -3,7 +3,57 @@
 @section('content')
 <div class="container mx-auto p-4 max-w-3xl">
     <div class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
-        <h2 class="text-2xl font-bold mb-6">แก้ไขข้อมูลสินค้า: {{ $item->item_code }}</h2>
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="text-2xl font-bold mb-0">แก้ไขข้อมูลสินค้า: {{ $item->item_code }}</h2>
+            <div>
+                <a href="{{ route('inventory.items.print-barcode', $item->id) }}"
+                   class="btn btn-outline-primary btn-sm" target="_blank">
+                    <i class="bi bi-upc-scan me-1"></i>พิมพ์บาร์โค้ด
+                </a>
+            </div>
+        </div>
+
+        {{-- Barcode / QR Code Preview --}}
+        <div class="card mb-4">
+            <div class="card-header bg-light">
+                <strong><i class="bi bi-upc-scan me-1"></i> บาร์โค้ด / QR Code</strong>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-md-6">
+                        <h6 class="text-muted">บาร์โค้ด ({{ $item->item_code }})</h6>
+                        <img src="{{ route('inventory.items.barcode', $item->id) }}"
+                             alt="Barcode for {{ $item->item_code }}"
+                             class="img-fluid border rounded p-2"
+                             style="max-height: 80px;"
+                             loading="lazy">
+                    </div>
+                    <div class="col-md-6">
+                        <h6 class="text-muted">QR Code</h6>
+                        <img src="{{ route('inventory.items.qrcode', $item->id) }}"
+                             alt="QR Code for {{ $item->name }}"
+                             class="img-fluid border rounded p-2"
+                             style="max-height: 120px; max-width: 120px;"
+                             loading="lazy">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {{-- Success Message --}}
+        @if(session('success'))
+            <div class="alert alert-success alert-dismissible fade show mb-4">
+                <i class="bi bi-check-circle me-1"></i>{{ session('success') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        @endif
+
+        {{-- Image Upload Section --}}
+        @include('components.image-upload', [
+            'entity' => $item,
+            'type' => 'item',
+            'route' => route('uploads.item', $item->id)
+        ])
 
         <form action="{{ route('inventory.items.update', $item->id) }}" method="POST">
             @csrf

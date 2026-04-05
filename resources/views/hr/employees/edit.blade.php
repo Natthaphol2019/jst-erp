@@ -20,6 +20,21 @@
 
         <div class="card shadow-sm border-0">
             <div class="card-body p-4">
+                {{-- Success Message --}}
+                @if(session('success'))
+                    <div class="alert alert-success alert-dismissible fade show">
+                        <i class="bi bi-check-circle me-1"></i>{{ session('success') }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                @endif
+
+                {{-- Image Upload Section --}}
+                @include('components.image-upload', [
+                    'entity' => $employee,
+                    'type' => 'employee',
+                    'route' => route('uploads.employee', $employee->id)
+                ])
+
                 <form action="{{ route('hr.employees.update', $employee->id) }}" method="POST">
                     @csrf
                     @method('PUT')

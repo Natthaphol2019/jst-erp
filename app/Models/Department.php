@@ -3,10 +3,14 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Traits\ActivityLogTrait;
 
 class Department extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes, ActivityLogTrait;
+
+    protected $activityLogName = 'hr';
 
     protected $fillable = ['name', 'description', 'next_department_id'];
 

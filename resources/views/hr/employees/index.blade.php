@@ -2,22 +2,56 @@
 @section('title', 'รายชื่อพนักงาน')
 
 @section('content')
+<style>
+@media print {
+    .no-print, .no-print * { display: none !important; }
+    .sidebar, .navbar, .btn, .alert { display: none !important; }
+    .content { padding: 0 !important; margin: 0 !important; }
+    .card { border: 1px solid #dee2e6 !important; box-shadow: none !important; margin-bottom: 1rem !important; }
+    table { font-size: 10pt !important; }
+    th, td { border: 1px solid #dee2e6 !important; }
+    body { background-color: #fff !important; }
+    .container-fluid { width: 100% !important; max-width: 100% !important; }
+    @page { margin: 1.5cm; }
+}
+.print-header { display: none; }
+@media print {
+    .print-header { display: block !important; text-align: center; margin-bottom: 20px; }
+    .print-header h2 { margin: 0; font-size: 18pt; }
+    .print-header p { margin: 5px 0 0; font-size: 10pt; color: #666; }
+}
+</style>
+
+<div class="print-header">
+    <h2>รายชื่อพนักงาน</h2>
+    <p>พิมพ์เมื่อ {{ \Carbon\Carbon::now()->format('d/m/Y H:i') }}</p>
+</div>
+
 <div class="container-fluid">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
+        <div class="no-print">
             <h2 class="fw-bold m-0 text-primary">👥 รายชื่อพนักงาน</h2>
             <small class="text-muted">จัดการข้อมูล เพิ่ม ลบ แก้ไข พนักงานทั้งหมดในระบบ</small>
         </div>
-        <a href="{{ route('hr.employees.create') }}" class="btn btn-primary shadow-sm rounded-pill px-4 fw-bold">
-            <i class="bi bi-person-plus-fill me-1"></i> + เพิ่มพนักงานใหม่
-        </a>
+        <div class="d-print-none">
+            <button onclick="window.print()" class="btn btn-outline-dark shadow-sm rounded-pill px-4 fw-bold me-2">
+                <i class="bi bi-printer me-1"></i> พิมพ์
+            </button>
+            <a href="{{ route('exports.employees') }}" class="btn btn-success shadow-sm rounded-pill px-4 fw-bold me-2">
+                <i class="bi bi-file-earmark-excel me-1"></i> Export Excel
+            </a>
+            <a href="{{ route('hr.employees.create') }}" class="btn btn-primary shadow-sm rounded-pill px-4 fw-bold">
+                <i class="bi bi-person-plus-fill me-1"></i> + เพิ่มพนักงานใหม่
+            </a>
+        </div>
     </div>
+    <h2 class="d-print-block" style="display:none;">รายชื่อพนักงาน</h2>
 
     @if(session('success'))
-        <div class="alert alert-success border-0 shadow-sm"><i class="bi bi-check-circle-fill"></i> {{ session('success') }}</div>
+        <div class="alert alert-success border-0 shadow-sm no-print"><i class="bi bi-check-circle-fill"></i> {{ session('success') }}</div>
     @endif
 
-    <div class="card shadow-sm border-0 mb-4 bg-white">
+    <div class="card shadow-sm border-0 mb-4 bg-white no-print">
         <div class="card-body p-3">
             <form action="{{ route('hr.employees.index') }}" method="GET" class="row g-2">
                 <div class="col-md-4">
@@ -58,7 +92,7 @@
                             <th>แผนก</th>
                             <th>ตำแหน่ง</th>
                             <th>บัญชีผู้ใช้ (Login)</th> <th>สถานะ</th>
-                            <th>จัดการ</th>
+                            <th class="no-print">จัดการ</th>
                         </tr>
                     </thead>
                     <tbody class="bg-white">
@@ -70,7 +104,7 @@
                             </td>
                             <td><span class="badge bg-info text-dark border">{{ $emp->department->name ?? 'ไม่มีแผนก' }}</span></td>
                             <td>{{ $emp->position->name ?? '-' }}</td>
-                            
+
                             <td>
                                 @if($emp->user)
                                     <span class="badge bg-dark px-3 py-2"><i class="bi bi-person-badge me-1"></i> {{ $emp->user->username }}</span>
@@ -78,7 +112,7 @@
                                     <span class="text-danger small">ไม่มีบัญชี</span>
                                 @endif
                             </td>
-                            
+
                             <td>
                                 @if($emp->status == 'active')
                                     <span class="badge bg-success rounded-pill px-3">ทำงานอยู่</span>
@@ -88,7 +122,7 @@
                                     <span class="badge bg-danger rounded-pill px-3">ลาออก</span>
                                 @endif
                             </td>
-                            <td>
+                            <td class="no-print">
                                 <div class="btn-group shadow-sm">
                                     <a href="{{ route('hr.employees.edit', $emp->id) }}" class="btn btn-sm btn-outline-warning text-dark fw-bold">✏️ แก้ไข</a>
                                     <form action="{{ route('hr.employees.destroy', $emp->id) }}" method="POST" class="d-inline" onsubmit="return confirm('ยืนยันการลบพนักงานคนนี้หรือไม่?')">

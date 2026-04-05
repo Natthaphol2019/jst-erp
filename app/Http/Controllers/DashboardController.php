@@ -9,17 +9,23 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        $role = Auth::user()->role;
+        $user = Auth::user();
+        $role = $user->role;
 
-        // แยกหน้า Dashboard ตาม Role
-        if ($role === 'admin') {
-            return view('dashboards.admin');
-        } elseif ($role === 'hr') {
-            return view('dashboards.hr');
-        } elseif ($role === 'inventory') {
-            return view('dashboards.inventory');
-        } else {
-            return view('dashboards.employee');
+        // Redirect to role-specific dashboard
+        switch ($role) {
+            case 'admin':
+                return redirect()->route('admin.dashboard');
+            case 'hr':
+                return redirect()->route('hr.dashboard');
+            case 'inventory':
+                return redirect()->route('inventory.dashboard');
+            case 'manager':
+                return redirect()->route('manager.dashboard');
+            case 'employee':
+                return redirect()->route('employee.dashboard');
+            default:
+                return view('dashboard');
         }
     }
 }

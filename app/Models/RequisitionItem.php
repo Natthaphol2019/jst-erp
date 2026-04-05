@@ -3,9 +3,14 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Traits\ActivityLogTrait;
 
 class RequisitionItem extends Model
 {
+    use SoftDeletes, ActivityLogTrait;
+
+    protected $activityLogName = 'inventory';
     protected $fillable = [
         'requisition_id',
         'item_id',

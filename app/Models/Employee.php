@@ -4,10 +4,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Traits\ActivityLogTrait;
 
 class Employee extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes, ActivityLogTrait;
+
+    protected $activityLogName = 'hr';
 
     protected $fillable = [
         'department_id',
@@ -19,7 +22,9 @@ class Employee extends Model
         'gender',
         'start_date',
         'status',
-        'profile_image'
+        'profile_image',
+        'phone',
+        'address'
     ];
 
     public function department()

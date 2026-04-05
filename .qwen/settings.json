@@ -5,7 +5,13 @@
       "Bash(php *)",
       "Bash(get-content *)",
       "Bash(type *)",
-      "Bash(del *)"
+      "Bash(del *)",
+      "Bash(mkdir *)",
+      "Bash(composer *)",
+      "Bash(dir *)",
+      "Bash(findstr *)",
+      "Bash(tar *)",
+      "Bash(gunzip *)"
     ]
   },
   "$version": 3
