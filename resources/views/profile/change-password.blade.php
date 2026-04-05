@@ -1,134 +1,134 @@
 @extends('layouts.app')
 
+@section('title', 'เปลี่ยนรหัสผ่าน - JST ERP')
+
 @section('content')
-<div class="container-fluid">
-    <div class="row mb-4">
-        <div class="col">
-            <h2>
-                <i class="bi bi-key me-2"></i>เปลี่ยนรหัสผ่าน
-            </h2>
-        </div>
-        <div class="col text-end">
-            <a href="{{ url()->previous() }}" class="btn btn-secondary">
-                <i class="bi bi-arrow-left me-1"></i>กลับ
-            </a>
-        </div>
+
+{{-- 1. Page Header --}}
+<div class="d-flex justify-content-between align-items-start mb-4">
+    <div>
+        <h4 class="mb-1" style="font-size: 18px; font-weight: 600; color: var(--text-primary);">
+            <i class="fas fa-key me-2" style="color: #818cf8;"></i>เปลี่ยนรหัสผ่าน
+        </h4>
+        <p style="font-size: 13px; color: var(--text-muted); margin: 0;">จัดการและเปลี่ยนรหัสผ่านบัญชีของคุณ</p>
     </div>
+    <a href="{{ url()->previous() }}" class="erp-btn-secondary">
+        <i class="fas fa-arrow-left me-2"></i>กลับ
+    </a>
+</div>
 
-    {{-- Success/Error Messages --}}
-    @if(session('success'))
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            <i class="bi bi-check-circle me-1"></i>{{ session('success') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-    @endif
+{{-- Flash messages --}}
+@if(session('success'))
+    <div class="erp-alert erp-alert-success mb-4">
+        <i class="fas fa-check-circle me-2"></i>{{ session('success') }}
+    </div>
+@endif
 
-    @if($errors->any())
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            <i class="bi bi-exclamation-triangle me-1"></i>{{ $errors->first() }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-    @endif
+@if($errors->any())
+    <div class="erp-alert erp-alert-danger mb-4">
+        <i class="fas fa-exclamation-triangle me-2"></i>{{ $errors->first() }}
+    </div>
+@endif
 
-    <div class="row justify-content-center">
-        <div class="col-md-8 col-lg-6">
-            <div class="card">
-                <div class="card-header bg-warning text-dark">
-                    <i class="bi bi-shield-lock me-1"></i>ฟอร์มเปลี่ยนรหัสผ่าน
-                </div>
-                <div class="card-body">
-                    <form action="{{ route('profile.update-password') }}" method="POST">
-                        @csrf
-                        @method('PUT')
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="erp-card">
+            <div class="erp-card-header">
+                <span class="erp-card-title">
+                    <i class="fas fa-shield-alt me-2" style="color: #818cf8;"></i>ฟอร์มเปลี่ยนรหัสผ่าน
+                </span>
+            </div>
+            <div class="erp-card-body">
+                <form action="{{ route('profile.update-password') }}" method="POST">
+                    @csrf
+                    @method('PUT')
 
-                        <div class="mb-4">
-                            <label for="current_password" class="form-label required">รหัสผ่านปัจจุบัน</label>
-                            <div class="input-group">
-                                <span class="input-group-text">
-                                    <i class="bi bi-lock"></i>
-                                </span>
-                                <input type="password" name="current_password" id="current_password" 
-                                       class="form-control @error('current_password') is-invalid @enderror" 
-                                       required>
-                                <button class="btn btn-outline-secondary toggle-password" type="button" data-target="current_password">
-                                    <i class="bi bi-eye"></i>
-                                </button>
-                            </div>
-                            @error('current_password')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                            <div class="form-text">กรอกรหัสผ่านปัจจุบันของคุณ</div>
-                        </div>
-
-                        <div class="mb-4">
-                            <label for="new_password" class="form-label required">รหัสผ่านใหม่</label>
-                            <div class="input-group">
-                                <span class="input-group-text">
-                                    <i class="bi bi-lock-fill"></i>
-                                </span>
-                                <input type="password" name="new_password" id="new_password" 
-                                       class="form-control @error('new_password') is-invalid @enderror" 
-                                       required minlength="6">
-                                <button class="btn btn-outline-secondary toggle-password" type="button" data-target="new_password">
-                                    <i class="bi bi-eye"></i>
-                                </button>
-                            </div>
-                            @error('new_password')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                            <div class="form-text">รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร</div>
-                        </div>
-
-                        <div class="mb-4">
-                            <label for="new_password_confirmation" class="form-label required">ยืนยันรหัสผ่านใหม่</label>
-                            <div class="input-group">
-                                <span class="input-group-text">
-                                    <i class="bi bi-lock-fill"></i>
-                                </span>
-                                <input type="password" name="new_password_confirmation" id="new_password_confirmation" 
-                                       class="form-control" 
-                                       required minlength="6">
-                                <button class="btn btn-outline-secondary toggle-password" type="button" data-target="new_password_confirmation">
-                                    <i class="bi bi-eye"></i>
-                                </button>
-                            </div>
-                        </div>
-
-                        <div class="alert alert-info">
-                            <i class="bi bi-info-circle me-1"></i>
-                            <strong>คำแนะนำ:</strong>
-                            <ul class="mb-0 mt-2">
-                                <li>รหัสผ่านใหม่ต้องไม่ซ้ำกับรหัสผ่านปัจจุบัน</li>
-                                <li>รหัสผ่านใหม่ต้องตรงกับช่องยืนยันรหัสผ่าน</li>
-                                <li>ควรใช้รหัสผ่านที่มีทั้งตัวอักษรและตัวเลขผสมกัน</li>
-                            </ul>
-                        </div>
-
-                        <div class="d-flex justify-content-end gap-2">
-                            <a href="{{ route('profile.edit') }}" class="btn btn-secondary">
-                                <i class="bi bi-x-circle me-1"></i>ยกเลิก
-                            </a>
-                            <button type="submit" class="btn btn-warning">
-                                <i class="bi bi-check-circle me-1"></i>เปลี่ยนรหัสผ่าน
+                    <div class="mb-4">
+                        <label for="current_password" class="erp-label">รหัสผ่านปัจจุบัน</label>
+                        <div class="d-flex align-items-center" style="gap: 0;">
+                            <input type="password" name="current_password" id="current_password"
+                                   class="erp-input @error('current_password') is-invalid @enderror"
+                                   required
+                                   style="border-top-right-radius: 0; border-bottom-right-radius: 0;">
+                            <button class="erp-btn-secondary toggle-password" type="button" data-target="current_password"
+                                    style="border-top-left-radius: 0; border-bottom-left-radius: 0; padding: 0.5rem 0.75rem;">
+                                <i class="fas fa-eye"></i>
                             </button>
                         </div>
-                    </form>
-                </div>
-            </div>
+                        @error('current_password')
+                            <div class="invalid-feedback d-block">{{ $message }}</div>
+                        @enderror
+                        <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">กรอกรหัสผ่านปัจจุบันของคุณ</div>
+                    </div>
 
-            {{-- Password Tips Card --}}
-            <div class="card mt-3">
-                <div class="card-header bg-info text-white">
-                    <i class="bi bi-lightbulb me-1"></i>เคล็ดลับความปลอดภัย
-                </div>
-                <div class="card-body">
-                    <ul class="mb-0">
-                        <li>ไม่ใช้รหัสผ่านซ้ำกับบัญชีอื่น</li>
-                        <li>เปลี่ยนรหัสผ่านทุก 3 เดือน</li>
-                        <li>ไม่แชร์รหัสผ่านให้ผู้อื่นทราบ</li>
-                        <li>ออกจากระบบทุกครั้งเมื่อเลิกใช้งาน</li>
-                    </ul>
-                </div>
+                    <div class="mb-4">
+                        <label for="new_password" class="erp-label">รหัสผ่านใหม่</label>
+                        <div class="d-flex align-items-center" style="gap: 0;">
+                            <input type="password" name="new_password" id="new_password"
+                                   class="erp-input @error('new_password') is-invalid @enderror"
+                                   required minlength="6"
+                                   style="border-top-right-radius: 0; border-bottom-right-radius: 0;">
+                            <button class="erp-btn-secondary toggle-password" type="button" data-target="new_password"
+                                    style="border-top-left-radius: 0; border-bottom-left-radius: 0; padding: 0.5rem 0.75rem;">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                        @error('new_password')
+                            <div class="invalid-feedback d-block">{{ $message }}</div>
+                        @enderror
+                        <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร</div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="new_password_confirmation" class="erp-label">ยืนยันรหัสผ่านใหม่</label>
+                        <div class="d-flex align-items-center" style="gap: 0;">
+                            <input type="password" name="new_password_confirmation" id="new_password_confirmation"
+                                   class="erp-input"
+                                   required minlength="6"
+                                   style="border-top-right-radius: 0; border-bottom-right-radius: 0;">
+                            <button class="erp-btn-secondary toggle-password" type="button" data-target="new_password_confirmation"
+                                    style="border-top-left-radius: 0; border-bottom-left-radius: 0; padding: 0.5rem 0.75rem;">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="erp-alert erp-alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>คำแนะนำ:</strong>
+                        <ul class="mb-0 mt-2">
+                            <li>รหัสผ่านใหม่ต้องไม่ซ้ำกับรหัสผ่านปัจจุบัน</li>
+                            <li>รหัสผ่านใหม่ต้องตรงกับช่องยืนยันรหัสผ่าน</li>
+                            <li>ควรใช้รหัสผ่านที่มีทั้งตัวอักษรและตัวเลขผสมกัน</li>
+                        </ul>
+                    </div>
+
+                    <div class="d-flex gap-2 mt-4">
+                        <a href="{{ route('profile.edit') }}" class="erp-btn-secondary">
+                            <i class="fas fa-times me-2"></i>ยกเลิก
+                        </a>
+                        <button type="submit" class="erp-btn-primary">
+                            <i class="fas fa-check-circle me-2"></i>เปลี่ยนรหัสผ่าน
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        {{-- Password Tips Card --}}
+        <div class="erp-card mt-3">
+            <div class="erp-card-header">
+                <span class="erp-card-title">
+                    <i class="fas fa-lightbulb me-2" style="color: #818cf8;"></i>เคล็ดลับความปลอดภัย
+                </span>
+            </div>
+            <div class="erp-card-body">
+                <ul class="mb-0" style="color: var(--text-secondary);">
+                    <li>ไม่ใช้รหัสผ่านซ้ำกับบัญชีอื่น</li>
+                    <li>เปลี่ยนรหัสผ่านทุก 3 เดือน</li>
+                    <li>ไม่แชร์รหัสผ่านให้ผู้อื่นทราบ</li>
+                    <li>ออกจากระบบทุกครั้งเมื่อเลิกใช้งาน</li>
+                </ul>
             </div>
         </div>
     </div>
@@ -141,15 +141,15 @@ document.querySelectorAll('.toggle-password').forEach(button => {
         const targetId = this.dataset.target;
         const input = document.getElementById(targetId);
         const icon = this.querySelector('i');
-        
+
         if (input.type === 'password') {
             input.type = 'text';
-            icon.classList.remove('bi-eye');
-            icon.classList.add('bi-eye-slash');
+            icon.classList.remove('fa-eye');
+            icon.classList.add('fa-eye-slash');
         } else {
             input.type = 'password';
-            icon.classList.remove('bi-eye-slash');
-            icon.classList.add('bi-eye');
+            icon.classList.remove('fa-eye-slash');
+            icon.classList.add('fa-eye');
         }
     });
 });

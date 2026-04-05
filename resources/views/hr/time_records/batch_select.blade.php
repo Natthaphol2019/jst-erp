@@ -3,105 +3,117 @@
 
 @section('content')
 <div class="container-fluid">
-    <div class="d-flex justify-content-between align-items-center mb-4">
+    {{-- Page Header --}}
+    <div class="d-flex justify-content-between align-items-start mb-4">
         <div>
-            <h2 class="fw-bold m-0 text-primary">⏱️ เลือกรอบตอกบัตร (Batch Select)</h2>
-            <small class="text-muted">เลือกรอบวันที่และแผนก เพื่อเข้าสู่การบันทึกเวลาแบบละเอียด (เช้า/บ่าย/OT)</small>
+            <h4 class="mb-1" style="font-size: 18px; font-weight: 600; color: var(--text-primary);">
+                <i class="fas fa-clock me-2" style="color: #818cf8;"></i>เลือกรอบตอกบัตร (Batch Select)
+            </h4>
+            <p style="font-size: 13px; color: var(--text-muted); margin: 0;">เลือกรอบวันที่และแผนก เพื่อเข้าสู่การบันทึกเวลาแบบละเอียด (เช้า/บ่าย/OT)</p>
         </div>
     </div>
 
     @if(session('success'))
-        <div class="alert alert-success border-0 shadow-sm"><i class="bi bi-check-circle-fill"></i> {{ session('success') }}</div>
+        <div class="erp-alert erp-alert-success mb-4">
+            <i class="fas fa-check-circle me-2"></i>{{ session('success') }}
+        </div>
     @endif
     @if(session('error'))
-        <div class="alert alert-danger border-0 shadow-sm"><i class="bi bi-x-circle-fill"></i> {{ session('error') }}</div>
+        <div class="erp-alert erp-alert-danger mb-4">
+            <i class="fas fa-times-circle me-2"></i>{{ session('error') }}
+        </div>
     @endif
 
-    <div class="card shadow-sm border-0 mb-4 bg-white">
-        <div class="card-body p-4">
+    {{-- Filter Form --}}
+    <div class="erp-card mb-4">
+        <div class="erp-card-body">
             <form action="{{ route('hr.time-records.batch.select') }}" method="GET" id="filterForm">
                 <div class="row g-3">
                     <div class="col-md-6">
-                        <label class="form-label fw-bold">📅 ช่วงวันที่บันทึกเวลา</label>
-                        <div class="input-group shadow-sm">
-                            <input type="date" name="start_date" id="start_date" class="form-control" value="{{ $start_date }}" required onchange="handleAutoSubmit()">
-                            <span class="input-group-text bg-light">ถึง</span>
-                            <input type="date" name="end_date" id="end_date" class="form-control" value="{{ $end_date }}" required onchange="handleAutoSubmit()">
+                        <label class="erp-label"><i class="fas fa-calendar me-1"></i>ช่วงวันที่บันทึกเวลา</label>
+                        <div class="d-flex gap-2 mb-2">
+                            <input type="date" name="start_date" id="start_date" class="erp-input" value="{{ $start_date }}" required onchange="handleAutoSubmit()">
+                            <span class="d-flex align-items-center" style="color: var(--text-secondary);">ถึง</span>
+                            <input type="date" name="end_date" id="end_date" class="erp-input" value="{{ $end_date }}" required onchange="handleAutoSubmit()">
                         </div>
-                        <div class="mt-2 d-flex gap-2 flex-wrap">
-                            <button type="button" class="btn btn-sm btn-outline-primary rounded-pill" onclick="setDateRange('today')">วันต่อวัน</button>
-                            <button type="button" class="btn btn-sm btn-outline-primary rounded-pill" onclick="setDateRange('week')">1 สัปดาห์</button>
-                            <button type="button" class="btn btn-sm btn-outline-primary rounded-pill" onclick="setDateRange('half1')">ครึ่งเดือนแรก</button>
-                            <button type="button" class="btn btn-sm btn-outline-primary rounded-pill" onclick="setDateRange('half2')">ครึ่งเดือนหลัง</button>
-                            <button type="button" class="btn btn-sm btn-outline-primary rounded-pill" onclick="setDateRange('month')">ทั้งเดือน</button>
+                        <div class="d-flex gap-2 flex-wrap">
+                            <button type="button" class="erp-btn-secondary" style="font-size: 11px; padding: 4px 12px;" onclick="setDateRange('today')">วันต่อวัน</button>
+                            <button type="button" class="erp-btn-secondary" style="font-size: 11px; padding: 4px 12px;" onclick="setDateRange('week')">1 สัปดาห์</button>
+                            <button type="button" class="erp-btn-secondary" style="font-size: 11px; padding: 4px 12px;" onclick="setDateRange('half1')">ครึ่งเดือนแรก</button>
+                            <button type="button" class="erp-btn-secondary" style="font-size: 11px; padding: 4px 12px;" onclick="setDateRange('half2')">ครึ่งเดือนหลัง</button>
+                            <button type="button" class="erp-btn-secondary" style="font-size: 11px; padding: 4px 12px;" onclick="setDateRange('month')">ทั้งเดือน</button>
                         </div>
                     </div>
                     <div class="col-md-6">
-                        <label class="form-label fw-bold">🏢 เลือกแผนก</label>
-                        <select name="department_id" class="form-select shadow-sm" onchange="handleAutoSubmit()">
+                        <label class="erp-label"><i class="fas fa-building me-1"></i>เลือกแผนก</label>
+                        <select name="department_id" class="erp-select" onchange="handleAutoSubmit()">
                             <option value="">-- เลือกแผนก --</option>
                             @foreach($departments as $dept)
                                 <option value="{{ $dept->id }}" {{ $department_id == $dept->id ? 'selected' : '' }}>{{ $dept->name }}</option>
                             @endforeach
                         </select>
-                        <small class="text-muted d-block mt-2" id="loadingText" style="display: none !important;">
-                            <span class="spinner-border spinner-border-sm text-primary" role="status" aria-hidden="true"></span> กำลังโหลดข้อมูล...
+                        <small class="d-block mt-2" style="color: var(--text-muted); display: none !important;" id="loadingText">
+                            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> กำลังโหลดข้อมูล...
                         </small>
                     </div>
-                    </div>
+                </div>
             </form>
         </div>
     </div>
 
     @if($department_id && $employees->isNotEmpty())
-        <div class="card shadow-sm border-0 rounded-3">
-            <div class="card-header bg-white py-3 border-bottom border-2 border-primary">
-                <h5 class="m-0 fw-bold text-dark">ภาพรวมการบันทึกเวลาของแผนก : {{ $employees->first()->department->name }}</h5>
+        <div class="erp-card rounded-3">
+            <div class="erp-card-header">
+                <span class="erp-card-title">
+                    <i class="fas fa-users me-2" style="color: #818cf8;"></i>ภาพรวมการบันทึกเวลาของแผนก : {{ $employees->first()->department->name }}
+                </span>
             </div>
-            <div class="card-body p-0">
-                <div class="table-responsive">
-                    <table class="table table-hover align-middle mb-0">
-                        <thead class="table-dark">
+            <div class="erp-table-wrap">
+                <table class="erp-table">
+                    <thead>
+                        <tr>
+                            <th class="text-start">รหัสพนักงาน</th>
+                            <th class="text-start">ชื่อ - นามสกุล</th>
+                            <th class="text-center">บันทึกไปแล้ว (วัน)</th>
+                            <th class="text-center">สถานะ</th>
+                            <th class="text-center">จัดการ</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($employees as $emp)
                             <tr>
-                                <th class="ps-4">รหัสพนักงาน</th>
-                                <th>ชื่อ - นามสกุล</th>
-                                <th class="text-center">บันทึกไปแล้ว (วัน)</th>
-                                <th class="text-center">สถานะ</th>
-                                <th class="text-center">จัดการ</th>
+                                <td class="text-start" style="color: var(--text-muted);">{{ $emp->employee_code }}</td>
+                                <td class="text-start" style="color: var(--text-primary);">
+                                    {{ $emp->prefix }}{{ $emp->firstname }} {{ $emp->lastname }}
+                                </td>
+                                <td class="text-center fs-5 fw-bold {{ $emp->time_records_count > 0 ? '' : '' }}" style="color: {{ $emp->time_records_count > 0 ? '#34d399' : 'var(--text-muted)' }};">
+                                    {{ $emp->time_records_count }}
+                                </td>
+                                <td class="text-center">
+                                    @if($emp->time_records_count > 0)
+                                        <span class="erp-badge" style="background: rgba(52,211,153,0.12); color: #34d399;">
+                                            <i class="fas fa-check-circle me-1"></i>มีข้อมูลแล้ว
+                                        </span>
+                                    @else
+                                        <span class="erp-badge" style="background: rgba(239,68,68,0.12); color: #f87171;">
+                                            <i class="fas fa-exclamation-circle me-1"></i>ยังไม่บันทึก
+                                        </span>
+                                    @endif
+                                </td>
+                                <td class="text-center">
+                                    <a href="{{ route('hr.time-records.batch.form', ['employee_id' => $emp->id, 'start_date' => $start_date, 'end_date' => $end_date]) }}" class="erp-btn-primary px-4 action-btn">
+                                        <i class="fas fa-edit me-1"></i>คีย์ข้อมูลเวลา
+                                    </a>
+                                </td>
                             </tr>
-                        </thead>
-                        <tbody>
-                            @foreach($employees as $emp)
-                                <tr>
-                                    <td class="ps-4 text-muted">{{ $emp->employee_code }}</td>
-                                    <td class="fw-bold text-dark">
-                                        {{ $emp->prefix }}{{ $emp->firstname }} {{ $emp->lastname }}
-                                    </td>
-                                    <td class="text-center fs-5 fw-bold {{ $emp->time_records_count > 0 ? 'text-success' : 'text-muted' }}">
-                                        {{ $emp->time_records_count }}
-                                    </td>
-                                    <td class="text-center">
-                                        @if($emp->time_records_count > 0)
-                                            <span class="badge bg-success shadow-sm px-3 py-2"><i class="bi bi-check-circle"></i> มีข้อมูลแล้ว</span>
-                                        @else
-                                            <span class="badge bg-danger shadow-sm px-3 py-2"><i class="bi bi-exclamation-circle"></i> ยังไม่บันทึก</span>
-                                        @endif
-                                    </td>
-                                    <td class="text-center">
-                                        <a href="{{ route('hr.time-records.batch.form', ['employee_id' => $emp->id, 'start_date' => $start_date, 'end_date' => $end_date]) }}" class="btn btn-sm btn-primary px-4 shadow-sm fw-bold rounded-pill action-btn">
-                                            📝 คีย์ข้อมูลเวลา
-                                        </a>
-                                    </td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
+                        @endforeach
+                    </tbody>
+                </table>
             </div>
         </div>
     @elseif($department_id)
-        <div class="alert alert-warning text-center mt-4 shadow-sm py-4 border-0">
-            <h5 class="mb-0 text-dark">📭 ไม่พบพนักงานในแผนกที่เลือก</h5>
+        <div class="erp-alert erp-alert-warning text-center mt-4 py-4">
+            <i class="fas fa-inbox me-2"></i>ไม่พบพนักงานในแผนกที่เลือก
         </div>
     @endif
 </div>
@@ -134,22 +146,22 @@
         else if (type === 'week') {
             let lastWeek = new Date(); lastWeek.setDate(today.getDate() - 6);
             start = `${lastWeek.getFullYear()}-${String(lastWeek.getMonth()+1).padStart(2,'0')}-${String(lastWeek.getDate()).padStart(2,'0')}`;
-        } 
-        else if (type === 'half1') { start = `${y}-${m}-01`; end = `${y}-${m}-15`; } 
+        }
+        else if (type === 'half1') { start = `${y}-${m}-01`; end = `${y}-${m}-15`; }
         else if (type === 'half2') {
-            start = `${y}-${m}-16`; 
-            let lastDay = new Date(y, today.getMonth() + 1, 0).getDate();
-            end = `${y}-${m}-${lastDay}`;
-        } 
-        else if (type === 'month') {
-            start = `${y}-${m}-01`; 
+            start = `${y}-${m}-16`;
             let lastDay = new Date(y, today.getMonth() + 1, 0).getDate();
             end = `${y}-${m}-${lastDay}`;
         }
-        
+        else if (type === 'month') {
+            start = `${y}-${m}-01`;
+            let lastDay = new Date(y, today.getMonth() + 1, 0).getDate();
+            end = `${y}-${m}-${lastDay}`;
+        }
+
         document.getElementById('start_date').value = start;
         document.getElementById('end_date').value = end;
-        
+
         // เรียกใช้ handleAutoSubmit แทนการ submit ตรงๆ
         handleAutoSubmit();
     }

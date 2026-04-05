@@ -180,6 +180,7 @@ Route::middleware('auth')->group(function () {
 
         // ระบบจัดการสินค้า (Items)
         Route::resource('items', ItemController::class);
+        Route::patch('/items/{item}/toggle-status', [ItemController::class, 'toggleStatus'])->name('items.toggle-status');
 
         // ระบบจัดการหมวดหมู่สินค้า (Item Categories)
         Route::resource('categories', ItemCategoryController::class);

@@ -3,13 +3,21 @@
 
 @section('content')
     <div class="container-fluid">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2>➕ เพิ่มพนักงานใหม่</h2>
-            <a href="{{ route('hr.employees.index') }}" class="btn btn-secondary">ย้อนกลับ</a>
+        {{-- Page Header --}}
+        <div class="d-flex justify-content-between align-items-start mb-4">
+            <div>
+                <h4 class="mb-1" style="font-size: 18px; font-weight: 600; color: var(--text-primary);">
+                    <i class="fas fa-user-plus me-2" style="color: #818cf8;"></i>เพิ่มพนักงานใหม่
+                </h4>
+                <p style="font-size: 13px; color: var(--text-muted); margin: 0;">กรอกข้อมูลพนักงานใหม่เข้าสู่ระบบ</p>
+            </div>
+            <a href="{{ route('hr.employees.index') }}" class="erp-btn-secondary">
+                <i class="fas fa-arrow-left me-2"></i>ย้อนกลับ
+            </a>
         </div>
 
         @if ($errors->any())
-            <div class="alert alert-danger">
+            <div class="erp-alert erp-alert-danger">
                 <ul class="mb-0">
                     @foreach ($errors->all() as $error)
                         <li>{{ $error }}</li>
@@ -18,21 +26,23 @@
             </div>
         @endif
 
-        <div class="card shadow-sm border-0">
-            <div class="card-body p-4">
+        <div class="erp-card">
+            <div class="erp-card-body">
                 <form action="{{ route('hr.employees.store') }}" method="POST">
                     @csrf
 
-                    <h5 class="text-primary border-bottom pb-2 mb-3">ข้อมูลการทำงาน</h5>
+                    <h5 class="mb-3" style="font-size: 14px; font-weight: 600; color: #818cf8; border-bottom: 1px solid var(--border); padding-bottom: 8px;">
+                        <i class="fas fa-briefcase me-2"></i>ข้อมูลการทำงาน
+                    </h5>
                     <div class="row mb-3">
                         <div class="col-md-4">
-                            <label class="form-label">รหัสพนักงาน <span class="text-muted">(สร้างอัตโนมัติ)</span></label>
-                            <input type="text" name="employee_code" class="form-control bg-light text-primary fw-bold"
+                            <label class="erp-label">รหัสพนักงาน <span style="color: var(--text-muted);">(สร้างอัตโนมัติ)</span></label>
+                            <input type="text" name="employee_code" class="erp-input" style="color: #818cf8; font-weight: 600; background: var(--input-bg);"
                                 value="{{ $nextEmployeeCode }}" readonly>
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label">แผนก <span class="text-danger">*</span></label>
-                            <select name="department_id" id="department_id" class="form-select" required>
+                            <label class="erp-label">แผนก <span style="color: #f87171;">*</span></label>
+                            <select name="department_id" id="department_id" class="erp-select" required>
                                 <option value="">-- เลือกแผนก --</option>
                                 @foreach ($departments as $dept)
                                     <option value="{{ $dept->id }}"
@@ -42,8 +52,8 @@
                             </select>
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label">ตำแหน่ง <span class="text-danger">*</span></label>
-                            <select name="position_id" id="position_id" class="form-select" required disabled>
+                            <label class="erp-label">ตำแหน่ง <span style="color: #f87171;">*</span></label>
+                            <select name="position_id" id="position_id" class="erp-select" required disabled>
                                 <option value="">-- กรุณาเลือกแผนกก่อน --</option>
                                 @foreach ($positions as $pos)
                                     <option value="{{ $pos->id }}" data-department="{{ $pos->department_id }}">
@@ -53,80 +63,88 @@
                         </div>
                     </div>
 
-                    <h5 class="text-primary border-bottom pb-2 mb-3 mt-4">ข้อมูลส่วนตัว</h5>
+                    <h5 class="mb-3 mt-4" style="font-size: 14px; font-weight: 600; color: #818cf8; border-bottom: 1px solid var(--border); padding-bottom: 8px;">
+                        <i class="fas fa-user me-2"></i>ข้อมูลส่วนตัว
+                    </h5>
                     <div class="row mb-3">
                         <div class="col-md-2">
-                            <label class="form-label">คำนำหน้า</label>
-                            <select name="prefix" class="form-select">
+                            <label class="erp-label">คำนำหน้า</label>
+                            <select name="prefix" class="erp-select">
                                 <option value="นาย">นาย</option>
                                 <option value="นาง">นาง</option>
                                 <option value="นางสาว">นางสาว</option>
                             </select>
                         </div>
                         <div class="col-md-5">
-                            <label class="form-label">ชื่อ <span class="text-danger">*</span></label>
-                            <input type="text" name="firstname" class="form-control" required
+                            <label class="erp-label">ชื่อ <span style="color: #f87171;">*</span></label>
+                            <input type="text" name="firstname" class="erp-input" required
                                 value="{{ old('firstname') }}">
                         </div>
                         <div class="col-md-5">
-                            <label class="form-label">นามสกุล <span class="text-danger">*</span></label>
-                            <input type="text" name="lastname" class="form-control" required
+                            <label class="erp-label">นามสกุล <span style="color: #f87171;">*</span></label>
+                            <input type="text" name="lastname" class="erp-input" required
                                 value="{{ old('lastname') }}">
                         </div>
                     </div>
 
                     <div class="row mb-4">
                         <div class="col-md-4">
-                            <label class="form-label">วันที่เริ่มงาน</label>
-                            <input type="date" name="start_date" class="form-control"
+                            <label class="erp-label">วันที่เริ่มงาน</label>
+                            <input type="date" name="start_date" class="erp-input"
                                 value="{{ old('start_date', date('Y-m-d')) }}">
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label">เพศ</label>
-                            <select name="gender" class="form-select">
+                            <label class="erp-label">เพศ</label>
+                            <select name="gender" class="erp-select">
                                 <option value="male">ชาย</option>
                                 <option value="female">หญิง</option>
                                 <option value="other">อื่นๆ</option>
                             </select>
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label">สถานะ</label>
-                            <select name="status" class="form-select">
+                            <label class="erp-label">สถานะ</label>
+                            <select name="status" class="erp-select">
                                 <option value="active" selected>ทำงานอยู่</option>
                                 <option value="inactive">พักงาน</option>
                             </select>
                         </div>
                     </div>
 
-                    <h5 class="text-primary border-bottom pb-2 mb-3 mt-4">🔐 ข้อมูลการเข้าสู่ระบบ (Login)</h5>
+                    <h5 class="mb-3 mt-4" style="font-size: 14px; font-weight: 600; color: #fbbf24; border-bottom: 1px solid var(--border); padding-bottom: 8px;">
+                        <i class="fas fa-lock me-2"></i>ข้อมูลการเข้าสู่ระบบ (Login)
+                    </h5>
                     <div class="row mb-4">
                         <div class="col-md-4">
-                            <label class="form-label">ชื่อผู้ใช้งาน (Username) <span class="text-danger">*</span></label>
-                            <input type="text" name="username" class="form-control fw-bold text-primary" 
+                            <label class="erp-label">ชื่อผู้ใช้งาน (Username) <span style="color: #f87171;">*</span></label>
+                            <input type="text" name="username" class="erp-input" style="color: #818cf8; font-weight: 600;"
                                 value="{{ old('username', strtolower($nextEmployeeCode)) }}" required>
-                            <small class="text-muted">ระบบแนะนำให้ใช้รหัสพนักงาน</small>
+                            <small style="color: var(--text-muted);">ระบบแนะนำให้ใช้รหัสพนักงาน</small>
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label">รหัสผ่าน (Password)</label>
-                            <input type="text" name="password" class="form-control" placeholder="กำหนดรหัสผ่าน...">
-                            <small class="text-muted text-danger">ถ้าว่างไว้ จะใช้ <code>password123</code></small>
+                            <label class="erp-label">รหัสผ่าน (Password)</label>
+                            <input type="text" name="password" class="erp-input" placeholder="กำหนดรหัสผ่าน...">
+                            <small style="color: var(--text-muted);">ถ้าว่างไว้ จะใช้ <code>password123</code></small>
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label">สิทธิ์การใช้งานระบบ (Role) <span class="text-danger">*</span></label>
-                            <select name="role" class="form-select border-primary fw-bold" required>
-                                <option value="employee" selected>👤 พนักงานทั่วไป (Employee)</option>
-                                <option value="hr">👥 ฝ่ายบุคคล (HR)</option>
-                                <option value="manager">👔 ผู้จัดการ (Manager)</option>
-                                <option value="inventory">📦 ฝ่ายคลังสินค้า (Inventory)</option>
-                                <option value="admin">⚙️ ผู้ดูแลระบบ (Admin)</option>
+                            <label class="erp-label">สิทธิ์การใช้งานระบบ (Role) <span style="color: #f87171;">*</span></label>
+                            <select name="role" class="erp-select" required>
+                                <option value="employee" selected>พนักงานทั่วไป (Employee)</option>
+                                <option value="hr">ฝ่ายบุคคล (HR)</option>
+                                <option value="manager">ผู้จัดการ (Manager)</option>
+                                <option value="inventory">ฝ่ายคลังสินค้า (Inventory)</option>
+                                <option value="admin">ผู้ดูแลระบบ (Admin)</option>
                             </select>
                         </div>
                     </div>
 
-                    <hr>
-                    <div class="text-end mt-3">
-                        <button type="reset" class="btn btn-light me-2">ล้างค่า</button>
-                        <button type="submit" class="btn btn-primary">💾 บันทึกข้อมูล</button>
+                    <hr style="border-color: var(--border);">
+                    <div class="d-flex gap-2 justify-content-end mt-4">
+                        <button type="reset" class="erp-btn-secondary">
+                            <i class="fas fa-eraser me-2"></i>ล้างค่า
+                        </button>
+                        <button type="submit" class="erp-btn-primary">
+                            <i class="fas fa-save me-2"></i>บันทึกข้อมูล
+                        </button>
                     </div>
                 </form>
             </div>

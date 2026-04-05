@@ -11,7 +11,14 @@
       "Bash(dir *)",
       "Bash(findstr *)",
       "Bash(tar *)",
-      "Bash(gunzip *)"
+      "Bash(gunzip *)",
+      "Bash(do *)",
+      "Bash(rmdir *)",
+      "Bash(goto *)",
+      "Bash(:end)",
+      "Bash(icacls *)",
+      "Bash(git checkout *)",
+      "Bash(git add *)"
     ]
   },
   "$version": 3

@@ -3,111 +3,134 @@
 @section('title', 'การแจ้งเตือน - JST ERP')
 
 @section('content')
-<div class="container-fluid">
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="d-flex justify-content-between align-items-center">
-                <h4><i class="bi bi-bell me-2"></i>การแจ้งเตือน</h4>
-                @if($unreadCount > 0)
-                    <form action="{{ route('notifications.read-all') }}" method="POST">
-                        @csrf
-                        <button type="submit" class="btn btn-success">
-                            <i class="bi bi-check-all me-1"></i> อ่านทั้งหมด ({{ $unreadCount }})
-                        </button>
-                    </form>
-                @endif
-            </div>
-        </div>
+
+{{-- 1. Page Header --}}
+<div class="d-flex justify-content-between align-items-start mb-4">
+    <div>
+        <h4 class="mb-1" style="font-size: 18px; font-weight: 600; color: var(--text-primary);">
+            <i class="fas fa-bell me-2" style="color: #818cf8;"></i>การแจ้งเตือน
+        </h4>
+        <p style="font-size: 13px; color: var(--text-muted); margin: 0;">
+            @if($unreadCount > 0)
+                มี {{ $unreadCount }} การแจ้งเตือนที่ยังไม่อ่าน
+            @else
+                การแจ้งเตือนทั้งหมดอ่านแล้ว
+            @endif
+        </p>
     </div>
-
-    @if(session('success'))
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            <i class="bi bi-check-circle me-1"></i> {{ session('success') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
+    @if($unreadCount > 0)
+        <form action="{{ route('notifications.read-all') }}" method="POST">
+            @csrf
+            <button type="submit" class="erp-btn-primary">
+                <i class="fas fa-check-double me-2"></i>อ่านทั้งหมด ({{ $unreadCount }})
+            </button>
+        </form>
     @endif
+</div>
 
-    <div class="row">
-        <div class="col-12">
-            <div class="card shadow-sm">
-                <div class="card-body p-0">
-                    @forelse($notifications as $notification)
-                        @php
-                            $data = $notification->data;
-                            $isRead = $notification->read_at !== null;
-                            $color = $data['color'] ?? 'primary';
-                            $icon = $data['icon'] ?? 'bi-bell';
-                        @endphp
-                        <div class="notification-item p-3 border-bottom {{ $isRead ? '' : 'bg-light' }}" style="{{ $isRead ? '' : 'border-left: 4px solid ' . ($data['color'] ?? '#0d6efd') . ';' }}">
-                            <div class="row align-items-center">
-                                <div class="col-auto">
-                                    <div class="bg-{{ $color }} bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
-                                        <i class="{{ $icon }} text-{{ $color }} fs-5"></i>
-                                    </div>
+{{-- Flash messages --}}
+@if(session('success'))
+    <div class="erp-alert erp-alert-success mb-4">
+        <i class="fas fa-check-circle me-2"></i> {{ session('success') }}
+    </div>
+@endif
+
+<div class="row g-3">
+    <div class="col-12">
+        <div class="erp-card">
+            <div class="erp-card-body" style="padding: 0;">
+                @forelse($notifications as $notification)
+                    @php
+                        $data = $notification->data;
+                        $isRead = $notification->read_at !== null;
+                        $color = $data['color'] ?? 'primary';
+                        $icon = match($color) {
+                            'success' => 'fas fa-check-circle',
+                            'warning' => 'fas fa-exclamation-triangle',
+                            'danger' => 'fas fa-times-circle',
+                            'info' => 'fas fa-info-circle',
+                            default => 'fas fa-bell',
+                        };
+                    @endphp
+                    <div class="notification-item p-3"
+                         style="border-bottom: 1px solid var(--border); {{ $isRead ? '' : 'border-left: 4px solid ' . ($data['color'] ?? '#6366f1') . '; background: var(--input-bg);' }}">
+                        <div class="row align-items-center">
+                            <div class="col-auto">
+                                <div class="rounded-circle d-flex align-items-center justify-content-center"
+                                     style="width: 48px; height: 48px; background: rgba(99,102,241,0.12);">
+                                    <i class="{{ $icon }}" style="font-size: 1.25rem; color: #818cf8;"></i>
                                 </div>
-                                <div class="col">
-                                    <div class="d-flex align-items-center mb-1">
-                                        <h6 class="mb-0 me-2 {{ $isRead ? 'text-muted' : 'fw-bold' }}">
-                                            {{ $data['title'] ?? 'การแจ้งเตือน' }}
-                                        </h6>
+                            </div>
+                            <div class="col">
+                                <div class="d-flex align-items-center mb-1">
+                                    <h6 class="mb-0 me-2" style="font-size: 14px; font-weight: {{ $isRead ? '400' : '600' }}; color: var(--text-primary);">
+                                        {{ $data['title'] ?? 'การแจ้งเตือน' }}
+                                    </h6>
+                                    @if(!$isRead)
+                                        <span class="erp-badge" style="background: rgba(99,102,241,0.12); color: #818cf8; font-size: 11px; padding: 2px 8px;">
+                                            ใหม่
+                                        </span>
+                                    @endif
+                                </div>
+                                <p style="font-size: 13px; color: var(--text-secondary); margin: 0 0 4px;">{{ $data['message'] ?? '' }}</p>
+                                <small style="font-size: 11px; color: var(--text-muted);">
+                                    <i class="fas fa-clock me-1"></i>{{ $notification->created_at->format('d/m/Y H:i') }}
+                                    ({{ $notification->created_at->diffForHumans() }})
+                                </small>
+                            </div>
+                            <div class="col-auto">
+                                <div class="d-flex gap-2">
+                                    @if(isset($data['action_url']))
                                         @if(!$isRead)
-                                            <span class="badge bg-{{ $color }}">ใหม่</span>
+                                            <form action="{{ route('notifications.read', $notification->id) }}" method="POST">
+                                                @csrf
+                                                <button type="submit" class="erp-btn-secondary" style="padding: 4px 12px; font-size: 12px;" title="อ่านและเปิดดู">
+                                                    <i class="fas fa-external-link-alt me-1"></i> {{ $data['action_text'] ?? 'ดู' }}
+                                                </button>
+                                            </form>
+                                        @else
+                                            <a href="{{ $data['action_url'] }}" class="erp-btn-secondary" style="padding: 4px 12px; font-size: 12px;">
+                                                <i class="fas fa-eye me-1"></i> ดู
+                                            </a>
                                         @endif
-                                    </div>
-                                    <p class="text-muted mb-1">{{ $data['message'] ?? '' }}</p>
-                                    <small class="text-muted">
-                                        <i class="bi bi-clock me-1"></i>{{ $notification->created_at->format('d/m/Y H:i') }}
-                                        ({{ $notification->created_at->diffForHumans() }})
-                                    </small>
-                                </div>
-                                <div class="col-auto">
-                                    <div class="d-flex gap-2">
-                                        @if(isset($data['action_url']))
-                                            @if(!$isRead)
-                                                <form action="{{ route('notifications.read', $notification->id) }}" method="POST">
-                                                    @csrf
-                                                    <button type="submit" class="btn btn-sm btn-outline-{{ $color }}" title="อ่านและเปิดดู">
-                                                        <i class="bi bi-box-arrow-up-right"></i> {{ $data['action_text'] ?? 'ดู' }}
-                                                    </button>
-                                                </form>
-                                            @else
-                                                <a href="{{ $data['action_url'] }}" class="btn btn-sm btn-outline-secondary">
-                                                    <i class="bi bi-eye"></i> ดู
-                                                </a>
-                                            @endif
-                                        @endif
-                                    </div>
+                                    @endif
                                 </div>
                             </div>
                         </div>
-                    @empty
-                        <div class="text-center py-5 text-muted">
-                            <i class="bi bi-bell-slash" style="font-size: 3rem;"></i>
-                            <h5 class="mt-3">ไม่มีการแจ้งเตือน</h5>
-                            <p>คุณจะได้รับการแจ้งเตือนเมื่อมีเหตุการณ์สำคัญในระบบ</p>
-                        </div>
-                    @endforelse
+                    </div>
+                @empty
+                    <div class="erp-empty">
+                        <i class="fas fa-bell-slash"></i>
+                        <div>ไม่มีการแจ้งเตือน</div>
+                        <p style="font-size: 13px; color: var(--text-muted); margin-top: 8px;">คุณจะได้รับการแจ้งเตือนเมื่อมีเหตุการณ์สำคัญในระบบ</p>
+                    </div>
+                @endforelse
+            </div>
+        </div>
+
+        <!-- Pagination -->
+        @if($notifications->hasPages())
+            <div style="padding: 16px; border-top: 1px solid var(--border);">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div style="font-size: 13px; color: var(--text-secondary);">
+                        แสดง <strong style="color: var(--text-primary);">{{ $notifications->firstItem() }}</strong> ถึง <strong style="color: var(--text-primary);">{{ $notifications->lastItem() }}</strong> จาก <strong style="color: var(--text-primary);">{{ $notifications->total() }}</strong> รายการ
+                    </div>
+                    {{ $notifications->links() }}
                 </div>
             </div>
-
-            <!-- Pagination -->
-            @if($notifications->hasPages())
-                <div class="d-flex justify-content-center mt-3">
-                    {{ $notifications->links('pagination::bootstrap-5') }}
-                </div>
-            @endif
-        </div>
+        @endif
     </div>
 </div>
+
 @endsection
 
 @push('styles')
 <style>
     .notification-item:hover {
-        background-color: #f8f9fa !important;
+        background-color: var(--input-bg) !important;
     }
-    .notification-item:not(.bg-light) {
-        border-left: 4px solid #dee2e6;
+    .notification-item:not([style*="border-left"]) {
+        border-left: 4px solid var(--border);
     }
 </style>
 @endpush

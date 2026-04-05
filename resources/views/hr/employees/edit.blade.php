@@ -3,13 +3,21 @@
 
 @section('content')
     <div class="container-fluid">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2>✏️ แก้ไขข้อมูล: {{ $employee->employee_code }}</h2>
-            <a href="{{ route('hr.employees.index') }}" class="btn btn-secondary">ย้อนกลับ</a>
+        {{-- Page Header --}}
+        <div class="d-flex justify-content-between align-items-start mb-4">
+            <div>
+                <h4 class="mb-1" style="font-size: 18px; font-weight: 600; color: var(--text-primary);">
+                    <i class="fas fa-user-edit me-2" style="color: #818cf8;"></i>แก้ไขข้อมูล: {{ $employee->employee_code }}
+                </h4>
+                <p style="font-size: 13px; color: var(--text-muted); margin: 0;">แก้ไขข้อมูลพนักงานในระบบ</p>
+            </div>
+            <a href="{{ route('hr.employees.index') }}" class="erp-btn-secondary">
+                <i class="fas fa-arrow-left me-2"></i>ย้อนกลับ
+            </a>
         </div>
 
         @if ($errors->any())
-            <div class="alert alert-danger">
+            <div class="erp-alert erp-alert-danger">
                 <ul class="mb-0">
                     @foreach ($errors->all() as $error)
                         <li>{{ $error }}</li>
@@ -18,12 +26,12 @@
             </div>
         @endif
 
-        <div class="card shadow-sm border-0">
-            <div class="card-body p-4">
+        <div class="erp-card">
+            <div class="erp-card-body">
                 {{-- Success Message --}}
                 @if(session('success'))
-                    <div class="alert alert-success alert-dismissible fade show">
-                        <i class="bi bi-check-circle me-1"></i>{{ session('success') }}
+                    <div class="erp-alert erp-alert-success">
+                        <i class="fas fa-check-circle me-2"></i>{{ session('success') }}
                         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                     </div>
                 @endif
@@ -39,17 +47,18 @@
                     @csrf
                     @method('PUT')
 
-                    <h5 class="text-primary border-bottom pb-2 mb-3">ข้อมูลการทำงาน</h5>
+                    <h5 class="mb-3" style="font-size: 14px; font-weight: 600; color: #818cf8; border-bottom: 1px solid var(--border); padding-bottom: 8px;">
+                        <i class="fas fa-briefcase me-2"></i>ข้อมูลการทำงาน
+                    </h5>
                     <div class="row mb-3">
                         <div class="col-md-4">
-                            <label class="form-label">รหัสพนักงาน <span
-                                    class="text-muted">(ไม่สามารถแก้ไขได้)</span></label>
-                            <input type="text" name="employee_code" class="form-control bg-light text-primary fw-bold"
+                            <label class="erp-label">รหัสพนักงาน <span style="color: var(--text-muted);">(ไม่สามารถแก้ไขได้)</span></label>
+                            <input type="text" name="employee_code" class="erp-input" style="color: #818cf8; font-weight: 600; background: var(--input-bg);"
                                 value="{{ $employee->employee_code }}" readonly>
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label">แผนก <span class="text-danger">*</span></label>
-                            <select name="department_id" id="department_id" class="form-select" required>
+                            <label class="erp-label">แผนก <span style="color: #f87171;">*</span></label>
+                            <select name="department_id" id="department_id" class="erp-select" required>
                                 @foreach ($departments as $dept)
                                     <option value="{{ $dept->id }}"
                                         {{ $employee->department_id == $dept->id ? 'selected' : '' }}>
@@ -59,8 +68,8 @@
                             </select>
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label">ตำแหน่ง <span class="text-danger">*</span></label>
-                            <select name="position_id" id="position_id" class="form-select" required>
+                            <label class="erp-label">ตำแหน่ง <span style="color: #f87171;">*</span></label>
+                            <select name="position_id" id="position_id" class="erp-select" required>
                                 @foreach ($positions as $pos)
                                     <option value="{{ $pos->id }}" data-department="{{ $pos->department_id }}"
                                         {{ $employee->position_id == $pos->id ? 'selected' : '' }}
@@ -72,11 +81,13 @@
                         </div>
                     </div>
 
-                    <h5 class="text-primary border-bottom pb-2 mb-3 mt-4">ข้อมูลส่วนตัว</h5>
+                    <h5 class="mb-3 mt-4" style="font-size: 14px; font-weight: 600; color: #818cf8; border-bottom: 1px solid var(--border); padding-bottom: 8px;">
+                        <i class="fas fa-user me-2"></i>ข้อมูลส่วนตัว
+                    </h5>
                     <div class="row mb-3">
                         <div class="col-md-2">
-                            <label class="form-label">คำนำหน้า</label>
-                            <select name="prefix" class="form-select">
+                            <label class="erp-label">คำนำหน้า</label>
+                            <select name="prefix" class="erp-select">
                                 <option value="นาย" {{ $employee->prefix == 'นาย' ? 'selected' : '' }}>นาย</option>
                                 <option value="นาง" {{ $employee->prefix == 'นาง' ? 'selected' : '' }}>นาง</option>
                                 <option value="นางสาว" {{ $employee->prefix == 'นางสาว' ? 'selected' : '' }}>นางสาว
@@ -84,34 +95,34 @@
                             </select>
                         </div>
                         <div class="col-md-5">
-                            <label class="form-label">ชื่อ <span class="text-danger">*</span></label>
-                            <input type="text" name="firstname" class="form-control" value="{{ $employee->firstname }}"
+                            <label class="erp-label">ชื่อ <span style="color: #f87171;">*</span></label>
+                            <input type="text" name="firstname" class="erp-input" value="{{ $employee->firstname }}"
                                 required>
                         </div>
                         <div class="col-md-5">
-                            <label class="form-label">นามสกุล <span class="text-danger">*</span></label>
-                            <input type="text" name="lastname" class="form-control" value="{{ $employee->lastname }}"
+                            <label class="erp-label">นามสกุล <span style="color: #f87171;">*</span></label>
+                            <input type="text" name="lastname" class="erp-input" value="{{ $employee->lastname }}"
                                 required>
                         </div>
                     </div>
 
                     <div class="row mb-4">
                         <div class="col-md-4">
-                            <label class="form-label">วันที่เริ่มงาน</label>
-                            <input type="date" name="start_date" class="form-control"
+                            <label class="erp-label">วันที่เริ่มงาน</label>
+                            <input type="date" name="start_date" class="erp-input"
                                 value="{{ $employee->start_date }}">
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label">เพศ</label>
-                            <select name="gender" class="form-select">
+                            <label class="erp-label">เพศ</label>
+                            <select name="gender" class="erp-select">
                                 <option value="male" {{ $employee->gender == 'male' ? 'selected' : '' }}>ชาย</option>
                                 <option value="female" {{ $employee->gender == 'female' ? 'selected' : '' }}>หญิง</option>
                                 <option value="other" {{ $employee->gender == 'other' ? 'selected' : '' }}>อื่นๆ</option>
                             </select>
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label">สถานะ</label>
-                            <select name="status" class="form-select">
+                            <label class="erp-label">สถานะ</label>
+                            <select name="status" class="erp-select">
                                 <option value="active" {{ $employee->status == 'active' ? 'selected' : '' }}>ทำงานอยู่
                                 </option>
                                 <option value="inactive" {{ $employee->status == 'inactive' ? 'selected' : '' }}>พักงาน
@@ -122,44 +133,42 @@
                         </div>
                     </div>
 
-                    <h5 class="text-warning border-bottom border-warning pb-2 mb-3 mt-4">🔐 ข้อมูลเข้าระบบ & เปลี่ยนรหัสผ่าน
+                    <h5 class="mb-3 mt-4" style="font-size: 14px; font-weight: 600; color: #fbbf24; border-bottom: 1px solid rgba(251,191,36,0.2); padding-bottom: 8px;">
+                        <i class="fas fa-lock me-2"></i>ข้อมูลเข้าระบบ & เปลี่ยนรหัสผ่าน
                     </h5>
                     <div class="row mb-4">
                         <div class="col-md-4">
-                            <label class="form-label">ชื่อผู้ใช้งาน (Username)</label>
-                            <input type="text" class="form-control bg-light text-muted"
+                            <label class="erp-label">ชื่อผู้ใช้งาน (Username)</label>
+                            <input type="text" class="erp-input" style="color: var(--text-muted); background: var(--input-bg);"
                                 value="{{ $employee->user ? $employee->user->username : 'ไม่มีบัญชี' }}" readonly>
-                            <small class="text-danger"><i class="bi bi-lock-fill"></i> ไม่สามารถแก้ไขได้</small>
+                            <small style="color: #f87171;"><i class="fas fa-lock"></i> ไม่สามารถแก้ไขได้</small>
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label text-danger fw-bold">ตั้งรหัสผ่านใหม่</label>
-                            <input type="text" name="password" class="form-control border-danger"
+                            <label class="erp-label" style="color: #f87171; font-weight: 600;">ตั้งรหัสผ่านใหม่</label>
+                            <input type="text" name="password" class="erp-input" style="border-color: rgba(248,113,113,0.3);"
                                 placeholder="พิมพ์รหัสผ่านใหม่ที่นี่...">
-                            <small class="text-muted">หากไม่เปลี่ยน <strong>ให้ปล่อยว่างไว้</strong></small>
+                            <small style="color: var(--text-muted);">หากไม่เปลี่ยน <strong>ให้ปล่อยว่างไว้</strong></small>
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label">สิทธิ์การใช้งานระบบ (Role) <span class="text-danger">*</span></label>
+                            <label class="erp-label">สิทธิ์การใช้งานระบบ (Role) <span style="color: #f87171;">*</span></label>
                             @php
                                 $currentRole = $employee->user ? $employee->user->role : 'employee';
                             @endphp
-                            <select name="role" class="form-select border-warning fw-bold" required>
-                                <option value="employee" {{ $currentRole == 'employee' ? 'selected' : '' }}>👤
-                                    พนักงานทั่วไป (Employee)</option>
-                                <option value="hr" {{ $currentRole == 'hr' ? 'selected' : '' }}>👥 ฝ่ายบุคคล (HR)
-                                </option>
-                                <option value="manager" {{ $currentRole == 'manager' ? 'selected' : '' }}>👔 ผู้จัดการ
-                                    (Manager)</option>
-                                <option value="inventory" {{ $currentRole == 'inventory' ? 'selected' : '' }}>📦
-                                    ฝ่ายคลังสินค้า (Inventory)</option>
-                                <option value="admin" {{ $currentRole == 'admin' ? 'selected' : '' }}>⚙️ ผู้ดูแลระบบ
-                                    (Admin)</option>
+                            <select name="role" class="erp-select" required>
+                                <option value="employee" {{ $currentRole == 'employee' ? 'selected' : '' }}>พนักงานทั่วไป (Employee)</option>
+                                <option value="hr" {{ $currentRole == 'hr' ? 'selected' : '' }}>ฝ่ายบุคคล (HR)</option>
+                                <option value="manager" {{ $currentRole == 'manager' ? 'selected' : '' }}>ผู้จัดการ (Manager)</option>
+                                <option value="inventory" {{ $currentRole == 'inventory' ? 'selected' : '' }}>ฝ่ายคลังสินค้า (Inventory)</option>
+                                <option value="admin" {{ $currentRole == 'admin' ? 'selected' : '' }}>ผู้ดูแลระบบ (Admin)</option>
                             </select>
                         </div>
                     </div>
 
-                    <hr>
-                    <div class="text-end mt-3">
-                        <button type="submit" class="btn btn-warning">💾 อัปเดตข้อมูล</button>
+                    <hr style="border-color: var(--border);">
+                    <div class="d-flex gap-2 justify-content-end mt-4">
+                        <button type="submit" class="erp-btn-primary" style="background: rgba(251,191,36,0.12); color: #fbbf24; border: 1px solid rgba(251,191,36,0.2);">
+                            <i class="fas fa-save me-2"></i>อัปเดตข้อมูล
+                        </button>
                     </div>
                 </form>
             </div>

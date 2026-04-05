@@ -3,88 +3,128 @@
     $unreadCount = auth()->user()->unreadNotifications()->count();
 @endphp
 
-<div class="d-flex justify-content-end align-items-center mb-3 bg-white p-2 rounded shadow-sm">
+<div class="d-flex align-items-center px-4 mb-3"
+     style="height: 58px; background: var(--topbar-bg); border-bottom: 1px solid var(--topbar-border); gap: 12px;">
 
-    <!-- Global Search -->
-    <div class="position-relative me-3" style="min-width: 320px;">
-        <div class="input-group">
-            <span class="input-group-text bg-light border-0">
-                <i class="bi bi-search"></i>
-            </span>
-            <input type="text" id="globalSearch" class="form-control border-0 bg-light"
-                   placeholder="ค้นหา... (Ctrl+K)" autocomplete="off"
-                   aria-label="Global search">
-            <span class="input-group-text bg-light border-0" id="searchShortcutHint"
-                  style="font-size: 0.7rem; color: #6c757d; cursor: pointer;"
-                  title="Press Ctrl+K or / to focus">
-                <kbd class="d-none d-md-inline">Ctrl+K</kbd>
-            </span>
+    {{-- Global Search --}}
+    <div class="position-relative" style="flex: 1; max-width: 380px;">
+        <div class="d-flex align-items-center px-3 gap-2"
+             style="height: 36px; background: var(--input-bg); border: 1px solid var(--input-border);
+                    border-radius: 10px; transition: border-color 0.15s;"
+             id="searchContainer">
+            <i class="fas fa-search" style="color: var(--text-muted); font-size: 13px; flex-shrink: 0;"></i>
+            <input type="text" id="globalSearch"
+                   class="border-0 bg-transparent flex-grow-1"
+                   placeholder="ค้นหา... (Ctrl+K)"
+                   autocomplete="off" aria-label="Global search"
+                   style="outline: none; color: var(--text-primary); font-size: 13px; font-family: inherit;">
+            <kbd style="font-size: 10px; padding: 2px 7px; border-radius: 5px;
+                        border: 1px solid var(--input-border); color: var(--text-muted);
+                        background: none; white-space: nowrap; display: none;" class="d-md-inline" id="searchKbd">
+                Ctrl+K
+            </kbd>
         </div>
-        <div id="searchResults" class="position-absolute w-100 bg-white shadow rounded mt-1"
-             style="z-index: 1050; max-height: 500px; overflow-y: auto; display: none; min-width: 400px;">
+
+        <div id="searchResults"
+             class="position-absolute w-100 shadow rounded-3 mt-1"
+             style="z-index: 1050; max-height: 480px; overflow-y: auto; display: none; min-width: 380px;
+                    background: var(--dropdown-bg); border: 1px solid var(--border);">
         </div>
     </div>
 
-    <!-- Notification Bell -->
-    <div class="dropdown me-3">
-        <button class="btn btn-light position-relative" type="button" id="notificationDropdown" data-bs-toggle="dropdown" aria-expanded="false" style="font-size: 1.25rem;">
-            <i class="bi bi-bell"></i>
+    <div style="flex: 1;"></div>
+
+    {{-- ── Theme Toggle Button ── --}}
+    <button class="theme-toggle-btn" data-theme-toggle onclick="toggleTheme()" title="สลับ Dark Mode" aria-label="Toggle theme">
+        <i class="fas fa-moon"></i>
+    </button>
+
+    {{-- Notification Bell --}}
+    <div class="dropdown">
+        <button class="d-flex align-items-center justify-content-center position-relative border-0"
+                type="button" id="notificationDropdown" data-bs-toggle="dropdown" aria-expanded="false"
+                style="width: 36px; height: 36px; border-radius: 10px; background: var(--input-bg);
+                       border: 1px solid var(--input-border);
+                       color: var(--text-secondary); cursor: pointer; transition: all 0.15s;">
+            <i class="fas fa-bell" style="font-size: 15px;"></i>
             @if($unreadCount > 0)
-                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" id="notificationBadge" style="font-size: 0.65rem;">
-                    {{ $unreadCount > 99 ? '99+' : $unreadCount }}
-                </span>
+                <span class="position-absolute bg-danger rounded-circle border"
+                      style="width: 8px; height: 8px; top: 6px; right: 6px;
+                             border-color: var(--topbar-bg) !important; border-width: 1.5px !important;"></span>
             @endif
         </button>
-        <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="notificationDropdown" style="width: 380px; max-height: 480px; overflow-y: auto;">
-            <li class="dropdown-header d-flex justify-content-between align-items-center">
-                <strong>การแจ้งเตือน</strong>
+
+        <ul class="dropdown-menu dropdown-menu-end shadow-lg"
+            aria-labelledby="notificationDropdown"
+            style="width: 360px; max-height: 460px; overflow-y: auto;
+                   background: var(--dropdown-bg);
+                   border: 1px solid var(--border); border-radius: 12px; padding: 4px;">
+
+            <li class="d-flex justify-content-between align-items-center px-3 py-2">
+                <span style="font-size: 13px; font-weight: 600; color: var(--text-primary);">การแจ้งเตือน</span>
                 @if($unreadCount > 0)
-                    <span class="badge bg-danger">{{ $unreadCount }} รายการยังไม่อ่าน</span>
+                    <span style="font-size: 11px; padding: 2px 8px; border-radius: 10px;
+                                 background: rgba(239,68,68,0.15); color: #f87171; font-weight: 600;">
+                        {{ $unreadCount }} ยังไม่อ่าน
+                    </span>
                 @else
-                    <span class="badge bg-secondary">ไม่มีรายการใหม่</span>
+                    <span style="font-size: 11px; padding: 2px 8px; border-radius: 10px;
+                                 background: var(--input-bg); color: var(--text-muted);">
+                        ไม่มีรายการใหม่
+                    </span>
                 @endif
             </li>
-            <li><hr class="dropdown-divider"></li>
+            <li><hr class="dropdown-divider" style="border-color: var(--border); margin: 2px 0;"></li>
 
             @forelse($unreadNotifications as $notification)
                 <li>
                     <form action="{{ route('notifications.read', $notification->id) }}" method="POST" class="m-0">
                         @csrf
-                        <button type="submit" class="dropdown-item py-2 {{ $notification->read_at ? 'text-muted' : '' }}" style="{{ $notification->read_at ? '' : 'background-color: #f0f7ff; border-left: 3px solid ' . ($notification->data['color'] ?? '#0d6efd') . ';' }}">
-                            <div class="d-flex align-items-start">
-                                <div class="me-2">
-                                    <i class="{{ $notification->data['icon'] ?? 'bi-bell' }} text-{{ $notification->data['color'] ?? 'primary' }}" style="font-size: 1.1rem;"></i>
-                                </div>
-                                <div class="flex-grow-1">
-                                    <div class="fw-bold text-{{ $notification->data['color'] ?? 'primary' }}">{{ $notification->data['title'] ?? 'การแจ้งเตือน' }}</div>
-                                    <small class="text-muted d-block">{{ Str::limit($notification->data['message'] ?? '', 80) }}</small>
-                                    <small class="text-muted">{{ $notification->created_at->diffForHumans() }}</small>
+                        <button type="submit"
+                                class="dropdown-item py-2 px-3 rounded-2"
+                                style="{{ $notification->read_at ? 'opacity: 0.5;' : 'background: rgba(99,102,241,0.08); border-left: 2px solid ' . ($notification->data['color'] ?? '#6366f1') . ';' }} color: var(--text-secondary);">
+                            <div class="d-flex align-items-start gap-2">
+                                <i class="{{ $notification->data['icon'] ?? 'fas fa-bell' }}"
+                                   style="font-size: 14px; color: {{ $notification->data['color'] ?? '#818cf8' }}; margin-top: 2px; flex-shrink: 0;"></i>
+                                <div style="flex: 1; min-width: 0;">
+                                    <div style="font-size: 12px; font-weight: 600; color: var(--text-primary); margin-bottom: 2px;">
+                                        {{ $notification->data['title'] ?? 'การแจ้งเตือน' }}
+                                    </div>
+                                    <div style="font-size: 11px; color: var(--text-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                        {{ Str::limit($notification->data['message'] ?? '', 80) }}
+                                    </div>
+                                    <div style="font-size: 11px; color: var(--text-muted); margin-top: 2px;">
+                                        {{ $notification->created_at->diffForHumans() }}
+                                    </div>
                                 </div>
                             </div>
                         </button>
                     </form>
                 </li>
-                <li><hr class="dropdown-divider m-0"></li>
+                <li><hr class="dropdown-divider" style="border-color: var(--border); margin: 2px 0;"></li>
             @empty
                 <li>
-                    <div class="dropdown-item text-center text-muted py-4">
-                        <i class="bi bi-bell-slash" style="font-size: 2rem;"></i>
-                        <div class="mt-2">ไม่มีการแจ้งเตือน</div>
+                    <div class="text-center py-4" style="color: var(--text-muted);">
+                        <i class="fas fa-bell-slash" style="font-size: 28px; display: block; margin-bottom: 8px;"></i>
+                        <span style="font-size: 13px;">ไม่มีการแจ้งเตือน</span>
                     </div>
                 </li>
             @endforelse
 
-            <li><hr class="dropdown-divider"></li>
+            <li><hr class="dropdown-divider" style="border-color: var(--border); margin: 2px 0;"></li>
             <li>
-                <div class="dropdown-item d-flex justify-content-between align-items-center py-2">
-                    <a href="{{ route('notifications.index') }}" class="btn btn-sm btn-outline-primary">
-                        <i class="bi bi-bell me-1"></i> ดูการแจ้งเตือนทั้งหมด
+                <div class="d-flex justify-content-between align-items-center px-3 py-2 gap-2">
+                    <a href="{{ route('notifications.index') }}"
+                       class="erp-btn-secondary"
+                       style="font-size: 12px;">
+                        <i class="fas fa-bell me-1"></i> ดูทั้งหมด
                     </a>
                     @if($unreadCount > 0)
-                        <form action="{{ route('notifications.read-all') }}" method="POST">
+                        <form action="{{ route('notifications.read-all') }}" method="POST" class="m-0">
                             @csrf
-                            <button type="submit" class="btn btn-sm btn-outline-success">
-                                <i class="bi bi-check-all me-1"></i> อ่านทั้งหมด
+                            <button type="submit" class="erp-btn-secondary"
+                                    style="font-size: 12px;">
+                                <i class="fas fa-check-double me-1"></i> อ่านทั้งหมด
                             </button>
                         </form>
                     @endif
@@ -93,52 +133,69 @@
         </ul>
     </div>
 
-    <!-- User Info -->
-    <span class="me-2">
-        ผู้ใช้งาน: <strong>{{ auth()->user()->name }}</strong>
-        <span class="badge bg-primary ms-1">{{ strtoupper(auth()->user()->role) }}</span>
-    </span>
+    {{-- Divider --}}
+    <div style="width: 1px; height: 24px; background: var(--border);"></div>
+
+    {{-- User Info --}}
+    <div class="d-flex align-items-center gap-2" style="cursor: default;">
+        <div class="d-flex align-items-center justify-content-center rounded-circle fw-semibold"
+             style="width: 32px; height: 32px; background: linear-gradient(135deg, #06b6d4, #3b82f6);
+                    color: white; font-size: 12px; flex-shrink: 0;">
+            {{ strtoupper(substr(auth()->user()->name, 0, 2)) }}
+        </div>
+        <div class="d-none d-md-block">
+            <div style="font-size: 13px; font-weight: 500; color: var(--text-primary); line-height: 1.2;">
+                {{ auth()->user()->name }}
+            </div>
+            <div style="font-size: 10px; color: var(--text-muted); line-height: 1.2;">
+                {{ strtoupper(auth()->user()->role) }}
+            </div>
+        </div>
+        <span style="font-size: 10px; padding: 2px 8px; border-radius: 10px;
+                     background: rgba(99,102,241,0.15); color: #818cf8; font-weight: 600;
+                     letter-spacing: 0.05em; white-space: nowrap;">
+            {{ strtoupper(auth()->user()->role) }}
+        </span>
+    </div>
 </div>
 
-<!-- Bootstrap Icons CDN -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+<style>
+    #searchContainer:focus-within {
+        border-color: rgba(99,102,241,0.5) !important;
+        background: var(--input-focus-bg) !important;
+    }
+    #notificationDropdown:hover {
+        background: var(--sb-hover-bg) !important;
+        color: var(--text-primary) !important;
+    }
+</style>
 
-<!-- Global Search Script -->
+{{-- Global Search Script --}}
 <script>
-(function() {
-    const searchInput = document.getElementById('globalSearch');
+(function () {
+    const searchInput   = document.getElementById('globalSearch');
     const searchResults = document.getElementById('searchResults');
     let debounceTimer = null;
-    let currentXhr = null;
+    let currentXhr    = null;
 
     if (!searchInput || !searchResults) return;
 
-    // Icon mapping for Bootstrap Icons
     const groupConfig = {
-        employees:     { label: 'พนักงาน',     icon: 'bi-person-badge',  color: 'primary' },
-        items:         { label: 'สินค้า',        icon: 'bi-box-seam',      color: 'success' },
-        requisitions:  { label: 'ใบเบิก',        icon: 'bi-file-earmark-text', color: 'warning' },
-        departments:   { label: 'แผนก',          icon: 'bi-building',      color: 'info' },
-        positions:     { label: 'ตำแหน่ง',       icon: 'bi-briefcase',     color: 'secondary' },
+        employees:    { label: 'พนักงาน',   icon: 'fas fa-user-tie',      color: '#818cf8' },
+        items:        { label: 'สินค้า',     icon: 'fas fa-box',          color: '#34d399' },
+        requisitions: { label: 'ใบเบิก',     icon: 'fas fa-file-alt', color: '#fbbf24' },
+        departments:  { label: 'แผนก',       icon: 'fas fa-building',          color: '#38bdf8' },
+        positions:    { label: 'ตำแหน่ง',    icon: 'fas fa-briefcase',          color: '#a78bfa' },
     };
 
     function performSearch(query) {
-        if (query.length < 2) {
-            searchResults.style.display = 'none';
-            return;
-        }
-
-        if (currentXhr) {
-            currentXhr.abort();
-        }
-
+        if (query.length < 2) { searchResults.style.display = 'none'; return; }
+        if (currentXhr) currentXhr.abort();
         currentXhr = new XMLHttpRequest();
-        currentXhr.onreadystatechange = function() {
+        currentXhr.onreadystatechange = function () {
             if (currentXhr.readyState === 4) {
                 currentXhr = null;
-                if (this.status === 200) {
-                    renderResults(JSON.parse(this.responseText));
-                }
+                if (this.status === 200) renderResults(JSON.parse(this.responseText));
             }
         };
         currentXhr.open('GET', '{{ route('search') }}?q=' + encodeURIComponent(query), true);
@@ -146,34 +203,27 @@
     }
 
     function renderResults(data) {
-        let html = '';
-        let hasResults = false;
-
+        let html = '', hasResults = false;
         for (const [type, config] of Object.entries(groupConfig)) {
             const results = data[type] || [];
-            if (results.length === 0) continue;
+            if (!results.length) continue;
             hasResults = true;
-
-            html += '<div class="px-3 py-2 bg-light border-bottom"><small class="text-muted fw-bold">' +
-                    '<i class="bi ' + config.icon + ' me-1"></i>' + config.label +
-                    ' <span class="badge bg-secondary">' + results.length + '</span></small></div>';
-
-            results.forEach(function(item) {
-                html += '<a href="' + item.route + '" class="dropdown-item d-flex align-items-start py-2 px-3 search-result-item">' +
-                        '<div class="me-2"><i class="bi ' + item.icon + ' text-' + item.color + '"></i></div>' +
-                        '<div class="flex-grow-1">' +
-                        '<div class="fw-bold">' + escapeHtml(item.title) + '</div>' +
-                        '<small class="text-muted">' + escapeHtml(item.subtitle) + '</small>' +
-                        '</div></a>';
+            html += '<div style="padding: 8px 12px 4px; font-size: 10px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: var(--text-muted);">'
+                  + '<i class="' + config.icon + ' me-1"></i>' + config.label
+                  + ' <span style="background: var(--input-bg); color: var(--text-muted); font-size: 10px; padding: 1px 6px; border-radius: 8px;">' + results.length + '</span></div>';
+            results.forEach(function (item) {
+                html += '<a href="' + item.route + '" class="d-flex align-items-start gap-2 px-3 py-2 text-decoration-none search-result-item" '
+                      + 'style="color: var(--text-secondary); transition: background 0.1s;">'
+                      + '<i class="' + item.icon + ' mt-1" style="font-size: 13px; color: ' + config.color + '; flex-shrink: 0;"></i>'
+                      + '<div><div style="font-size: 13px; font-weight: 500; color: var(--text-primary);">' + escapeHtml(item.title) + '</div>'
+                      + '<div style="font-size: 11px; color: var(--text-muted);">' + escapeHtml(item.subtitle) + '</div></div></a>';
             });
         }
-
         if (!hasResults) {
-            html = '<div class="px-3 py-4 text-center text-muted">' +
-                   '<i class="bi bi-search" style="font-size: 1.5rem;"></i>' +
-                   '<div class="mt-1">ไม่พบผลลัพธ์</div></div>';
+            html = '<div style="padding: 32px 12px; text-align: center; color: var(--text-muted);">'
+                 + '<i class="fas fa-search" style="font-size: 24px; display: block; margin-bottom: 8px;"></i>'
+                 + '<span style="font-size: 13px;">ไม่พบผลลัพธ์</span></div>';
         }
-
         searchResults.innerHTML = html;
         searchResults.style.display = 'block';
     }
@@ -184,47 +234,34 @@
         return div.innerHTML;
     }
 
-    // Debounced input handler
-    searchInput.addEventListener('input', function() {
+    searchInput.addEventListener('input', function () {
         clearTimeout(debounceTimer);
-        const query = this.value.trim();
-        debounceTimer = setTimeout(function() {
-            performSearch(query);
-        }, 300);
+        const q = this.value.trim();
+        debounceTimer = setTimeout(() => performSearch(q), 280);
     });
 
-    // Show results on focus if there's a query
-    searchInput.addEventListener('focus', function() {
-        if (this.value.trim().length >= 2) {
-            performSearch(this.value.trim());
-        }
+    searchInput.addEventListener('focus', function () {
+        if (this.value.trim().length >= 2) performSearch(this.value.trim());
     });
 
-    // Hide results when clicking outside
-    document.addEventListener('click', function(e) {
-        if (!searchResults.contains(e.target) && e.target !== searchInput) {
+    document.addEventListener('click', function (e) {
+        if (!searchResults.contains(e.target) && e.target !== searchInput)
             searchResults.style.display = 'none';
-        }
     });
 
-    // Keyboard shortcut: Ctrl+K or / to focus
-    document.addEventListener('keydown', function(e) {
-        // Ctrl+K or Cmd+K
-        if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
-            e.preventDefault();
-            searchInput.focus();
-            searchInput.select();
-        }
-        // "/" to focus (only when not in an input)
-        if (e.key === '/' && !['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement.tagName)) {
-            e.preventDefault();
-            searchInput.focus();
-        }
-        // Escape to blur
-        if (e.key === 'Escape' && document.activeElement === searchInput) {
-            searchInput.blur();
-            searchResults.style.display = 'none';
-        }
+    document.addEventListener('keydown', function (e) {
+        if ((e.ctrlKey || e.metaKey) && e.key === 'k') { e.preventDefault(); searchInput.focus(); searchInput.select(); }
+        if (e.key === '/' && !['INPUT','TEXTAREA','SELECT'].includes(document.activeElement.tagName)) { e.preventDefault(); searchInput.focus(); }
+        if (e.key === 'Escape' && document.activeElement === searchInput) { searchInput.blur(); searchResults.style.display = 'none'; }
+    });
+
+    document.addEventListener('mouseover', function (e) {
+        const item = e.target.closest('.search-result-item');
+        if (item) item.style.background = 'var(--table-hover-bg)';
+    });
+    document.addEventListener('mouseout', function (e) {
+        const item = e.target.closest('.search-result-item');
+        if (item) item.style.background = '';
     });
 })();
 </script>

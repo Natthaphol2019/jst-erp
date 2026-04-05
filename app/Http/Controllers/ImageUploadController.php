@@ -16,7 +16,7 @@ class ImageUploadController extends Controller
     public function uploadEmployeeImage(Request $request, Employee $employee)
     {
         $request->validate([
-            'profile_image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'profile_image' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
         ]);
 
         // ลบรูปเก่าถ้ามี
@@ -54,7 +54,7 @@ class ImageUploadController extends Controller
     public function uploadItemImage(Request $request, Item $item)
     {
         $request->validate([
-            'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'image' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
         ]);
 
         // ลบรูปเก่าถ้ามี

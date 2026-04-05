@@ -1,61 +1,116 @@
 @extends('layouts.app')
 
+@section('title', 'ลงทะเบียนสินค้าใหม่ - JST ERP')
+
 @section('content')
-<div class="container mt-4">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card shadow-sm">
-                <div class="card-header bg-white">
-                    <h5 class="mb-0">ลงทะเบียนสินค้าใหม่</h5>
-                </div>
-                <div class="card-body">
-                    <form action="{{ route('inventory.items.store') }}" method="POST">
-                        @csrf
-                        <div class="row g-3">
-                            <div class="col-md-6">
-                                <label class="form-label">รหัสสินค้า</label>
-                                <input type="text" name="item_code" class="form-control" placeholder="เช่น ITEM-001" required>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">ชื่อสินค้า</label>
-                                <input type="text" name="name" class="form-control" required>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">หมวดหมู่</label>
-                                <select name="category_id" class="form-select" required>
-                                    @foreach($categories as $cat)
-                                        <option value="{{ $cat->id }}">{{ $cat->name }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">ประเภท</label>
-                                <select name="type" class="form-select">
-                                    <option value="equipment">อุปกรณ์ (ยืม-คืน)</option>
-                                    <option value="consumable">วัสดุสิ้นเปลือง</option>
-                                </select>
-                            </div>
-                            <div class="col-md-4">
-                                <label class="form-label">จำนวนตั้งต้น</label>
-                                <input type="number" name="current_stock" class="form-control" value="0">
-                            </div>
-                            <div class="col-md-4">
-                                <label class="form-label">หน่วยนับ</label>
-                                <input type="text" name="unit" class="form-control" placeholder="เช่น ชิ้น, ตัว" required>
-                            </div>
-                            <div class="col-md-4">
-                                <label class="form-label">Min Stock</label>
-                                <input type="number" name="min_stock" class="form-control" value="0">
-                            </div>
-                        </div>
-                        <div class="mt-4 pt-3 border-top d-flex justify-content-between">
-                            <a href="{{ route('inventory.items.index') }}" class="btn btn-light">ยกเลิก</a>
-                            <button type="submit" class="btn btn-primary px-4">บันทึกข้อมูล</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
+<div class="d-flex justify-content-between align-items-start mb-4">
+    <div>
+        <h4 class="mb-1" style="font-size: 18px; font-weight: 600; color: var(--text-primary);">
+            <i class="fas fa-plus me-2" style="color: #818cf8;"></i>ลงทะเบียนสินค้าใหม่
+        </h4>
+        <p style="font-size: 13px; color: var(--text-muted); margin: 0;">เพิ่มสินค้าเข้าคลัง</p>
     </div>
 </div>
+
+@if($errors->any())
+    <div class="erp-alert erp-alert-danger mb-4">
+        <i class="fas fa-exclamation-triangle me-2"></i>{{ $errors->first() }}
+    </div>
+@endif
+
+<div class="erp-card">
+    <div class="erp-card-body">
+        <form action="{{ route('inventory.items.store') }}" method="POST" enctype="multipart/form-data">
+            @csrf
+            <div class="row g-3">
+                {{-- Image Upload --}}
+                <div class="col-12">
+                    <label class="erp-label">รูปภาพสินค้า</label>
+                    <div class="d-flex align-items-center gap-3">
+                        <div id="imagePreview" style="width: 100px; height: 100px; border-radius: 12px; background: var(--input-bg); border: 2px dashed var(--border); display: flex; align-items: center; justify-content: center; overflow: hidden;">
+                            <i class="fas fa-camera" style="color: var(--text-muted); font-size: 24px;"></i>
+                        </div>
+                        <div class="flex-grow-1">
+                            <input type="file" name="image" id="imageInput" class="erp-input" accept="image/jpeg,image/png,image/jpg,image/gif,image/webp" onchange="previewImage(this)">
+                            <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">
+                                <i class="fas fa-info-circle me-1"></i>JPG, PNG, GIF, WebP (สูงสุด 2MB)
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="erp-label">รหัสสินค้า <span style="color: #f87171;">*</span></label>
+                    <input type="text" name="item_code" class="erp-input" placeholder="เช่น ITEM-001" required>
+                </div>
+                <div class="col-md-6">
+                    <label class="erp-label">บาร์โค้ด</label>
+                    <input type="text" class="erp-input" placeholder="จะสร้างอัตโนมัติหลังบันทึกสินค้า" disabled style="opacity: 0.6; cursor: not-allowed;">
+                    <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">
+                        <i class="fas fa-info-circle me-1"></i>บาร์โค้ดจะสร้างหลังจากบันทึกสินค้า
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <label class="erp-label">ชื่อสินค้า <span style="color: #f87171;">*</span></label>
+                    <input type="text" name="name" class="erp-input" required>
+                </div>
+                <div class="col-md-6">
+                    <label class="erp-label">หมวดหมู่ <span style="color: #f87171;">*</span></label>
+                    <select name="category_id" class="erp-select" required>
+                        @foreach($categories as $cat)
+                            <option value="{{ $cat->id }}">{{ $cat->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label class="erp-label">ประเภท <span style="color: #f87171;">*</span></label>
+                    <select name="type" class="erp-select">
+                        <option value="equipment">อุปกรณ์ (ยืม-คืน)</option>
+                        <option value="consumable">วัสดุสิ้นเปลือง</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="erp-label">จำนวนตั้งต้น</label>
+                    <input type="number" name="current_stock" class="erp-input" value="0">
+                </div>
+                <div class="col-md-4">
+                    <label class="erp-label">หน่วยนับ <span style="color: #f87171;">*</span></label>
+                    <input type="text" name="unit" class="erp-input" placeholder="เช่น ชิ้น, ตัว" required>
+                </div>
+                <div class="col-md-4">
+                    <label class="erp-label">Min Stock</label>
+                    <input type="number" name="min_stock" class="erp-input" value="0">
+                </div>
+            </div>
+            <div class="d-flex gap-2 mt-4 pt-3" style="border-top: 1px solid var(--border);">
+                <a href="{{ route('inventory.items.index') }}" class="erp-btn-secondary"><i class="fas fa-times me-2"></i>ยกเลิก</a>
+                <button type="submit" class="erp-btn-primary"><i class="fas fa-save me-2"></i>บันทึกข้อมูล</button>
+            </div>
+        </form>
+    </div>
+</div>
+
 @endsection
+
+@push('scripts')
+<script>
+function previewImage(input) {
+    const preview = document.getElementById('imagePreview');
+    const file = input.files[0];
+    
+    if (file) {
+        if (file.size > 2 * 1024 * 1024) {
+            alert('ไฟล์มีขนาดเกิน 2MB');
+            input.value = '';
+            return;
+        }
+        
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            preview.innerHTML = '<img src="' + e.target.result + '" style="width: 100%; height: 100%; object-fit: cover;">';
+        };
+        reader.readAsDataURL(file);
+    }
+}
+</script>
+@endpush

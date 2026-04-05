@@ -5,21 +5,17 @@
 @section('content')
 <div class="container-fluid py-4">
     <!-- Header -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    <h2 class="h4 mb-1 text-dark">
-                        <i class="bi bi-briefcase me-2"></i>แดชบอร์ดผู้จัดการ
-                    </h2>
-                    <p class="text-muted mb-0">ยินดีต้อนรับ, <strong>{{ auth()->user()->name }}</strong></p>
-                </div>
-                <div class="d-none d-md-block">
-                    <span class="badge bg-warning text-dark fs-6 px-3 py-2">
-                        <i class="bi bi-shield-fill-check me-1"></i> Manager
-                    </span>
-                </div>
-            </div>
+    <div class="d-flex justify-content-between align-items-start mb-4">
+        <div>
+            <h4 class="mb-1" style="font-size: 18px; font-weight: 600; color: var(--text-primary);">
+                <i class="fas fa-briefcase me-2" style="color: #818cf8;"></i>แดชบอร์ดผู้จัดการ
+            </h4>
+            <p style="font-size: 13px; color: var(--text-muted); margin: 0;">ยินดีต้อนรับ, <strong style="color: var(--text-primary);">{{ auth()->user()->name }}</strong></p>
+        </div>
+        <div>
+            <span class="erp-badge" style="background: rgba(251,191,36,0.12); color: #fbbf24;">
+                <i class="fas fa-shield-alt me-1"></i> Manager
+            </span>
         </div>
     </div>
 
@@ -27,97 +23,61 @@
     <div class="row g-4 mb-4">
         <!-- Total Employees -->
         <div class="col-xl-3 col-md-6">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-body">
-                    <div class="d-flex align-items-center">
-                        <div class="flex-shrink-0">
-                            <div class="bg-primary bg-opacity-10 rounded-3 p-3">
-                                <i class="bi bi-people-fill text-primary fs-3"></i>
-                            </div>
-                        </div>
-                        <div class="flex-grow-1 ms-3">
-                            <h6 class="text-muted mb-1" style="font-size: 0.85rem;">พนักงานทั้งหมด</h6>
-                            <h3 class="mb-0 fw-bold">{{ number_format($totalEmployees) }}</h3>
-                        </div>
-                    </div>
+            <div class="erp-stat-card">
+                <div class="erp-stat-icon" style="background: rgba(99,102,241,0.12); color: #818cf8;">
+                    <i class="fas fa-users"></i>
                 </div>
-                <div class="card-footer bg-transparent border-0 pt-0">
-                    <span class="text-primary text-decoration-none small fw-semibold">
-                        พนักงาน aktif
-                    </span>
+                <div class="erp-stat-body">
+                    <div class="erp-stat-label">พนักงานทั้งหมด</div>
+                    <div class="erp-stat-value">{{ number_format($totalEmployees) }}</div>
                 </div>
+                <span style="color: var(--text-secondary); font-size: 13px;">พนักงาน aktif</span>
             </div>
         </div>
 
         <!-- Departments -->
         <div class="col-xl-3 col-md-6">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-body">
-                    <div class="d-flex align-items-center">
-                        <div class="flex-shrink-0">
-                            <div class="bg-info bg-opacity-10 rounded-3 p-3">
-                                <i class="bi bi-diagram-3-fill text-info fs-3"></i>
-                            </div>
-                        </div>
-                        <div class="flex-grow-1 ms-3">
-                            <h6 class="text-muted mb-1" style="font-size: 0.85rem;">แผนก</h6>
-                            <h3 class="mb-0 fw-bold">{{ number_format($totalDepartments) }}</h3>
-                        </div>
-                    </div>
+            <div class="erp-stat-card">
+                <div class="erp-stat-icon" style="background: rgba(56,189,248,0.12); color: #38bdf8;">
+                    <i class="fas fa-sitemap"></i>
                 </div>
-                <div class="card-footer bg-transparent border-0 pt-0">
-                    <span class="text-info text-decoration-none small fw-semibold">
-                        หน่วยงานทั้งหมด
-                    </span>
+                <div class="erp-stat-body">
+                    <div class="erp-stat-label">แผนก</div>
+                    <div class="erp-stat-value">{{ number_format($totalDepartments) }}</div>
                 </div>
+                <span style="color: var(--text-secondary); font-size: 13px;">หน่วยงานทั้งหมด</span>
             </div>
         </div>
 
         <!-- Pending Approvals -->
         <div class="col-xl-3 col-md-6">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-body">
-                    <div class="d-flex align-items-center">
-                        <div class="flex-shrink-0">
-                            <div class="bg-warning bg-opacity-10 rounded-3 p-3">
-                                <i class="bi bi-hourglass-split text-warning fs-3"></i>
-                            </div>
-                        </div>
-                        <div class="flex-grow-1 ms-3">
-                            <h6 class="text-muted mb-1" style="font-size: 0.85rem;">รออนุมัติ</h6>
-                            <h3 class="mb-0 fw-bold">{{ number_format($pendingApprovals) }}</h3>
-                        </div>
-                    </div>
+            <div class="erp-stat-card">
+                <div class="erp-stat-icon" style="background: rgba(251,191,36,0.12); color: #fbbf24;">
+                    <i class="fas fa-hourglass-half"></i>
                 </div>
-                <div class="card-footer bg-transparent border-0 pt-0">
-                    <a href="{{ route('inventory.requisition.index') }}?status=pending" class="text-warning text-decoration-none small fw-semibold">
-                        ตรวจสอบรายการ <i class="bi bi-arrow-right"></i>
-                    </a>
+                <div class="erp-stat-body">
+                    <div class="erp-stat-label">รออนุมัติ</div>
+                    <div class="erp-stat-value">{{ number_format($pendingApprovals) }}</div>
                 </div>
+                <a href="{{ route('inventory.requisition.index') }}?status=pending" class="erp-stat-link" style="color: #fbbf24;">
+                    ตรวจสอบรายการ <i class="fas fa-arrow-right"></i>
+                </a>
             </div>
         </div>
 
         <!-- Today Attendance -->
         <div class="col-xl-3 col-md-6">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-body">
-                    <div class="d-flex align-items-center">
-                        <div class="flex-shrink-0">
-                            <div class="bg-success bg-opacity-10 rounded-3 p-3">
-                                <i class="bi bi-calendar-check-fill text-success fs-3"></i>
-                            </div>
-                        </div>
-                        <div class="flex-grow-1 ms-3">
-                            <h6 class="text-muted mb-1" style="font-size: 0.85rem;">เข้างานวันนี้</h6>
-                            <h3 class="mb-0 fw-bold">{{ number_format($todayAttendance) }}</h3>
-                        </div>
-                    </div>
+            <div class="erp-stat-card">
+                <div class="erp-stat-icon" style="background: rgba(52,211,153,0.12); color: #34d399;">
+                    <i class="fas fa-calendar-check"></i>
                 </div>
-                <div class="card-footer bg-transparent border-0 pt-0">
-                    <span class="text-success text-decoration-none small fw-semibold">
-                        {{ \Carbon\Carbon::now()->translatedFormat('l ที่ d F Y') }}
-                    </span>
+                <div class="erp-stat-body">
+                    <div class="erp-stat-label">เข้างานวันนี้</div>
+                    <div class="erp-stat-value">{{ number_format($todayAttendance) }}</div>
                 </div>
+                <span style="color: var(--text-secondary); font-size: 13px;">
+                    {{ \Carbon\Carbon::now()->translatedFormat('l ที่ d F Y') }}
+                </span>
             </div>
         </div>
     </div>
@@ -125,48 +85,50 @@
     <!-- Requisition Status Summary -->
     <div class="row g-4 mb-4">
         <div class="col-12">
-            <div class="card border-0 shadow-sm">
-                <div class="card-header bg-white py-3">
-                    <h6 class="m-0 fw-bold text-dark"><i class="bi bi-bar-chart-line-fill me-2"></i>สรุปสถานะคำขอ</h6>
+            <div class="erp-card">
+                <div class="erp-card-header">
+                    <span class="erp-card-title">
+                        <i class="fas fa-chart-bar me-2" style="color: #818cf8;"></i>สรุปสถานะคำขอ
+                    </span>
                 </div>
-                <div class="card-body">
+                <div class="erp-card-body">
                     <div class="row g-4">
                         <div class="col-md-4">
-                            <div class="d-flex align-items-center p-3 bg-warning bg-opacity-10 rounded-3">
+                            <div class="d-flex align-items-center p-3 rounded-3" style="background: rgba(251,191,36,0.12);">
                                 <div class="flex-shrink-0">
-                                    <div class="bg-warning rounded-circle p-2 d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
-                                        <i class="bi bi-clock text-white fs-5"></i>
+                                    <div style="background: #fbbf24; border-radius: 50%; width: 48px; height: 48px; display: flex; align-items: center; justify-content: center;">
+                                        <i class="fas fa-clock" style="color: #fff; font-size: 1.25rem;"></i>
                                     </div>
                                 </div>
                                 <div class="flex-grow-1 ms-3 text-center">
-                                    <h4 class="mb-0 fw-bold text-warning">{{ number_format($pendingCount) }}</h4>
-                                    <small class="text-muted">รออนุมัติ</small>
+                                    <h4 class="mb-0 fw-bold" style="color: #fbbf24;">{{ number_format($pendingCount) }}</h4>
+                                    <small style="color: var(--text-secondary);">รออนุมัติ</small>
                                 </div>
                             </div>
                         </div>
                         <div class="col-md-4">
-                            <div class="d-flex align-items-center p-3 bg-success bg-opacity-10 rounded-3">
+                            <div class="d-flex align-items-center p-3 rounded-3" style="background: rgba(52,211,153,0.12);">
                                 <div class="flex-shrink-0">
-                                    <div class="bg-success rounded-circle p-2 d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
-                                        <i class="bi bi-check-lg text-white fs-5"></i>
+                                    <div style="background: #34d399; border-radius: 50%; width: 48px; height: 48px; display: flex; align-items: center; justify-content: center;">
+                                        <i class="fas fa-check" style="color: #fff; font-size: 1.25rem;"></i>
                                     </div>
                                 </div>
                                 <div class="flex-grow-1 ms-3 text-center">
-                                    <h4 class="mb-0 fw-bold text-success">{{ number_format($approvedCount) }}</h4>
-                                    <small class="text-muted">อนุมัติ/กำลังยืม</small>
+                                    <h4 class="mb-0 fw-bold" style="color: #34d399;">{{ number_format($approvedCount) }}</h4>
+                                    <small style="color: var(--text-secondary);">อนุมัติ/กําลังยืม</small>
                                 </div>
                             </div>
                         </div>
                         <div class="col-md-4">
-                            <div class="d-flex align-items-center p-3 bg-secondary bg-opacity-10 rounded-3">
+                            <div class="d-flex align-items-center p-3 rounded-3" style="background: rgba(107,114,128,0.12);">
                                 <div class="flex-shrink-0">
-                                    <div class="bg-secondary rounded-circle p-2 d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
-                                        <i class="bi bi-check2-all text-white fs-5"></i>
+                                    <div style="background: #6b7280; border-radius: 50%; width: 48px; height: 48px; display: flex; align-items: center; justify-content: center;">
+                                        <i class="fas fa-check-double" style="color: #fff; font-size: 1.25rem;"></i>
                                     </div>
                                 </div>
                                 <div class="flex-grow-1 ms-3 text-center">
-                                    <h4 class="mb-0 fw-bold text-secondary">{{ number_format($completedCount) }}</h4>
-                                    <small class="text-muted">คืนครบแล้ว</small>
+                                    <h4 class="mb-0 fw-bold" style="color: #6b7280;">{{ number_format($completedCount) }}</h4>
+                                    <small style="color: var(--text-secondary);">คืนครบแล้ว</small>
                                 </div>
                             </div>
                         </div>
@@ -179,34 +141,36 @@
     <div class="row g-4">
         <!-- Department Statistics -->
         <div class="col-lg-5">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-header bg-white py-3">
-                    <h6 class="m-0 fw-bold text-dark"><i class="bi bi-building me-2"></i>สถิติแผนก</h6>
+            <div class="erp-card h-100">
+                <div class="erp-card-header">
+                    <span class="erp-card-title">
+                        <i class="fas fa-building me-2" style="color: #818cf8;"></i>สถิติแผนก
+                    </span>
                 </div>
-                <div class="card-body p-0">
+                <div class="erp-card-body p-0">
                     <div class="list-group list-group-flush">
                         @forelse($departments as $dept)
-                        <div class="list-group-item border-0 px-3 py-3">
+                        <div class="list-group-item border-0 px-3 py-3" style="background: var(--bg-surface); color: var(--text-secondary);">
                             <div class="d-flex justify-content-between align-items-center mb-2">
                                 <div>
-                                    <span class="fw-semibold">{{ $dept->name }}</span>
+                                    <span class="fw-semibold" style="color: var(--text-primary);">{{ $dept->name }}</span>
                                     @if($dept->description)
                                         <br>
-                                        <small class="text-muted">{{ Str::limit($dept->description, 40) }}</small>
+                                        <small style="color: var(--text-secondary);">{{ Str::limit($dept->description, 40) }}</small>
                                     @endif
                                 </div>
-                                <span class="badge bg-primary">{{ $dept->employees_count }} คน</span>
+                                <span class="erp-badge" style="background: rgba(99,102,241,0.12); color: #818cf8;">{{ $dept->employees_count }} คน</span>
                             </div>
                             @php
                                 $percentage = $totalEmployees > 0 ? ($dept->employees_count / $totalEmployees) * 100 : 0;
                             @endphp
-                            <div class="progress" style="height: 8px;">
-                                <div class="progress-bar bg-primary" role="progressbar" style="width: {{ $percentage }}%;"></div>
+                            <div class="progress" style="height: 8px; background: var(--input-bg);">
+                                <div class="progress-bar" role="progressbar" style="width: {{ $percentage }}%; background: #6366f1;"></div>
                             </div>
                         </div>
                         @empty
-                        <div class="text-center py-4 text-muted">
-                            <i class="bi bi-inbox fs-4 d-block mb-2"></i>
+                        <div class="text-center py-4" style="color: var(--text-secondary);">
+                            <i class="fas fa-inbox fs-4 d-block mb-2" style="color: var(--text-muted);"></i>
                             ยังไม่มีข้อมูลแผนก
                         </div>
                         @endforelse
@@ -217,19 +181,19 @@
 
         <!-- Recent Activity -->
         <div class="col-lg-7">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
-                    <h6 class="m-0 fw-bold text-dark">
-                        <i class="bi bi-activity me-2"></i>กิจกรรมล่าสุด
-                    </h6>
-                    <a href="{{ route('inventory.requisition.index') }}" class="btn btn-sm btn-outline-secondary">
-                        ดูทั้งหมด <i class="bi bi-arrow-right"></i>
+            <div class="erp-card h-100">
+                <div class="erp-card-header">
+                    <span class="erp-card-title">
+                        <i class="fas fa-activity me-2" style="color: #818cf8;"></i>กิจกรรมล่าสุด
+                    </span>
+                    <a href="{{ route('inventory.requisition.index') }}" class="erp-card-action">
+                        ดูทั้งหมด <i class="fas fa-arrow-right ms-1"></i>
                     </a>
                 </div>
-                <div class="card-body p-0">
-                    <div class="table-responsive">
-                        <table class="table table-hover align-middle mb-0">
-                            <thead class="table-light">
+                <div class="erp-card-body p-0">
+                    <div class="erp-table-wrap">
+                        <table class="erp-table">
+                            <thead>
                                 <tr>
                                     <th class="ps-4">เลขที่</th>
                                     <th>ผู้ขอ</th>
@@ -242,45 +206,45 @@
                                 @forelse($recentActivity as $activity)
                                 <tr>
                                     <td class="ps-4">
-                                        <a href="{{ route('inventory.requisition.show', $activity->id) }}" class="text-decoration-none fw-semibold">
+                                        <a href="{{ route('inventory.requisition.show', $activity->id) }}" class="text-decoration-none fw-semibold" style="color: var(--accent);">
                                             #{{ $activity->id }}
                                         </a>
                                     </td>
-                                    <td>
+                                    <td style="color: var(--text-secondary);">
                                         @if($activity->employee)
                                             {{ $activity->employee->firstname }} {{ $activity->employee->lastname }}
                                         @else
-                                            <span class="text-muted">-</span>
+                                            <span style="color: var(--text-muted);">-</span>
                                         @endif
                                     </td>
                                     <td>
                                         @if($activity->req_type === 'borrow')
-                                            <span class="badge bg-info">ยืม</span>
+                                            <span class="erp-badge" style="background: rgba(56,189,248,0.12); color: #38bdf8;">ยืม</span>
                                         @else
-                                            <span class="badge bg-primary">เบิก</span>
+                                            <span class="erp-badge" style="background: rgba(99,102,241,0.12); color: #818cf8;">เบิก</span>
                                         @endif
                                     </td>
-                                    <td>{{ \Carbon\Carbon::parse($activity->req_date)->format('d/m/Y') }}</td>
+                                    <td style="color: var(--text-secondary);">{{ \Carbon\Carbon::parse($activity->req_date)->format('d/m/Y') }}</td>
                                     <td>
                                         @if($activity->status === 'pending')
-                                            <span class="badge bg-warning text-dark">รออนุมัติ</span>
+                                            <span class="erp-badge" style="background: rgba(251,191,36,0.12); color: #fbbf24;">รออนุมัติ</span>
                                         @elseif($activity->status === 'approved')
-                                            <span class="badge bg-success">อนุมัติ</span>
+                                            <span class="erp-badge" style="background: rgba(52,211,153,0.12); color: #34d399;">อนุมัติ</span>
                                         @elseif($activity->status === 'returned_all')
-                                            <span class="badge bg-secondary">คืนครบ</span>
+                                            <span class="erp-badge" style="background: rgba(107,114,128,0.12); color: #6b7280;">คืนครบ</span>
                                         @elseif($activity->status === 'returned_partial')
-                                            <span class="badge bg-info">คืนบางส่วน</span>
+                                            <span class="erp-badge" style="background: rgba(56,189,248,0.12); color: #38bdf8;">คืนบางส่วน</span>
                                         @elseif($activity->status === 'rejected')
-                                            <span class="badge bg-danger">ปฏิเสธ</span>
+                                            <span class="erp-badge" style="background: rgba(239,68,68,0.12); color: #f87171;">ปฏิเสธ</span>
                                         @else
-                                            <span class="badge bg-secondary">{{ $activity->status }}</span>
+                                            <span class="erp-badge" style="background: rgba(107,114,128,0.12); color: #6b7280;">{{ $activity->status }}</span>
                                         @endif
                                     </td>
                                 </tr>
                                 @empty
                                 <tr>
-                                    <td colspan="5" class="text-center py-4 text-muted">
-                                        <i class="bi bi-inbox fs-4 d-block mb-2"></i>
+                                    <td colspan="5" class="text-center" style="color: var(--text-muted); padding: 2rem 0;">
+                                        <i class="fas fa-inbox fs-4 d-block mb-2"></i>
                                         ยังไม่มีกิจกรรม
                                     </td>
                                 </tr>
@@ -296,30 +260,30 @@
     <!-- Active Borrowings Summary -->
     <div class="row g-4 mt-2">
         <div class="col-12">
-            <div class="card border-0 shadow-sm">
-                <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
-                    <h6 class="m-0 fw-bold text-dark">
-                        <i class="bi bi-box-arrow-right me-2"></i>อุปกรณ์ที่กำลังยืม
-                    </h6>
-                    <span class="badge bg-info">{{ number_format($activeBorrowings) }} รายการ</span>
+            <div class="erp-card">
+                <div class="erp-card-header">
+                    <span class="erp-card-title">
+                        <i class="fas fa-sign-out-alt me-2" style="color: #818cf8;"></i>อุปกรณ์ที่กำลังยืม
+                    </span>
+                    <span class="erp-badge" style="background: rgba(56,189,248,0.12); color: #38bdf8;">{{ number_format($activeBorrowings) }} รายการ</span>
                 </div>
-                <div class="card-body">
+                <div class="erp-card-body">
                     <div class="row g-4">
                         <div class="col-md-6">
-                            <div class="card border bg-light rounded-3">
-                                <div class="card-body text-center">
-                                    <i class="bi bi-box-seam display-4 text-primary mb-3"></i>
-                                    <h5 class="fw-bold text-primary">{{ number_format($activeBorrowings) }}</h5>
-                                    <p class="text-muted mb-0">รายการที่กำลังยืม</p>
+                            <div class="erp-card" style="background: var(--bg-raised);">
+                                <div class="erp-card-body text-center">
+                                    <i class="fas fa-box-open display-4 mb-3" style="color: #6366f1;"></i>
+                                    <h5 class="fw-bold" style="color: #6366f1;">{{ number_format($activeBorrowings) }}</h5>
+                                    <p class="mb-0" style="color: var(--text-secondary);">รายการที่กำลังยืม</p>
                                 </div>
                             </div>
                         </div>
                         <div class="col-md-6">
-                            <div class="card border bg-light rounded-3">
-                                <div class="card-body text-center">
-                                    <i class="bi bi-people display-4 text-success mb-3"></i>
-                                    <h5 class="fw-bold text-success">{{ number_format($totalEmployees) }}</h5>
-                                    <p class="text-muted mb-0">พนักงาน aktif</p>
+                            <div class="erp-card" style="background: var(--bg-raised);">
+                                <div class="erp-card-body text-center">
+                                    <i class="fas fa-users display-4 mb-3" style="color: #34d399;"></i>
+                                    <h5 class="fw-bold" style="color: #34d399;">{{ number_format($totalEmployees) }}</h5>
+                                    <p class="mb-0" style="color: var(--text-secondary);">พนักงาน aktif</p>
                                 </div>
                             </div>
                         </div>
