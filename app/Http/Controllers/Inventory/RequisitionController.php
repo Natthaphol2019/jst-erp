@@ -66,11 +66,6 @@ class RequisitionController extends Controller
             $query->where('status', $request->status);
         }
 
-        // กรองตามช่วงเวลา
-        if ($request->filled('period')) {
-            $query->where('period', $request->period);
-        }
-
         // ค้นหาตามชื่อพนักงาน
         if ($request->filled('search')) {
             $search = $request->search;
@@ -122,7 +117,6 @@ class RequisitionController extends Controller
         $validated = $request->validate([
             'employee_id' => $isEmployee ? 'sometimes|exists:employees,id' : 'required|exists:employees,id',
             'req_date' => 'required|date',
-            'period' => 'nullable|in:morning,afternoon,evening',
             'note' => 'nullable|string|max:500',
             'items' => 'required|array|min:1',
             'items.*.item_id' => 'required|exists:items,id',
@@ -133,6 +127,9 @@ class RequisitionController extends Controller
         if ($isEmployee) {
             $validated['employee_id'] = $user->employee_id;
         }
+
+        // ใช้เวลาจริงปัจจุบัน (Asia/Bangkok)
+        $now = now('Asia/Bangkok');
 
         // ตรวจสอบสต๊อกเบื้องต้น (ก่อนเข้า transaction)
         try {
@@ -158,7 +155,6 @@ class RequisitionController extends Controller
                 'req_type' => 'consume',
                 'status' => 'issued',
                 'req_date' => $validated['req_date'],
-                'period' => $validated['period'] ?? null,
                 'note' => $validated['note'] ?? null,
                 'approved_by' => $user->id,
             ]);
@@ -180,7 +176,7 @@ class RequisitionController extends Controller
                     transactionType: 'consume_out',
                     requisitionId: $requisition->id,
                     userId: $user->id,
-                    remark: "เบิกโดย: {$requisition->employee->firstname} {$requisition->employee->lastname}".($validated['period'] ? " ({$validated['period']})" : '')
+                    remark: "เบิกโดย: {$requisition->employee->firstname} {$requisition->employee->lastname} เมื่อ {$now->format('H:i')} น."
                 );
             }
 

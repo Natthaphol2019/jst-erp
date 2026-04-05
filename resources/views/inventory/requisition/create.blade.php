@@ -61,19 +61,9 @@
                         @error('req_date')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="period" class="erp-label">ช่วงเวลา</label>
-                        <select name="period" id="period" class="erp-select @error('period') is-invalid @enderror">
-                            <option value="">-- ไม่ระบุ --</option>
-                            <option value="morning" {{ old('period') == 'morning' ? 'selected' : '' }}>เช้า (08:00-12:00)</option>
-                            <option value="afternoon" {{ old('period') == 'afternoon' ? 'selected' : '' }}>บ่าย (13:00-17:00)</option>
-                            <option value="evening" {{ old('period') == 'evening' ? 'selected' : '' }}>เย็น/OT (17:00-20:00)</option>
-                        </select>
-                        @error('period')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
+                        <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">
+                            <i class="fas fa-clock me-1"></i>เวลาปัจจุบัน: <strong id="currentTime">{{ now('Asia/Bangkok')->format('H:i:s') }}</strong> น. (บันทึกอัตโนมัติ)
+                        </div>
                     </div>
 
                     <div class="mb-3">
@@ -197,6 +187,17 @@
 
 @push('scripts')
 <script>
+// แสดงเวลาปัจจุบันแบบ real-time (Asia/Bangkok)
+function updateTime() {
+    const now = new Date();
+    const options = { timeZone: 'Asia/Bangkok', hour12: false };
+    const timeStr = now.toLocaleTimeString('th-TH', options);
+    const el = document.getElementById('currentTime');
+    if (el) el.textContent = timeStr;
+}
+updateTime();
+setInterval(updateTime, 1000);
+
 let itemIndex = {{ old('items') ? count(old('items')) : 1 }};
 
 function addItem() {

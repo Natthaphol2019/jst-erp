@@ -103,7 +103,7 @@
                 <tr>
                     <th width="80">เลขที่</th>
                     <th width="100">วันที่เบิก</th>
-                    <th width="100" style="text-align: center;">ช่วงเวลา</th>
+                    <th width="100" style="text-align: center;">เวลา</th>
                     <th>ผู้เบิก</th>
                     <th width="100" style="text-align: center;">จำนวน</th>
                     <th width="100">สถานะ</th>
@@ -120,20 +120,13 @@
                             'rejected' => ['bg' => 'rgba(239,68,68,0.12)', 'color' => '#f87171', 'text' => 'ปฏิเสธ'],
                             default => ['bg' => 'rgba(107,114,128,0.12)', 'color' => '#9ca3af', 'text' => $req->status]
                         };
-
-                        $periodBadge = $req->period ? match($req->period) {
-                            'morning' => ['bg' => 'rgba(56,189,248,0.12)', 'color' => '#38bdf8', 'text' => 'เช้า'],
-                            'afternoon' => ['bg' => 'rgba(251,191,36,0.12)', 'color' => '#fbbf24', 'text' => 'บ่าย'],
-                            'evening' => ['bg' => 'rgba(167,139,250,0.12)', 'color' => '#a78bfa', 'text' => 'เย็น'],
-                            default => null,
-                        } : null;
                     @endphp
                     <tr>
                         <td><strong style="color: var(--text-primary);">#{{ str_pad($req->id, 4, '0', STR_PAD_LEFT) }}</strong></td>
                         <td style="color: var(--text-secondary);">{{ \Carbon\Carbon::parse($req->req_date)->format('d/m/Y') }}</td>
                         <td style="text-align: center;">
-                            @if($periodBadge)
-                                <span class="erp-badge" style="background: {{ $periodBadge['bg'] }}; color: {{ $periodBadge['color'] }};">{{ $periodBadge['text'] }}</span>
+                            @if($req->created_at)
+                                <span style="color: var(--text-secondary); font-size: 11px;">{{ $req->created_at->format('H:i') }}</span>
                             @else
                                 <span style="color: var(--text-muted); font-size: 11px;">-</span>
                             @endif
