@@ -137,109 +137,108 @@
                 </div>
 
                 {{-- Permission Cards --}}
+                <div class="accordion" id="permissionAccordion">
                 @foreach($modules as $moduleKey => $perms)
                     @php
                         $moduleName = $perms->first()->module_name;
                         $moduleIcon = $perms->first()->module_icon ?? 'fas fa-circle';
+                        $accordionId = 'collapse-' . str_replace('.', '-', $moduleKey);
                     @endphp
-                    <div class="erp-card mb-3">
-                        <div class="erp-card-header" style="background: var(--bg-raised);">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <span class="erp-card-title">
-                                    <i class="{{ $moduleIcon }} me-2" style="color: #818cf8;"></i>{{ $moduleName }}
-                                </span>
-                                <div class="d-flex gap-2">
-                                    <button type="button" class="btn btn-sm btn-outline-secondary" onclick="checkModule('{{ $moduleKey }}', true)" title="เลือกทั้งหมดในหมวดนี้">
-                                        <i class="fas fa-check-double me-1"></i>ทั้งหมด
-                                    </button>
-                                    <button type="button" class="btn btn-sm btn-outline-secondary" onclick="checkModule('{{ $moduleKey }}', false)" title="ล้างทั้งหมดในหมวดนี้">
-                                        <i class="fas fa-times me-1"></i>ล้าง
-                                    </button>
-                                </div>
+                    <div class="erp-card mb-2">
+                        <div class="erp-card-header d-flex justify-content-between align-items-center" 
+                             style="cursor: pointer; padding: 10px 16px; background: var(--bg-raised);"
+                             data-bs-toggle="collapse" 
+                             data-bs-target="#{{ $accordionId }}"
+                             aria-expanded="false"
+                             aria-controls="{{ $accordionId }}">
+                            <span class="erp-card-title" style="margin: 0;">
+                                <i class="{{ $moduleIcon }} me-2" style="color: #818cf8;"></i>{{ $moduleName }}
+                            </span>
+                            <div class="d-flex gap-2" onclick="event.stopPropagation()">
+                                <button type="button" class="btn btn-sm btn-outline-secondary" onclick="checkModule('{{ $moduleKey }}', true)" title="เลือกทั้งหมดในหมวดนี้">
+                                    <i class="fas fa-check-double me-1"></i>ทั้งหมด
+                                </button>
+                                <button type="button" class="btn btn-sm btn-outline-secondary" onclick="checkModule('{{ $moduleKey }}', false)" title="ล้างทั้งหมดในหมวดนี้">
+                                    <i class="fas fa-times me-1"></i>ล้าง
+                                </button>
+                                <i class="fas fa-chevron-down text-muted" style="font-size: 12px; transition: transform 0.2s;" id="icon-{{ $accordionId }}"></i>
                             </div>
                         </div>
-                        <div class="erp-card-body p-0">
-                            <table class="perm-table mb-0" style="width: 100%;">
-                                <thead style="background: var(--bg-raised);">
-                                    <tr>
-                                        <th class="perm-name-col" style="padding: 8px 12px; font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;">
-                                            รายการ
-                                        </th>
-                                        <th style="width: 50px; text-align: center; padding: 8px 4px; font-size: 11px; font-weight: 600; color: var(--text-muted);">
-                                            ดู
-                                        </th>
-                                        <th style="width: 55px; text-align: center; padding: 8px 4px; font-size: 11px; font-weight: 600; color: var(--text-muted);">
-                                            สร้าง
-                                        </th>
-                                        <th style="width: 55px; text-align: center; padding: 8px 4px; font-size: 11px; font-weight: 600; color: var(--text-muted);">
-                                            แก้ไข
-                                        </th>
-                                        <th style="width: 50px; text-align: center; padding: 8px 4px; font-size: 11px; font-weight: 600; color: var(--text-muted);">
-                                            ลบ
-                                        </th>
-                                        <th style="width: 60px; text-align: center; padding: 8px 4px; font-size: 11px; font-weight: 600; color: var(--text-muted);">
-                                            Export
-                                        </th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach($perms as $perm)
-                                        @php
-                                            $rp = $rolePermData->get($perm->id);
-                                            $canView = $rp ? $rp->can_view : false;
-                                            $canCreate = $rp ? $rp->can_create : false;
-                                            $canEdit = $rp ? $rp->can_edit : false;
-                                            $canDelete = $rp ? $rp->can_delete : false;
-                                            $canExport = $rp ? $rp->can_export : false;
-                                        @endphp
-                                        <tr class="perm-row" style="border-bottom: 1px solid var(--border);">
-                                            <td class="perm-name-col" style="padding: 10px 12px; font-size: 12px; color: var(--text-primary); font-weight: 500;">
-                                                {{ $perm->permission_name }}
-                                            </td>
-                                            <td style="text-align: center; padding: 8px 4px;">
-                                                <input type="hidden" name="permissions[{{ $perm->id }}][permission_id]" value="{{ $perm->id }}">
-                                                <input type="checkbox" name="permissions[{{ $perm->id }}][can_view]" value="1"
-                                                       {{ $canView ? 'checked' : '' }}
-                                                       class="perm-checkbox"
-                                                       data-id="{{ $perm->id }}"
-                                                       data-action="view"
-                                                       onchange="autoCheckCreate(this)">
-                                            </td>
-                                            <td style="text-align: center; padding: 8px 4px;">
-                                                <input type="checkbox" name="permissions[{{ $perm->id }}][can_create]" value="1"
-                                                       {{ $canCreate ? 'checked' : '' }}
-                                                       class="perm-checkbox"
-                                                       data-id="{{ $perm->id }}"
-                                                       data-action="create">
-                                            </td>
-                                            <td style="text-align: center; padding: 8px 4px;">
-                                                <input type="checkbox" name="permissions[{{ $perm->id }}][can_edit]" value="1"
-                                                       {{ $canEdit ? 'checked' : '' }}
-                                                       class="perm-checkbox"
-                                                       data-id="{{ $perm->id }}"
-                                                       data-action="edit">
-                                            </td>
-                                            <td style="text-align: center; padding: 8px 4px;">
-                                                <input type="checkbox" name="permissions[{{ $perm->id }}][can_delete]" value="1"
-                                                       {{ $canDelete ? 'checked' : '' }}
-                                                       class="perm-checkbox"
-                                                       data-id="{{ $perm->id }}"
-                                                       data-action="delete">
-                                            </td>
-                                            <td style="text-align: center; padding: 8px 4px;">
-                                                <input type="checkbox" name="permissions[{{ $perm->id }}][can_export]" value="1"
-                                                       {{ $canExport ? 'checked' : '' }}
-                                                       class="perm-checkbox"
-                                                       data-id="{{ $perm->id }}"
-                                                       data-action="export">
-                                            </td>
+                        <div id="{{ $accordionId }}" class="collapse" data-bs-parent="#permissionAccordion">
+                            <div class="erp-card-body p-0">
+                                <table class="perm-table mb-0" style="width: 100%;">
+                                    <thead style="background: var(--bg-raised);">
+                                        <tr>
+                                            <th class="perm-name-col" style="padding: 8px 12px; font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;">
+                                                รายการ
+                                            </th>
+                                            <th style="width: 50px; text-align: center; padding: 8px 4px; font-size: 11px; font-weight: 600; color: var(--text-muted);">ดู</th>
+                                            <th style="width: 55px; text-align: center; padding: 8px 4px; font-size: 11px; font-weight: 600; color: var(--text-muted);">สร้าง</th>
+                                            <th style="width: 55px; text-align: center; padding: 8px 4px; font-size: 11px; font-weight: 600; color: var(--text-muted);">แก้ไข</th>
+                                            <th style="width: 50px; text-align: center; padding: 8px 4px; font-size: 11px; font-weight: 600; color: var(--text-muted);">ลบ</th>
+                                            <th style="width: 60px; text-align: center; padding: 8px 4px; font-size: 11px; font-weight: 600; color: var(--text-muted);">Export</th>
                                         </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
+                                    </thead>
+                                    <tbody>
+                                        @foreach($perms as $perm)
+                                            @php
+                                                $rp = $rolePermData->get($perm->id);
+                                                $canView = $rp ? $rp->can_view : false;
+                                                $canCreate = $rp ? $rp->can_create : false;
+                                                $canEdit = $rp ? $rp->can_edit : false;
+                                                $canDelete = $rp ? $rp->can_delete : false;
+                                                $canExport = $rp ? $rp->can_export : false;
+                                            @endphp
+                                            <tr class="perm-row" style="border-bottom: 1px solid var(--border);">
+                                                <td class="perm-name-col" style="padding: 10px 12px; font-size: 12px; color: var(--text-primary); font-weight: 500;">
+                                                    {{ $perm->permission_name }}
+                                                </td>
+                                                <td style="text-align: center; padding: 8px 4px;">
+                                                    <input type="hidden" name="permissions[{{ $perm->id }}][permission_id]" value="{{ $perm->id }}">
+                                                    <input type="checkbox" name="permissions[{{ $perm->id }}][can_view]" value="1"
+                                                           {{ $canView ? 'checked' : '' }}
+                                                           class="perm-checkbox"
+                                                           data-id="{{ $perm->id }}"
+                                                           data-action="view"
+                                                           onchange="autoCheckCreate(this)">
+                                                </td>
+                                                <td style="text-align: center; padding: 8px 4px;">
+                                                    <input type="checkbox" name="permissions[{{ $perm->id }}][can_create]" value="1"
+                                                           {{ $canCreate ? 'checked' : '' }}
+                                                           class="perm-checkbox"
+                                                           data-id="{{ $perm->id }}"
+                                                           data-action="create">
+                                                </td>
+                                                <td style="text-align: center; padding: 8px 4px;">
+                                                    <input type="checkbox" name="permissions[{{ $perm->id }}][can_edit]" value="1"
+                                                           {{ $canEdit ? 'checked' : '' }}
+                                                           class="perm-checkbox"
+                                                           data-id="{{ $perm->id }}"
+                                                           data-action="edit">
+                                                </td>
+                                                <td style="text-align: center; padding: 8px 4px;">
+                                                    <input type="checkbox" name="permissions[{{ $perm->id }}][can_delete]" value="1"
+                                                           {{ $canDelete ? 'checked' : '' }}
+                                                           class="perm-checkbox"
+                                                           data-id="{{ $perm->id }}"
+                                                           data-action="delete">
+                                                </td>
+                                                <td style="text-align: center; padding: 8px 4px;">
+                                                    <input type="checkbox" name="permissions[{{ $perm->id }}][can_export]" value="1"
+                                                           {{ $canExport ? 'checked' : '' }}
+                                                           class="perm-checkbox"
+                                                           data-id="{{ $perm->id }}"
+                                                           data-action="export">
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
                 @endforeach
+                </div>
 
                 {{-- Save Button --}}
                 <div class="d-flex justify-content-end gap-2 mt-4">
@@ -332,5 +331,21 @@ function checkAll(checked) {
         cb.checked = checked;
     });
 }
+
+// Rotate chevron icon on collapse/expand
+document.addEventListener('DOMContentLoaded', function() {
+    const collapses = document.querySelectorAll('[data-bs-toggle="collapse"]');
+    collapses.forEach(trigger => {
+        const targetId = trigger.getAttribute('data-bs-target');
+        const icon = trigger.querySelector('.fa-chevron-down');
+        
+        trigger.addEventListener('click', function() {
+            const isCollapsed = document.querySelector(targetId).classList.contains('show');
+            if (icon) {
+                icon.style.transform = isCollapsed ? 'rotate(0deg)' : 'rotate(180deg)';
+            }
+        });
+    });
+});
 </script>
 @endpush
