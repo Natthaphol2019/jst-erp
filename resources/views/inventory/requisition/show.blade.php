@@ -42,9 +42,15 @@
         <button onclick="window.print()" class="erp-btn-secondary">
             <i class="fas fa-print me-2"></i>พิมพ์
         </button>
-        <a href="{{ route('inventory.requisition.index') }}" class="erp-btn-secondary">
-            <i class="fas fa-arrow-left me-2"></i>กลับ
-        </a>
+        @if(auth()->user()->role === 'employee')
+            <a href="{{ route('employee.dashboard') }}" class="erp-btn-secondary">
+                <i class="fas fa-arrow-left me-2"></i>กลับ
+            </a>
+        @else
+            <a href="{{ route('inventory.requisition.index') }}" class="erp-btn-secondary">
+                <i class="fas fa-arrow-left me-2"></i>กลับ
+            </a>
+        @endif
     </div>
 </div>
 
@@ -79,11 +85,28 @@
                         <th style="color: var(--text-muted); font-size: 12px;">วันที่เบิก</th>
                         <td style="color: var(--text-secondary);">{{ \Carbon\Carbon::parse($requisition->req_date)->format('d/m/Y') }}</td>
                     </tr>
+                    @if($requisition->period)
+                    <tr>
+                        <th style="color: var(--text-muted); font-size: 12px;">ช่วงเวลา</th>
+                        <td>
+                            @php
+                                $periodLabel = match($requisition->period) {
+                                    'morning' => 'เช้า (08:00-12:00)',
+                                    'afternoon' => 'บ่าย (13:00-17:00)',
+                                    'evening' => 'เย็น/OT (17:00-20:00)',
+                                    default => $requisition->period,
+                                };
+                            @endphp
+                            <span class="erp-badge" style="background: rgba(56,189,248,0.12); color: #38bdf8;">{{ $periodLabel }}</span>
+                        </td>
+                    </tr>
+                    @endif
                     <tr>
                         <th style="color: var(--text-muted); font-size: 12px;">สถานะ</th>
                         <td>
                             @php
                                 $statusBadge = match($requisition->status) {
+                                    'issued' => ['bg' => 'rgba(52,211,153,0.12)', 'color' => '#34d399', 'text' => 'เบิกแล้ว'],
                                     'pending' => ['bg' => 'rgba(251,191,36,0.12)', 'color' => '#fbbf24', 'text' => 'รออนุมัติ'],
                                     'approved' => ['bg' => 'rgba(52,211,153,0.12)', 'color' => '#34d399', 'text' => 'อนุมัติแล้ว'],
                                     'rejected' => ['bg' => 'rgba(239,68,68,0.12)', 'color' => '#f87171', 'text' => 'ปฏิเสธ'],
@@ -200,13 +223,21 @@
                         <a href="{{ route('inventory.requisition.edit', $requisition->id) }}" class="erp-btn-secondary" style="border-color: #f59e0b; color: #f59e0b;">
                             <i class="fas fa-edit me-2"></i>แก้ไข
                         </a>
-                        <a href="{{ route('inventory.requisition.approve', $requisition->id) }}" class="erp-btn-secondary" style="border-color: #34d399; color: #34d399;">
-                            <i class="fas fa-check me-2"></i>อนุมัติ/ปฏิเสธ
+                        @if(in_array(auth()->user()->role, ['admin', 'inventory']))
+                            <a href="{{ route('inventory.requisition.approve', $requisition->id) }}" class="erp-btn-secondary" style="border-color: #34d399; color: #34d399;">
+                                <i class="fas fa-check me-2"></i>อนุมัติ/ปฏิเสธ
+                            </a>
+                        @endif
+                    @endif
+                    @if(auth()->user()->role === 'employee')
+                        <a href="{{ route('employee.dashboard') }}" class="erp-btn-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>กลับ
+                        </a>
+                    @else
+                        <a href="{{ route('inventory.requisition.index') }}" class="erp-btn-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>กลับ
                         </a>
                     @endif
-                    <a href="{{ route('inventory.requisition.index') }}" class="erp-btn-secondary">
-                        <i class="fas fa-arrow-left me-2"></i>กลับ
-                    </a>
                 </div>
             </div>
         </div>

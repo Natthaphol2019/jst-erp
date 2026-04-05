@@ -1,30 +1,31 @@
 <?php
-use Illuminate\Support\Facades\Route;
+
+use App\Http\Controllers\Admin\ActivityLogController;
+use App\Http\Controllers\Admin\BackupController;
+use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
+use App\Http\Controllers\Admin\HealthCheckController;
 use App\Http\Controllers\Auth\AuthController;
-use App\Http\Controllers\HR\EmployeeController;
+use App\Http\Controllers\Employee\DashboardController as EmployeeDashboardController;
+use App\Http\Controllers\ExportController;
+use App\Http\Controllers\HR\DashboardController as HRDashboardController;
 use App\Http\Controllers\HR\DepartmentController;
+use App\Http\Controllers\HR\EmployeeController;
 use App\Http\Controllers\HR\PositionController;
 use App\Http\Controllers\HR\TimeRecordController;
-use App\Http\Controllers\Inventory\ItemController;
-use App\Http\Controllers\Inventory\DashboardController as InventoryDashboardController;
-use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
-use App\Http\Controllers\HR\DashboardController as HRDashboardController;
-use App\Http\Controllers\Employee\DashboardController as EmployeeDashboardController;
-use App\Http\Controllers\Manager\DashboardController as ManagerDashboardController;
-use App\Http\Controllers\Admin\ActivityLogController;
+use App\Http\Controllers\ImageUploadController;
+use App\Http\Controllers\ImportController;
+use App\Http\Controllers\Inventory\BarcodeController;
 use App\Http\Controllers\Inventory\BorrowingController;
+use App\Http\Controllers\Inventory\DashboardController as InventoryDashboardController;
+use App\Http\Controllers\Inventory\ItemCategoryController;
+use App\Http\Controllers\Inventory\ItemController;
 use App\Http\Controllers\Inventory\RequisitionController;
 use App\Http\Controllers\Inventory\StockTransactionController;
-use App\Http\Controllers\Inventory\ItemCategoryController;
-use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\ImageUploadController;
+use App\Http\Controllers\Manager\DashboardController as ManagerDashboardController;
 use App\Http\Controllers\NotificationController;
-use App\Http\Controllers\ExportController;
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SearchController;
-use App\Http\Controllers\Inventory\BarcodeController;
-use App\Http\Controllers\ImportController;
-use App\Http\Controllers\Admin\BackupController;
-use App\Http\Controllers\Admin\HealthCheckController;
+use Illuminate\Support\Facades\Route;
 
 // 1. ถ้ามีคนพิมพ์หน้าแรก (/) ให้ Redirect ไปที่ /login
 Route::get('/', function () {
@@ -103,6 +104,13 @@ Route::middleware('auth')->group(function () {
         Route::get('/activity-logs/{id}', [ActivityLogController::class, 'show'])->name('activity-logs.show');
 
         // ==============================
+        // ตั้งค่าสิทธิ์การใช้งาน (Permissions)
+        // ==============================
+        Route::get('/permissions', [\App\Http\Controllers\Admin\PermissionController::class, 'index'])->name('permissions.index');
+        Route::post('/permissions/update', [\App\Http\Controllers\Admin\PermissionController::class, 'update'])->name('permissions.update');
+        Route::post('/permissions/reset', [\App\Http\Controllers\Admin\PermissionController::class, 'reset'])->name('permissions.reset');
+
+        // ==============================
         // ระบบนําเข้าข้อมูล (Import)
         // ==============================
         Route::prefix('imports')->name('imports.')->group(function () {
@@ -173,6 +181,17 @@ Route::middleware('auth')->group(function () {
     });
 
     // ==============================
+    // โซนเบิกสินค้า (Employee — สร้าง/ดู/แก้ไข ของตัวเอง)
+    // ==============================
+    Route::middleware('auth')->prefix('inventory')->name('inventory.')->group(function () {
+        Route::get('/requisition/create', [RequisitionController::class, 'create'])->name('requisition.create');
+        Route::post('/requisition', [RequisitionController::class, 'store'])->name('requisition.store');
+        Route::get('/requisition/{requisition}', [RequisitionController::class, 'show'])->name('requisition.show');
+        Route::get('/requisition/{requisition}/edit', [RequisitionController::class, 'edit'])->name('requisition.edit');
+        Route::put('/requisition/{requisition}', [RequisitionController::class, 'update'])->name('requisition.update');
+    });
+
+    // ==============================
     // โซนคลังสินค้า (Module 3 - Admin และ Inventory)
     // ==============================
     Route::middleware('role:admin,inventory')->prefix('inventory')->name('inventory.')->group(function () {
@@ -199,11 +218,6 @@ Route::middleware('auth')->group(function () {
 
         // ระบบเบิกอุปทาน (Requisition/Consumption System)
         Route::get('/requisition', [RequisitionController::class, 'index'])->name('requisition.index');
-        Route::get('/requisition/create', [RequisitionController::class, 'create'])->name('requisition.create');
-        Route::post('/requisition', [RequisitionController::class, 'store'])->name('requisition.store');
-        Route::get('/requisition/{requisition}', [RequisitionController::class, 'show'])->name('requisition.show');
-        Route::get('/requisition/{requisition}/edit', [RequisitionController::class, 'edit'])->name('requisition.edit');
-        Route::put('/requisition/{requisition}', [RequisitionController::class, 'update'])->name('requisition.update');
         Route::get('/requisition/{requisition}/approve', [RequisitionController::class, 'approveForm'])->name('requisition.approve');
         Route::post('/requisition/{requisition}/approve', [RequisitionController::class, 'approve'])->name('requisition.approve.store');
 
@@ -222,7 +236,7 @@ Route::middleware('auth')->group(function () {
         // อัปโหลดรูปพนักงาน
         Route::post('/employees/{employee}/image', [ImageUploadController::class, 'uploadEmployeeImage'])->name('employee');
         Route::delete('/employees/{employee}/image', [ImageUploadController::class, 'deleteEmployeeImage'])->name('employee.delete');
-        
+
         // อัปโหลดรูปสินค้า
         Route::post('/items/{item}/image', [ImageUploadController::class, 'uploadItemImage'])->name('item');
         Route::delete('/items/{item}/image', [ImageUploadController::class, 'deleteItemImage'])->name('item.delete');

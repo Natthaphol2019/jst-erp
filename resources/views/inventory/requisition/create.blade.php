@@ -8,9 +8,9 @@
         <h4 class="mb-1" style="font-size: 18px; font-weight: 600; color: var(--text-primary);">
             <i class="fas fa-plus me-2" style="color: #818cf8;"></i>สร้างใบเบิกอุปทาน
         </h4>
-        <p style="font-size: 13px; color: var(--text-muted); margin: 0;">สร้างใบเบิกสินค้าใหม่</p>
+        <p style="font-size: 13px; color: var(--text-muted); margin: 0;">เบิกสินค้าจากคลัง (หักสต๊อกทันที)</p>
     </div>
-    <a href="{{ route('inventory.requisition.index') }}" class="erp-btn-secondary">
+    <a href="{{ isset($isEmployee) && $isEmployee ? route('employee.dashboard') : route('inventory.requisition.index') }}" class="erp-btn-secondary">
         <i class="fas fa-arrow-left me-2"></i>กลับ
     </a>
 </div>
@@ -35,14 +35,19 @@
                 <div class="erp-card-body">
                     <div class="mb-3">
                         <label for="employee_id" class="erp-label">ผู้เบิก <span style="color: #f87171;">*</span></label>
-                        <select name="employee_id" id="employee_id" class="erp-select @error('employee_id') is-invalid @enderror" required>
-                            <option value="">-- เลือกพนักงาน --</option>
-                            @foreach($employees as $employee)
-                                <option value="{{ $employee->id }}" {{ old('employee_id') == $employee->id ? 'selected' : '' }}>
-                                    {{ $employee->employee_code }} - {{ $employee->firstname }} {{ $employee->lastname }}
-                                </option>
-                            @endforeach
-                        </select>
+                        @if(isset($isEmployee) && $isEmployee)
+                            <input type="text" class="erp-input" value="{{ $employees->first()->employee_code }} - {{ $employees->first()->firstname }} {{ $employees->first()->lastname }}" readonly>
+                            <input type="hidden" name="employee_id" value="{{ $employees->first()->id }}">
+                        @else
+                            <select name="employee_id" id="employee_id" class="erp-select @error('employee_id') is-invalid @enderror" required>
+                                <option value="">-- เลือกพนักงาน --</option>
+                                @foreach($employees as $employee)
+                                    <option value="{{ $employee->id }}" {{ old('employee_id') == $employee->id ? 'selected' : '' }}>
+                                        {{ $employee->employee_code }} - {{ $employee->firstname }} {{ $employee->lastname }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        @endif
                         @error('employee_id')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
@@ -59,6 +64,19 @@
                     </div>
 
                     <div class="mb-3">
+                        <label for="period" class="erp-label">ช่วงเวลา</label>
+                        <select name="period" id="period" class="erp-select @error('period') is-invalid @enderror">
+                            <option value="">-- ไม่ระบุ --</option>
+                            <option value="morning" {{ old('period') == 'morning' ? 'selected' : '' }}>เช้า (08:00-12:00)</option>
+                            <option value="afternoon" {{ old('period') == 'afternoon' ? 'selected' : '' }}>บ่าย (13:00-17:00)</option>
+                            <option value="evening" {{ old('period') == 'evening' ? 'selected' : '' }}>เย็น/OT (17:00-20:00)</option>
+                        </select>
+                        @error('period')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="mb-3">
                         <label for="note" class="erp-label">หมายเหตุ</label>
                         <textarea name="note" id="note" rows="3"
                                   class="erp-textarea @error('note') is-invalid @enderror"
@@ -69,8 +87,8 @@
                     </div>
 
                     <div class="erp-alert erp-alert-info">
-                        <i class="fas fa-info-circle me-2"></i>
-                        <strong>หมายเหตุ:</strong> ใบเบิกจะถูกบันทึกเป็น "รออนุมัติ" และต้องรอการอนุมัติจาก Admin/HR
+                        <i class="fas fa-bolt me-2"></i>
+                        <strong>หมายเหตุ:</strong> ใบเบิกจะหักสต๊อกทันทีเมื่อกดบันทึก
                     </div>
                 </div>
             </div>
@@ -151,7 +169,7 @@
 
                     <div class="erp-alert erp-alert-warning">
                         <i class="fas fa-exclamation-triangle me-2"></i>
-                        <strong>คำเตือน:</strong> สต๊อกจะถูกหักเมื่อใบเบิกได้รับการอนุมัติแล้วเท่านั้น
+                        <strong>คำเตือน:</strong> สต๊อกจะถูกหักทันทีเมื่อบันทึกใบเบิก
                     </div>
                 </div>
             </div>
@@ -164,11 +182,11 @@
             <div class="erp-card">
                 <div class="erp-card-body">
                     <div class="d-flex justify-content-end gap-2">
-                        <a href="{{ route('inventory.requisition.index') }}" class="erp-btn-secondary">
+                        <a href="{{ isset($isEmployee) && $isEmployee ? route('employee.dashboard') : route('inventory.requisition.index') }}" class="erp-btn-secondary">
                             <i class="fas fa-times me-2"></i>ยกเลิก
                         </a>
                         <button type="submit" class="erp-btn-primary">
-                            <i class="fas fa-check me-2"></i>สร้างใบเบิก
+                            <i class="fas fa-check me-2"></i>เบิกสินค้า
                         </button>
                     </div>
                 </div>

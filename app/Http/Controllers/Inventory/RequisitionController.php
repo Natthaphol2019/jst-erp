@@ -3,21 +3,18 @@
 namespace App\Http\Controllers\Inventory;
 
 use App\Http\Controllers\Controller;
+use App\Models\Employee;
+use App\Models\Item;
 use App\Models\Requisition;
 use App\Models\RequisitionItem;
-use App\Models\StockTransaction;
-use App\Models\Item;
-use App\Models\Employee;
 use App\Models\User;
 use App\Notifications\RequisitionSubmitted;
-use App\Notifications\RequisitionApproved;
-use App\Notifications\RequisitionRejected;
 use App\Services\StockService;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Notification;
-use Exception;
 
 class RequisitionController extends Controller
 {
@@ -29,6 +26,28 @@ class RequisitionController extends Controller
     }
 
     /**
+     * ตรวจสอบสิทธิ์ — employee เข้าถึงได้เฉพาะของตัวเอง
+     */
+    protected function authorizeRequisition(?Requisition $requisition = null): bool
+    {
+        $user = auth()->user();
+
+        if (in_array($user->role, ['admin', 'inventory'])) {
+            return true;
+        }
+
+        if ($user->role === 'employee') {
+            if ($requisition === null) {
+                return true;
+            }
+
+            return $requisition->employee_id === $user->employee_id;
+        }
+
+        return false;
+    }
+
+    /**
      * แสดงรายการเบิกทั้งหมด
      */
     public function index(Request $request)
@@ -37,9 +56,19 @@ class RequisitionController extends Controller
             ->where('req_type', 'consume')
             ->latest();
 
+        // employee เห็นเฉพาะของตัวเอง
+        if (auth()->user()->role === 'employee') {
+            $query->where('employee_id', auth()->user()->employee_id);
+        }
+
         // กรองตามสถานะ
         if ($request->filled('status')) {
             $query->where('status', $request->status);
+        }
+
+        // กรองตามช่วงเวลา
+        if ($request->filled('period')) {
+            $query->where('period', $request->period);
         }
 
         // ค้นหาตามชื่อพนักงาน
@@ -47,8 +76,8 @@ class RequisitionController extends Controller
             $search = $request->search;
             $query->whereHas('employee', function ($q) use ($search) {
                 $q->where('firstname', 'like', "%{$search}%")
-                  ->orWhere('lastname', 'like', "%{$search}%")
-                  ->orWhere('employee_code', 'like', "%{$search}%");
+                    ->orWhere('lastname', 'like', "%{$search}%")
+                    ->orWhere('employee_code', 'like', "%{$search}%");
             });
         }
 
@@ -62,28 +91,48 @@ class RequisitionController extends Controller
      */
     public function create()
     {
-        $employees = Employee::where('status', 'active')->orderBy('firstname')->get();
+        $user = auth()->user();
+        $isEmployee = $user->role === 'employee';
+
+        if ($isEmployee && ! $user->employee_id) {
+            return back()->withErrors(['error' => 'ไม่พบข้อมูลพนักงานของคุณ']);
+        }
+
+        $employees = $isEmployee
+            ? Employee::where('id', $user->employee_id)->get()
+            : Employee::where('status', 'active')->orderBy('firstname')->get();
+
+        // แสดงสินค้าที่เบิกได้: disposable (ใช้แล้วหมดไป) และ consumable
         $items = Item::where('status', 'available')
-            ->whereIn('type', ['equipment', 'consumable'])
+            ->whereIn('type', ['disposable', 'consumable'])
             ->orderBy('name')
             ->get();
 
-        return view('inventory.requisition.create', compact('employees', 'items'));
+        return view('inventory.requisition.create', compact('employees', 'items', 'isEmployee'));
     }
 
     /**
-     * บันทึกใบเบิก (สถานะ pending รออนุมัติ)
+     * บันทึกใบเบิก — เบิกได้เลย หักสต๊อกทันที
      */
     public function store(Request $request)
     {
+        $user = auth()->user();
+        $isEmployee = $user->role === 'employee';
+
         $validated = $request->validate([
-            'employee_id' => 'required|exists:employees,id',
+            'employee_id' => $isEmployee ? 'sometimes|exists:employees,id' : 'required|exists:employees,id',
             'req_date' => 'required|date',
+            'period' => 'nullable|in:morning,afternoon,evening',
             'note' => 'nullable|string|max:500',
             'items' => 'required|array|min:1',
             'items.*.item_id' => 'required|exists:items,id',
             'items.*.quantity' => 'required|integer|min:1',
         ]);
+
+        // ถ้าเป็น employee ใช้ employee_id จาก user เสมอ
+        if ($isEmployee) {
+            $validated['employee_id'] = $user->employee_id;
+        }
 
         // ตรวจสอบสต๊อกเบื้องต้น (ก่อนเข้า transaction)
         try {
@@ -91,8 +140,9 @@ class RequisitionController extends Controller
                 $currentStock = $this->stockService->checkStock($itemData['item_id']);
                 if ($currentStock < $itemData['quantity']) {
                     $item = Item::find($itemData['item_id']);
+
                     return back()->withErrors([
-                        'items' => "สินค้า {$item->name} มีไม่เพียงพอ (ต้องการ: {$itemData['quantity']}, คงเหลือ: {$currentStock})"
+                        'items' => "สินค้า {$item->name} มีไม่เพียงพอ (ต้องการ: {$itemData['quantity']}, คงเหลือ: {$currentStock})",
                     ])->withInput();
                 }
             }
@@ -102,16 +152,18 @@ class RequisitionController extends Controller
 
         DB::beginTransaction();
         try {
-            // สร้างใบเบิก (สถานะ pending)
+            // สร้างใบเบิก — สถานะ 'issued' (เบิกแล้ว) ไม่ต้องรออนุมัติ
             $requisition = Requisition::create([
                 'employee_id' => $validated['employee_id'],
                 'req_type' => 'consume',
-                'status' => 'pending',
+                'status' => 'issued',
                 'req_date' => $validated['req_date'],
+                'period' => $validated['period'] ?? null,
                 'note' => $validated['note'] ?? null,
+                'approved_by' => $user->id,
             ]);
 
-            // บันทึกสินค้าในใบเบิก (ยังไม่หักสต๊อก รออนุมัติ)
+            // บันทึกสินค้า + หักสต๊อกทันที
             foreach ($validated['items'] as $itemData) {
                 RequisitionItem::create([
                     'requisition_id' => $requisition->id,
@@ -119,16 +171,31 @@ class RequisitionController extends Controller
                     'quantity_requested' => $itemData['quantity'],
                     'quantity_returned' => 0,
                 ]);
+
+                // หักสต๊อกทันที
+                $item = Item::find($itemData['item_id']);
+                $this->stockService->deductStock(
+                    itemId: $itemData['item_id'],
+                    quantity: $itemData['quantity'],
+                    transactionType: 'consume_out',
+                    requisitionId: $requisition->id,
+                    userId: $user->id,
+                    remark: "เบิกโดย: {$requisition->employee->firstname} {$requisition->employee->lastname}".($validated['period'] ? " ({$validated['period']})" : '')
+                );
             }
 
             DB::commit();
 
-            // ส่งการแจ้งเตือนให้ admin และ inventory users
-            $adminAndInventoryUsers = User::whereIn('role', ['admin', 'inventory'])->get();
-            Notification::send($adminAndInventoryUsers, new RequisitionSubmitted($requisition));
+            // แจ้งเตือน admin/inventory (เฉพาะกรณี employee เบิก)
+            if ($isEmployee) {
+                $adminAndInventoryUsers = User::whereIn('role', ['admin', 'inventory'])->get();
+                if ($adminAndInventoryUsers->isNotEmpty()) {
+                    Notification::send($adminAndInventoryUsers, new RequisitionSubmitted($requisition));
+                }
+            }
 
             return redirect()->route('inventory.requisition.show', $requisition->id)
-                ->with('success', 'สร้างใบเบิกเรียบร้อยแล้ว (รอการอนุมัติ)');
+                ->with('success', 'เบิกสินค้าเรียบร้อยแล้ว');
 
         } catch (Exception $e) {
             DB::rollBack();
@@ -138,7 +205,7 @@ class RequisitionController extends Controller
                 'items' => $validated['items'] ?? null,
             ]);
 
-            return back()->withErrors(['error' => 'เกิดข้อผิดพลาด: ' . $e->getMessage()])->withInput();
+            return back()->withErrors(['error' => 'เกิดข้อผิดพลาด: '.$e->getMessage()])->withInput();
         }
     }
 
@@ -151,13 +218,17 @@ class RequisitionController extends Controller
             abort(404, 'ไม่พบข้อมูลใบเบิก');
         }
 
+        if (! $this->authorizeRequisition($requisition)) {
+            abort(403, 'คุณไม่มีสิทธิ์ดูข้อมูลนี้');
+        }
+
         $requisition->load(['employee.department', 'employee.position', 'items.item', 'approver']);
-        
+
         return view('inventory.requisition.show', compact('requisition'));
     }
 
     /**
-     * ฟอร์มแก้ไขใบเบิก (แก้ไขได้เฉพาะสถานะ pending)
+     * ฟอร์มแก้ไขใบเบิก (แก้ไขได้เฉพาะสถานะ issued)
      */
     public function edit(Requisition $requisition)
     {
@@ -165,17 +236,27 @@ class RequisitionController extends Controller
             abort(404, 'ไม่พบข้อมูลใบเบิก');
         }
 
-        if ($requisition->status !== 'pending') {
-            return back()->withErrors(['error' => 'สามารถแก้ไขได้เฉพาะใบเบิกที่รออนุมัติ']);
+        if (! $this->authorizeRequisition($requisition)) {
+            abort(403, 'คุณไม่มีสิทธิ์แก้ไขข้อมูลนี้');
         }
 
-        $employees = Employee::where('status', 'active')->orderBy('firstname')->get();
+        if ($requisition->status !== 'issued') {
+            return back()->withErrors(['error' => 'สามารถแก้ไขได้เฉพาะใบเบิกที่ยังไม่ดำเนินการ']);
+        }
+
+        $user = auth()->user();
+        $isEmployee = $user->role === 'employee';
+
+        $employees = $isEmployee
+            ? Employee::where('id', $user->employee_id)->get()
+            : Employee::where('status', 'active')->orderBy('firstname')->get();
+
         $items = Item::where('status', 'available')
-            ->whereIn('type', ['equipment', 'consumable'])
+            ->whereIn('type', ['disposable', 'consumable'])
             ->orderBy('name')
             ->get();
 
-        return view('inventory.requisition.edit', compact('requisition', 'employees', 'items'));
+        return view('inventory.requisition.edit', compact('requisition', 'employees', 'items', 'isEmployee'));
     }
 
     /**
@@ -187,21 +268,45 @@ class RequisitionController extends Controller
             abort(404, 'ไม่พบข้อมูลใบเบิก');
         }
 
-        if ($requisition->status !== 'pending') {
-            return back()->withErrors(['error' => 'สามารถแก้ไขได้เฉพาะใบเบิกที่รออนุมัติ']);
+        if (! $this->authorizeRequisition($requisition)) {
+            abort(403, 'คุณไม่มีสิทธิ์แก้ไขข้อมูลนี้');
         }
 
+        if ($requisition->status !== 'issued') {
+            return back()->withErrors(['error' => 'สามารถแก้ไขได้เฉพาะใบเบิกที่ยังไม่ดำเนินการ']);
+        }
+
+        $user = auth()->user();
+        $isEmployee = $user->role === 'employee';
+
         $validated = $request->validate([
-            'employee_id' => 'required|exists:employees,id',
+            'employee_id' => $isEmployee ? 'sometimes|exists:employees,id' : 'required|exists:employees,id',
             'req_date' => 'required|date',
+            'period' => 'nullable|in:morning,afternoon,evening',
             'note' => 'nullable|string|max:500',
             'items' => 'required|array|min:1',
             'items.*.item_id' => 'required|exists:items,id',
             'items.*.quantity' => 'required|integer|min:1',
         ]);
 
+        if ($isEmployee) {
+            $validated['employee_id'] = $user->employee_id;
+        }
+
         DB::beginTransaction();
         try {
+            // คืนสต๊อกเก่าก่อน
+            foreach ($requisition->items as $oldItem) {
+                $this->stockService->addStock(
+                    itemId: $oldItem->item_id,
+                    quantity: $oldItem->quantity_requested,
+                    transactionType: 'consume_return',
+                    requisitionId: $requisition->id,
+                    userId: $user->id,
+                    remark: "คืนสต๊อกจากการแก้ไขใบเบิก: {$requisition->employee->firstname} {$requisition->employee->lastname}"
+                );
+            }
+
             // ลบรายการเก่า
             $requisition->items()->delete();
 
@@ -209,10 +314,11 @@ class RequisitionController extends Controller
             $requisition->update([
                 'employee_id' => $validated['employee_id'],
                 'req_date' => $validated['req_date'],
+                'period' => $validated['period'] ?? null,
                 'note' => $validated['note'] ?? null,
             ]);
 
-            // บันทึกสินค้าใหม่
+            // บันทึกสินค้าใหม่ + หักสต๊อก
             foreach ($validated['items'] as $itemData) {
                 RequisitionItem::create([
                     'requisition_id' => $requisition->id,
@@ -220,6 +326,15 @@ class RequisitionController extends Controller
                     'quantity_requested' => $itemData['quantity'],
                     'quantity_returned' => 0,
                 ]);
+
+                $this->stockService->deductStock(
+                    itemId: $itemData['item_id'],
+                    quantity: $itemData['quantity'],
+                    transactionType: 'consume_out',
+                    requisitionId: $requisition->id,
+                    userId: $user->id,
+                    remark: "แก้ไขใบเบิก - เบิกโดย: {$requisition->employee->firstname} {$requisition->employee->lastname}"
+                );
             }
 
             DB::commit();
@@ -227,14 +342,15 @@ class RequisitionController extends Controller
             return redirect()->route('inventory.requisition.show', $requisition->id)
                 ->with('success', 'แก้ไขใบเบิกเรียบร้อยแล้ว');
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             DB::rollBack();
-            return back()->withErrors(['error' => 'เกิดข้อผิดพลาด: ' . $e->getMessage()])->withInput();
+
+            return back()->withErrors(['error' => 'เกิดข้อผิดพลาด: '.$e->getMessage()])->withInput();
         }
     }
 
     /**
-     * ฟอร์มอนุมัติ/ปฏิเสธ
+     * ฟอร์มอนุมัติ/ปฏิเสธ (คงไว้สำหรับ backward compatibility — ไม่ใช้แล้วใน flow ใหม่)
      */
     public function approveForm(Requisition $requisition)
     {
@@ -252,7 +368,7 @@ class RequisitionController extends Controller
     }
 
     /**
-     * บันทึกการอนุมัติ
+     * บันทึกการอนุมัติ (คงไว้สำหรับ backward compatibility)
      */
     public function approve(Request $request, Requisition $requisition)
     {
@@ -272,7 +388,6 @@ class RequisitionController extends Controller
         DB::beginTransaction();
         try {
             if ($validated['action'] === 'approved') {
-                // หักสต๊อกโดยใช้ StockService (มี lockForUpdate และตรวจสอบสต๊อกภายใน transaction)
                 foreach ($requisition->items as $item) {
                     $this->stockService->deductStock(
                         itemId: $item->item_id,
@@ -284,7 +399,6 @@ class RequisitionController extends Controller
                     );
                 }
 
-                // อัปเดตสถานะเป็น approved
                 $requisition->update([
                     'status' => 'approved',
                     'approved_by' => auth()->id(),
@@ -293,27 +407,16 @@ class RequisitionController extends Controller
 
                 $message = 'อนุมัติใบเบิกเรียบร้อยแล้ว';
             } else {
-                // ปฏิเสธ
                 $requisition->update([
                     'status' => 'rejected',
                     'approved_by' => auth()->id(),
                     'note' => $validated['approve_note'] ?? 'ปฏิเสธใบเบิก',
                 ]);
 
-                // ส่งการแจ้งเตือนให้ requester ว่าถูกปฏิเสธ
-                if ($requisition->employee && $requisition->employee->user) {
-                    $requisition->employee->user->notify(new RequisitionRejected($requisition));
-                }
-
                 $message = 'ปฏิเสธใบเบิกเรียบร้อยแล้ว';
             }
 
             DB::commit();
-
-            // ส่งการแจ้งเตือนให้ requester ว่าอนุมัติแล้ว (เฉพาะกรณี approved)
-            if ($validated['action'] === 'approved' && $requisition->employee && $requisition->employee->user) {
-                $requisition->employee->user->notify(new RequisitionApproved($requisition));
-            }
 
             return redirect()->route('inventory.requisition.show', $requisition->id)
                 ->with('success', $message);
@@ -327,7 +430,7 @@ class RequisitionController extends Controller
                 'action' => $validated['action'] ?? null,
             ]);
 
-            return back()->withErrors(['error' => 'เกิดข้อผิดพลาด: ' . $e->getMessage()])->withInput();
+            return back()->withErrors(['error' => 'เกิดข้อผิดพลาด: '.$e->getMessage()])->withInput();
         }
     }
 }

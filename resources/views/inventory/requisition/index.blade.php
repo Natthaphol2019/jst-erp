@@ -40,9 +40,11 @@
         <button onclick="window.print()" class="erp-btn-secondary">
             <i class="fas fa-print me-2"></i>พิมพ์
         </button>
-        <a href="{{ route('exports.requisitions') }}" class="erp-btn-primary" style="background: #22c55e; border-color: #22c55e;">
-            <i class="fas fa-file-excel me-2"></i>Export Excel
-        </a>
+        @if(in_array(auth()->user()->role, ['admin', 'inventory']))
+            <a href="{{ route('exports.requisitions') }}" class="erp-btn-primary" style="background: #22c55e; border-color: #22c55e;">
+                <i class="fas fa-file-excel me-2"></i>Export Excel
+            </a>
+        @endif
         <a href="{{ route('inventory.requisition.create') }}" class="erp-btn-primary">
             <i class="fas fa-plus me-2"></i>สร้างใบเบิกใหม่
         </a>
@@ -100,49 +102,65 @@
             <thead>
                 <tr>
                     <th width="80">เลขที่</th>
-                    <th width="120">วันที่เบิก</th>
+                    <th width="100">วันที่เบิก</th>
+                    <th width="100" style="text-align: center;">ช่วงเวลา</th>
                     <th>ผู้เบิก</th>
-                    <th width="100" style="text-align: center;">จำนวนรายการ</th>
-                    <th width="120">สถานะ</th>
-                    <th width="120">ผู้อนุมัติ</th>
-                    <th width="180" style="text-align: center;">จัดการ</th>
+                    <th width="100" style="text-align: center;">จำนวน</th>
+                    <th width="100">สถานะ</th>
+                    <th width="150" style="text-align: center;">จัดการ</th>
                 </tr>
             </thead>
             <tbody>
                 @forelse($requisitions as $req)
                     @php
                         $statusBadge = match($req->status) {
+                            'issued' => ['bg' => 'rgba(52,211,153,0.12)', 'color' => '#34d399', 'text' => 'เบิกแล้ว'],
                             'pending' => ['bg' => 'rgba(251,191,36,0.12)', 'color' => '#fbbf24', 'text' => 'รออนุมัติ'],
                             'approved' => ['bg' => 'rgba(52,211,153,0.12)', 'color' => '#34d399', 'text' => 'อนุมัติแล้ว'],
                             'rejected' => ['bg' => 'rgba(239,68,68,0.12)', 'color' => '#f87171', 'text' => 'ปฏิเสธ'],
                             default => ['bg' => 'rgba(107,114,128,0.12)', 'color' => '#9ca3af', 'text' => $req->status]
                         };
+
+                        $periodBadge = $req->period ? match($req->period) {
+                            'morning' => ['bg' => 'rgba(56,189,248,0.12)', 'color' => '#38bdf8', 'text' => 'เช้า'],
+                            'afternoon' => ['bg' => 'rgba(251,191,36,0.12)', 'color' => '#fbbf24', 'text' => 'บ่าย'],
+                            'evening' => ['bg' => 'rgba(167,139,250,0.12)', 'color' => '#a78bfa', 'text' => 'เย็น'],
+                            default => null,
+                        } : null;
                     @endphp
                     <tr>
                         <td><strong style="color: var(--text-primary);">#{{ str_pad($req->id, 4, '0', STR_PAD_LEFT) }}</strong></td>
                         <td style="color: var(--text-secondary);">{{ \Carbon\Carbon::parse($req->req_date)->format('d/m/Y') }}</td>
+                        <td style="text-align: center;">
+                            @if($periodBadge)
+                                <span class="erp-badge" style="background: {{ $periodBadge['bg'] }}; color: {{ $periodBadge['color'] }};">{{ $periodBadge['text'] }}</span>
+                            @else
+                                <span style="color: var(--text-muted); font-size: 11px;">-</span>
+                            @endif
+                        </td>
                         <td>
                             <div style="color: var(--text-primary);">{{ $req->employee->firstname }} {{ $req->employee->lastname }}</div>
                             <small style="color: var(--text-muted);">{{ $req->employee->employee_code }}</small>
                         </td>
-                        <td style="text-align: center; color: var(--text-secondary);">{{ $req->items->count() }} รายการ</td>
+                        <td style="text-align: center; color: var(--text-secondary);">{{ $req->items->sum('quantity_requested') }}</td>
                         <td>
                             <span class="erp-badge" style="background: {{ $statusBadge['bg'] }}; color: {{ $statusBadge['color'] }};">
                                 {{ $statusBadge['text'] }}
                             </span>
                         </td>
-                        <td style="color: var(--text-secondary);">{{ $req->approver->name ?? '-' }}</td>
                         <td style="text-align: center;">
                             <div class="d-flex gap-1 justify-content-center">
                                 <a href="{{ route('inventory.requisition.show', $req->id) }}"
                                    class="erp-btn-secondary" title="ดูรายละเอียด" style="padding: 4px 8px; font-size: 12px;">
                                     <i class="fas fa-eye"></i>
                                 </a>
-                                @if($req->status === 'pending')
+                                @if(in_array($req->status, ['issued', 'pending']))
                                     <a href="{{ route('inventory.requisition.edit', $req->id) }}"
                                        class="erp-btn-secondary" title="แก้ไข" style="padding: 4px 8px; font-size: 12px; border-color: #f59e0b; color: #f59e0b;">
                                         <i class="fas fa-edit"></i>
                                     </a>
+                                @endif
+                                @if($req->status === 'pending' && in_array(auth()->user()->role, ['admin', 'inventory']))
                                     <a href="{{ route('inventory.requisition.approve', $req->id) }}"
                                        class="erp-btn-secondary" title="อนุมัติ/ปฏิเสธ" style="padding: 4px 8px; font-size: 12px; border-color: #34d399; color: #34d399;">
                                         <i class="fas fa-check"></i>

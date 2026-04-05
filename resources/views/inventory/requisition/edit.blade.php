@@ -36,14 +36,19 @@
                 <div class="erp-card-body">
                     <div class="mb-3">
                         <label for="employee_id" class="erp-label">ผู้เบิก <span style="color: #f87171;">*</span></label>
-                        <select name="employee_id" id="employee_id" class="erp-select @error('employee_id') is-invalid @enderror" required>
-                            <option value="">-- เลือกพนักงาน --</option>
-                            @foreach($employees as $employee)
-                                <option value="{{ $employee->id }}" {{ old('employee_id', $requisition->employee_id) == $employee->id ? 'selected' : '' }}>
-                                    {{ $employee->employee_code }} - {{ $employee->firstname }} {{ $employee->lastname }}
-                                </option>
-                            @endforeach
-                        </select>
+                        @if(isset($isEmployee) && $isEmployee)
+                            <input type="text" class="erp-input" value="{{ $employees->first()->employee_code }} - {{ $employees->first()->firstname }} {{ $employees->first()->lastname }}" readonly>
+                            <input type="hidden" name="employee_id" value="{{ $employees->first()->id }}">
+                        @else
+                            <select name="employee_id" id="employee_id" class="erp-select @error('employee_id') is-invalid @enderror" required>
+                                <option value="">-- เลือกพนักงาน --</option>
+                                @foreach($employees as $employee)
+                                    <option value="{{ $employee->id }}" {{ old('employee_id', $requisition->employee_id) == $employee->id ? 'selected' : '' }}>
+                                        {{ $employee->employee_code }} - {{ $employee->firstname }} {{ $employee->lastname }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        @endif
                         @error('employee_id')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
