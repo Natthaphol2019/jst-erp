@@ -13,16 +13,37 @@
 </div>
 
 @if(session('success'))
-    <div class="erp-alert erp-alert-success mb-4">
+    <div class="erp-alert erp-alert-success mb-4" id="successAlert" style="position: relative; padding-right: 40px;">
         <i class="fas fa-check-circle me-2"></i>{{ session('success') }}
+        <button type="button" onclick="this.parentElement.remove()" style="position: absolute; top: 8px; right: 12px; background: none; border: none; color: inherit; cursor: pointer; font-size: 16px;">
+            <i class="fas fa-times"></i>
+        </button>
     </div>
 @endif
 
 @if(session('error'))
-    <div class="erp-alert erp-alert-danger mb-4">
+    <div class="erp-alert erp-alert-danger mb-4" id="errorAlert" style="position: relative; padding-right: 40px;">
         <i class="fas fa-exclamation-triangle me-2"></i>{{ session('error') }}
+        <button type="button" onclick="this.parentElement.remove()" style="position: absolute; top: 8px; right: 12px; background: none; border: none; color: inherit; cursor: pointer; font-size: 16px;">
+            <i class="fas fa-times"></i>
+        </button>
     </div>
 @endif
+
+{{-- Toast Notification --}}
+<div id="saveToast" class="position-fixed bottom-0 end-0 p-3" style="z-index: 9999; display: none;">
+    <div class="toast show" role="alert" style="background: var(--bg-surface); border: 1px solid var(--border); border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.2);">
+        <div class="toast-header" style="background: var(--bg-raised); border-bottom: 1px solid var(--border);">
+            <i class="fas fa-check-circle me-2" style="color: #34d399; font-size: 16px;"></i>
+            <strong class="me-auto" style="color: var(--text-primary);">บันทึกสำเร็จ</strong>
+            <small style="color: var(--text-muted);">เมื่อสักครู่</small>
+            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close" onclick="hideToast()"></button>
+        </div>
+        <div class="toast-body" style="color: var(--text-secondary);">
+            <span id="toastMessage">บันทึกสิทธิ์เรียบร้อยแล้ว</span>
+        </div>
+    </div>
+</div>
 
 <div class="row g-4">
     {{-- ==================== LEFT: Role Selector ==================== --}}
@@ -346,6 +367,57 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
+
+    // Show toast notification if success message exists
+    const successAlert = document.getElementById('successAlert');
+    if (successAlert) {
+        showToast(successAlert.textContent.trim());
+        
+        // Auto-hide alert after 5 seconds
+        setTimeout(() => {
+            if (successAlert) {
+                successAlert.style.transition = 'opacity 0.3s';
+                successAlert.style.opacity = '0';
+                setTimeout(() => successAlert.remove(), 300);
+            }
+        }, 5000);
+    }
+});
+
+// Toast notification
+function showToast(message) {
+    const toast = document.getElementById('saveToast');
+    const toastMsg = document.getElementById('toastMessage');
+    
+    if (toast && toastMsg) {
+        toastMsg.textContent = message;
+        toast.style.display = 'block';
+        
+        // Auto-hide after 4 seconds
+        setTimeout(() => {
+            hideToast();
+        }, 4000);
+    }
+}
+
+function hideToast() {
+    const toast = document.getElementById('saveToast');
+    if (toast) {
+        toast.style.display = 'none';
+    }
+}
+
+// Scroll to top on form submission
+document.getElementById('permissionForm')?.addEventListener('submit', function() {
+    // Show loading state
+    const submitBtn = this.querySelector('button[type="submit"]');
+    if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>กำลังบันทึก...';
+    }
+    
+    // Scroll to top so user can see success message
+    window.scrollTo({ top: 0, behavior: 'smooth' });
 });
 </script>
 @endpush
