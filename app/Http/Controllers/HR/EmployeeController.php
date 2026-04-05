@@ -103,14 +103,26 @@ class EmployeeController extends Controller
     // ==========================================
     public function edit(Employee $employee)
     {
+        // 🛡️ HR ไม่สามารถแก้ไขข้อมูล Admin ได้เลย
+        if ($employee->user && $employee->user->role === 'admin') {
+            return redirect()->route('hr.employees.index')
+                ->with('error', '⛔ HR ไม่มีสิทธิ์แก้ไขข้อมูลผู้ดูแลระบบ (Admin) กรุณาติดต่อ Admin เท่านั้น');
+        }
+
         $departments = Department::all();
         $positions = Position::all();
 
-        // ส่งตัวแปร $employee (ข้อมูลพนักงานคนนั้นๆ) ไปที่หน้า view เพื่อให้ฟอร์มดึงข้อมูลเก่ามาโชว์
+        // ส่งตัวแปร $employee (ข้อมูลพนักงานคนนั้นๆ) ไปที่ view เพื่อให้ฟอร์มดึงข้อมูลเก่ามาโชว์
         return view('hr.employees.edit', compact('employee', 'departments', 'positions'));
     }
     public function update(Request $request, Employee $employee)
     {
+        // 🛡️ ป้องกัน HR แก้ไข Admin (double check)
+        if ($employee->user && $employee->user->role === 'admin') {
+            return redirect()->route('hr.employees.index')
+                ->with('error', '⛔ HR ไม่มีสิทธิ์แก้ไขข้อมูลผู้ดูแลระบบ (Admin)');
+        }
+
         $request->validate([
             'employee_code' => 'required|max:50|unique:employees,employee_code,' . $employee->id,
             'department_id' => 'required|exists:departments,id',
@@ -122,36 +134,47 @@ class EmployeeController extends Controller
             'gender' => 'nullable|in:male,female,other',
             'status' => 'required|in:active,inactive,resigned',
             'password' => 'nullable|string|min:6',
-            'role' => 'required|in:admin,hr,manager,employee,inventory' // 🌟 3. รับค่าสิทธิ์ตอนแก้ไข
+            'role' => 'required|in:admin,hr,manager,employee,inventory'
         ]);
-
-        // 🛡️ ป้องกัน HR แก้ไข Admin
-        $isAdmin = $employee->user && $employee->user->role === 'admin';
 
         $employee->update($request->all());
 
         if ($employee->user) {
             $userData = [
                 'name' => trim($request->prefix . $request->firstname . ' ' . $request->lastname),
+                'role' => $request->role,
             ];
 
-            // 🛡️ HR ไม่สามารถเปลี่ยน role ของ admin ได้
-            if (!$isAdmin) {
-                $userData['role'] = $request->role;
-            }
-
-            // 🛡️ HR ไม่สามารถเปลี่ยนรหัสผ่าน admin ได้
-            if ($request->filled('password') && !$isAdmin) {
+            if ($request->filled('password')) {
                 $userData['password'] = \Illuminate\Support\Facades\Hash::make($request->password);
-            } elseif ($isAdmin && $request->filled('password')) {
-                return redirect()->back()->with('error', '⛔ คุณไม่มีสิทธิ์เปลี่ยนรหัสผ่านผู้ดูแลระบบ (Admin)');
             }
 
             $employee->user->update($userData);
         }
 
-        $message = $isAdmin ? 'อัปเดตข้อมูลพนักงานสำเร็จ (ไม่สามารถแก้ไขข้อมูล Admin ได้)' : 'อัปเดตข้อมูลพนักงานสำเร็จ!';
-        return redirect()->route('hr.employees.index')->with('success', $message);
+        return redirect()->route('hr.employees.index')->with('success', 'อัปเดตข้อมูลพนักงานสำเร็จ!');
+    }
+
+    // ==========================================
+    // บล็อค/ปลดบล็อคพนักงาน
+    // ==========================================
+    public function toggleBlock(Employee $employee)
+    {
+        // 🛡️ HR ไม่สามารถบล็อค Admin ได้
+        if ($employee->user && $employee->user->role === 'admin') {
+            return redirect()->route('hr.employees.index')
+                ->with('error', '⛔ HR ไม่มีสิทธิ์บล็อคผู้ดูแลระบบ (Admin)');
+        }
+
+        if ($employee->status === 'active') {
+            $employee->update(['status' => 'inactive']);
+            return redirect()->route('hr.employees.index')
+                ->with('success', 'บล็อคบัญชี "' . $employee->employee_code . '" เรียบร้อยแล้ว');
+        } else {
+            $employee->update(['status' => 'active']);
+            return redirect()->route('hr.employees.index')
+                ->with('success', 'ปลดบล็อคบัญชี "' . $employee->employee_code . '" เรียบร้อยแล้ว');
+        }
     }
 
     // ==========================================

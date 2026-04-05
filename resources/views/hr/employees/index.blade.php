@@ -145,15 +145,38 @@
                         </td>
                         <td class="no-print">
                             <div class="d-flex gap-2">
-                                <a href="{{ route('hr.employees.edit', $emp->id) }}" class="erp-btn-secondary" style="background: rgba(251,191,36,0.12); color: #fbbf24; border: 1px solid rgba(251,191,36,0.2);">
-                                    <i class="fas fa-edit me-1"></i>แก้ไข
-                                </a>
                                 @if($emp->user && $emp->user->role === 'admin')
-                                    <span class="erp-btn-secondary" style="opacity: 0.4; cursor: not-allowed; padding: 4px 10px; font-size: 12px;" title="HR ไม่สามารถลบ Admin ได้">
-                                        <i class="fas fa-shield-alt me-1"></i>ลบไม่ได้
+                                    {{-- Admin: HR ดูได้อย่างเดียว --}}
+                                    <span class="erp-btn-secondary" style="opacity: 0.4; cursor: not-allowed; padding: 4px 10px; font-size: 12px;" title="HR ไม่มีสิทธิ์แก้ไขข้อมูล Admin">
+                                        <i class="fas fa-eye me-1"></i>ดูได้เท่านั้น
+                                    </span>
+                                    <span class="erp-btn-secondary" style="opacity: 0.4; cursor: not-allowed; padding: 4px 10px; font-size: 12px;" title="HR ไม่มีสิทธิ์บล็อค Admin">
+                                        <i class="fas fa-shield-alt me-1"></i>บล็อคไม่ได้
                                     </span>
                                 @else
-                                    <form action="{{ route('hr.employees.destroy', $emp->id) }}" method="POST" onsubmit="return confirm('ยืนยันการลบพนักงานคนนี้หรือไม่?')">
+                                    <a href="{{ route('hr.employees.edit', $emp->id) }}" class="erp-btn-secondary" style="background: rgba(251,191,36,0.12); color: #fbbf24; border: 1px solid rgba(251,191,36,0.2);">
+                                        <i class="fas fa-edit me-1"></i>แก้ไข
+                                    </a>
+                                    @if($emp->status === 'active')
+                                        <form action="{{ route('hr.employees.toggle-block', $emp->id) }}" method="POST" class="d-inline">
+                                            @csrf
+                                            @method('PATCH')
+                                            <button type="submit" class="erp-btn-warning" style="padding: 4px 10px; font-size: 12px;"
+                                                    title="บล็อคบัญชีนี้" onclick="return confirm('ต้องการบล็อคบัญชี "{{ $emp->employee_code }}" หรือไม่?')">
+                                                <i class="fas fa-ban me-1"></i>บล็อค
+                                            </button>
+                                        </form>
+                                    @elseif($emp->status === 'inactive')
+                                        <form action="{{ route('hr.employees.toggle-block', $emp->id) }}" method="POST" class="d-inline">
+                                            @csrf
+                                            @method('PATCH')
+                                            <button type="submit" class="erp-btn-success" style="padding: 4px 10px; font-size: 12px; background: rgba(52,211,153,0.12); color: #34d399; border-color: rgba(52,211,153,0.25);"
+                                                    title="ปลดบล็อคบัญชีนี้" onclick="return confirm('ต้องการปลดบล็อคบัญชี "{{ $emp->employee_code }}" หรือไม่?')">
+                                                <i class="fas fa-unlock me-1"></i>ปลดบล็อค
+                                            </button>
+                                        </form>
+                                    @endif
+                                    <form action="{{ route('hr.employees.destroy', $emp->id) }}" method="POST" class="d-inline" onsubmit="return confirm('ยืนยันการลบพนักงานคนนี้หรือไม่?')">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="erp-btn-danger">

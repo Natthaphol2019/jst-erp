@@ -152,6 +152,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/dashboard', [HRDashboardController::class, 'index'])->name('dashboard');
         // ระบบจัดการพนักงาน (Employees)
         Route::resource('employees', EmployeeController::class);
+        Route::patch('/employees/{employee}/toggle-block', [EmployeeController::class, 'toggleBlock'])->name('employees.toggle-block');
         // ระบบจัดการแผนก (Departments) เผื่อไว้สำหรับทำระบบ Workflow ส่งต่องานในอนาคต
         Route::resource('departments', DepartmentController::class);
         // ระบบจัดการตำแหน่งงาน (Positions) เผื่อไว้สำหรับทำระบบ Workflow ส่งต่องานในอนาคต
