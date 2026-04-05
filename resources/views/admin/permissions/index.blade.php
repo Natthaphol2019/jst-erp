@@ -262,11 +262,11 @@
                 </div>
 
                 {{-- Save Button --}}
-                <div class="d-flex justify-content-end gap-2 mt-4">
+                <div class="d-flex justify-content-end gap-2 mt-4" id="saveButtonContainer">
                     <a href="{{ route('admin.permissions.index', ['role' => 'hr']) }}" class="erp-btn-secondary">
                         <i class="fas fa-times me-2"></i>ยกเลิก
                     </a>
-                    <button type="submit" class="erp-btn-primary" style="padding: 10px 24px;">
+                    <button type="submit" id="savePermissionBtn" class="erp-btn-primary" style="padding: 12px 32px; font-size: 14px; font-weight: 600;">
                         <i class="fas fa-save me-2"></i>บันทึกการตั้งค่า
                     </button>
                 </div>
@@ -408,16 +408,22 @@ function hideToast() {
 }
 
 // Scroll to top on form submission
-document.getElementById('permissionForm')?.addEventListener('submit', function() {
-    // Show loading state
-    const submitBtn = this.querySelector('button[type="submit"]');
-    if (submitBtn) {
-        submitBtn.disabled = true;
-        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>กำลังบันทึก...';
-    }
-    
-    // Scroll to top so user can see success message
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-});
+const permissionForm = document.getElementById('permissionForm');
+const saveBtn = document.getElementById('savePermissionBtn');
+
+if (permissionForm && saveBtn) {
+    permissionForm.addEventListener('submit', function(e) {
+        // Show loading state
+        saveBtn.disabled = true;
+        saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>กำลังบันทึก...';
+        saveBtn.style.opacity = '0.7';
+        saveBtn.style.cursor = 'not-allowed';
+        
+        // Scroll to top so user can see success message
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        
+        // Form will submit naturally after this
+    });
+}
 </script>
 @endpush
