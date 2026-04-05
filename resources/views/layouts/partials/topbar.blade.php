@@ -1,6 +1,20 @@
 @php
-    $unreadNotifications = auth()->user()->unreadNotifications()->limit(5)->get();
-    $unreadCount = auth()->user()->unreadNotifications()->count();
+    // Cache unread count for 30 seconds to avoid querying on every page load
+    $userId = auth()->id();
+    $cacheKey = "unread_count_{$userId}";
+    $unreadCount = cache()->remember($cacheKey, 30, function () use ($userId) {
+        $user = \App\Models\User::find($userId);
+        return $user ? $user->unreadNotifications()->count() : 0;
+    });
+
+    // Only fetch recent notifications if needed for dropdown
+    $recentUnread = null;
+    if ($unreadCount > 0) {
+        $recentUnread = cache()->remember("recent_notifications_{$userId}", 30, function () use ($userId) {
+            $user = \App\Models\User::find($userId);
+            return $user ? $user->unreadNotifications()->limit(5)->get() : collect();
+        });
+    }
 @endphp
 
 <div class="d-flex align-items-center px-4 mb-3"
@@ -76,7 +90,7 @@
             </li>
             <li><hr class="dropdown-divider" style="border-color: var(--border); margin: 2px 0;"></li>
 
-            @forelse($unreadNotifications as $notification)
+            @forelse($recentUnread ?? collect() as $notification)
                 <li>
                     <form action="{{ route('notifications.read', $notification->id) }}" method="POST" class="m-0">
                         @csrf

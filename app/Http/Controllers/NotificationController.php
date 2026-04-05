@@ -29,6 +29,11 @@ class NotificationController extends Controller
         $notification = auth()->user()->notifications()->findOrFail($id);
         $notification->markAsRead();
 
+        // Clear cache
+        $userId = auth()->id();
+        cache()->forget("unread_count_{$userId}");
+        cache()->forget("recent_notifications_{$userId}");
+
         // ถ้ามีการส่ง action_url กลับไปหน้าที่เกี่ยวข้อง
         $actionUrl = $notification->data['action_url'] ?? route('notifications.index');
 
@@ -41,6 +46,11 @@ class NotificationController extends Controller
     public function markAllAsRead()
     {
         auth()->user()->unreadNotifications->markAsRead();
+
+        // Clear cache
+        $userId = auth()->id();
+        cache()->forget("unread_count_{$userId}");
+        cache()->forget("recent_notifications_{$userId}");
 
         return redirect()->back()->with('success', 'อ่านการแจ้งเตือนทั้งหมดแล้ว');
     }
