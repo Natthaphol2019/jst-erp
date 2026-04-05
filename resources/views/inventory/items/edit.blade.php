@@ -123,8 +123,10 @@
                 <div class="col-md-6">
                     <label class="erp-label">ประเภท <span style="color: #f87171;">*</span></label>
                     <select name="type" class="erp-select" required>
-                        <option value="equipment" {{ (old('type', $item->type) == 'equipment') ? 'selected' : '' }}>อุปกรณ์ (ยืม-คืนได้)</option>
-                        <option value="consumable" {{ (old('type', $item->type) == 'consumable') ? 'selected' : '' }}>วัสดุสิ้นเปลือง (ใช้แล้วหมดไป)</option>
+                        <option value="returnable" {{ (old('type', $item->type) == 'returnable') ? 'selected' : '' }}>🔧 อุปกรณ์ (ยืม-คืนได้)</option>
+                        <option value="disposable" {{ (old('type', $item->type) == 'disposable') ? 'selected' : '' }}>📦 วัสดุสิ้นเปลือง (ใช้แล้วหมดไป)</option>
+                        <option value="equipment" {{ (old('type', $item->type) == 'equipment') ? 'selected' : '' }}>🏭 เครื่องจักร/อุปกรณ์ถาวร</option>
+                        <option value="consumable" {{ (old('type', $item->type) == 'consumable') ? 'selected' : '' }}>🧴 วัสดุบริโภค (ใช้แล้วหมดไป)</option>
                     </select>
                 </div>
 

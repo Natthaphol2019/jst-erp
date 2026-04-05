@@ -64,10 +64,17 @@
                 </div>
                 <div class="col-md-6">
                     <label class="erp-label">ประเภท <span style="color: #f87171;">*</span></label>
-                    <select name="type" class="erp-select">
-                        <option value="equipment">อุปกรณ์ (ยืม-คืน)</option>
-                        <option value="consumable">วัสดุสิ้นเปลือง</option>
+                    <select name="type" class="erp-select" required>
+                        <option value="returnable">🔧 อุปกรณ์ (ยืม-คืนได้)</option>
+                        <option value="disposable">📦 วัสดุสิ้นเปลือง (ใช้แล้วหมดไป)</option>
+                        <option value="equipment">🏭 เครื่องจักร/อุปกรณ์ถาวร</option>
+                        <option value="consumable">🧴 วัสดุบริโภค (ใช้แล้วหมดไป)</option>
                     </select>
+                    <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">
+                        <i class="fas fa-info-circle me-1"></i>
+                        <strong>อุปกรณ์:</strong> ยืมแล้วต้องคืน (เช่น เครื่องมือ, PPE) | 
+                        <strong>วัสดุสิ้นเปลือง:</strong> เบิกแล้วหมดไป (เช่น น้ำยา, กระดาษ)
+                    </div>
                 </div>
                 <div class="col-md-4">
                     <label class="erp-label">จำนวนตั้งต้น</label>

@@ -192,8 +192,17 @@
                         <td><strong style="color: var(--text-primary);">{{ $item->item_code }}</strong></td>
                         <td style="color: var(--text-secondary);">{{ $item->name }}</td>
                         <td>
-                            <span class="erp-badge" style="background: {{ $item->type == 'equipment' ? 'rgba(56,189,248,0.12)' : 'rgba(107,114,128,0.12)' }}; color: {{ $item->type == 'equipment' ? '#38bdf8' : '#9ca3af' }};">
-                                {{ $item->type == 'equipment' ? 'อุปกรณ์' : 'วัสดุสิ้นเปลือง' }}
+                            @php
+                                $typeBadge = match($item->type) {
+                                    'returnable' => ['bg' => 'rgba(56,189,248,0.12)', 'color' => '#38bdf8', 'text' => '🔧 อุปกรณ์'],
+                                    'disposable' => ['bg' => 'rgba(107,114,128,0.12)', 'color' => '#9ca3af', 'text' => '📦 วัสดุสิ้นเปลือง'],
+                                    'equipment' => ['bg' => 'rgba(167,139,250,0.12)', 'color' => '#a78bfa', 'text' => '🏭 เครื่องจักร'],
+                                    'consumable' => ['bg' => 'rgba(251,191,36,0.12)', 'color' => '#fbbf24', 'text' => '🧴 วัสดุบริโภค'],
+                                    default => ['bg' => 'rgba(107,114,128,0.12)', 'color' => '#6b7280', 'text' => $item->type]
+                                };
+                            @endphp
+                            <span class="erp-badge" style="background: {{ $typeBadge['bg'] }}; color: {{ $typeBadge['color'] }};">
+                                {{ $typeBadge['text'] }}
                             </span>
                         </td>
                         <td style="text-align: right; color: var(--text-secondary);">{{ number_format($item->current_stock) }}</td>
