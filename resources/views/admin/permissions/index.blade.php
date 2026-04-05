@@ -262,13 +262,19 @@
                 </div>
 
                 {{-- Save Button --}}
-                <div class="d-flex justify-content-end gap-2 mt-4" id="saveButtonContainer">
-                    <a href="{{ route('admin.permissions.index', ['role' => 'hr']) }}" class="erp-btn-secondary">
-                        <i class="fas fa-times me-2"></i>ยกเลิก
-                    </a>
-                    <button type="submit" id="savePermissionBtn" class="erp-btn-primary" style="padding: 12px 32px; font-size: 14px; font-weight: 600;">
-                        <i class="fas fa-save me-2"></i>บันทึกการตั้งค่า
-                    </button>
+                <div class="d-flex justify-content-between align-items-center gap-2 mt-4 p-3" id="saveButtonContainer" style="background: var(--bg-raised); border-radius: 12px; border: 1px solid var(--border);">
+                    <div style="font-size: 12px; color: var(--text-muted);">
+                        <i class="fas fa-info-circle me-1"></i>
+                        เมื่อตั้งค่าเสร็จแล้วกดปุ่มบันทึกด้านล่าง
+                    </div>
+                    <div class="d-flex gap-2">
+                        <a href="{{ route('admin.permissions.index', ['role' => 'hr']) }}" class="erp-btn-secondary">
+                            <i class="fas fa-times me-2"></i>ยกเลิก
+                        </a>
+                        <button type="submit" id="savePermissionBtn" class="erp-btn-primary" style="padding: 12px 32px; font-size: 14px; font-weight: 600; min-width: 180px;">
+                            <i class="fas fa-save me-2"></i>บันทึกการตั้งค่า
+                        </button>
+                    </div>
                 </div>
             @endif
         </form>
