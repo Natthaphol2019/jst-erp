@@ -21,6 +21,11 @@ class Requisition extends Model
         'approved_by'
     ];
 
+    protected $casts = [
+        'req_date' => 'date',
+        'due_date' => 'date',
+    ];
+
     public function employee()
     {
         return $this->belongsTo(Employee::class);
