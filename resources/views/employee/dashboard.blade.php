@@ -18,16 +18,16 @@
         <a href="{{ route('employee.dashboard') }}" class="navbar-link {{ request()->routeIs('employee.dashboard') ? 'active' : '' }}">
             <i class="fas fa-home"></i> แดชบอร์ด
         </a>
-        <a href="{{ route('inventory.borrowing.create') }}" class="navbar-link">
+        <a href="{{ route('employee.borrowing.create') }}" class="navbar-link">
             <i class="fas fa-hand-holding"></i> ยืมอุปกรณ์
         </a>
-        <a href="{{ route('inventory.requisition.create') }}" class="navbar-link">
+        <a href="{{ route('employee.requisition.create') }}" class="navbar-link">
             <i class="fas fa-clipboard-list"></i> เบิกอุปทาน
         </a>
-        <a href="{{ route('inventory.borrowing.index') }}" class="navbar-link">
+        <a href="{{ route('employee.borrowings') }}" class="navbar-link">
             <i class="fas fa-list-alt"></i> รายการยืมของฉัน
         </a>
-        <a href="{{ route('inventory.requisition.index') }}" class="navbar-link">
+        <a href="{{ route('employee.requisitions') }}" class="navbar-link">
             <i class="fas fa-file-invoice"></i> รายการเบิกของฉัน
         </a>
         <a href="{{ route('profile.edit') }}" class="navbar-link">
@@ -73,7 +73,7 @@
                     <div class="erp-stat-label">กำลังยืม</div>
                     <div class="erp-stat-value">{{ number_format($activeBorrowingsCount) }}</div>
                 </div>
-                <a href="#my-borrowings" class="erp-stat-link" style="color: #38bdf8;">
+                <a href="{{ route('employee.borrowings') }}" class="erp-stat-link" style="color: #38bdf8;">
                     ดูรายละเอียด <i class="fas fa-arrow-right"></i>
                 </a>
             </div>
@@ -89,7 +89,7 @@
                     <div class="erp-stat-label">รออนุมัติ</div>
                     <div class="erp-stat-value">{{ number_format($pendingRequestsCount) }}</div>
                 </div>
-                <a href="#my-requisitions" class="erp-stat-link" style="color: #fbbf24;">
+                <a href="{{ route('employee.requisitions') }}" class="erp-stat-link" style="color: #fbbf24;">
                     ตรวจสอบสถานะ <i class="fas fa-arrow-right"></i>
                 </a>
             </div>
@@ -124,28 +124,28 @@
                 <div class="erp-card-body">
                     <div class="row g-3">
                         <div class="col-6 col-md-4">
-                            <a href="{{ route('inventory.borrowing.create') }}" class="erp-btn-primary w-100 py-3 py-md-4 d-block text-center" style="min-height: 100px;">
+                            <a href="{{ route('employee.borrowing.create') }}" class="erp-btn-primary w-100 py-3 py-md-4 d-block text-center" style="min-height: 100px;">
                                 <i class="fas fa-hand-holding d-block mb-2" style="font-size: 28px;"></i>
                                 <span class="fw-semibold d-block">ยืมอุปกรณ์</span>
                                 <small style="color: var(--text-secondary); font-size: 11px;">ยื่นคำขอยืม</small>
                             </a>
                         </div>
                         <div class="col-6 col-md-4">
-                            <a href="{{ route('inventory.requisition.create') }}" class="erp-btn-primary w-100 py-3 py-md-4 d-block text-center" style="background: #6366f1; min-height: 100px;">
+                            <a href="{{ route('employee.requisition.create') }}" class="erp-btn-primary w-100 py-3 py-md-4 d-block text-center" style="background: #6366f1; min-height: 100px;">
                                 <i class="fas fa-clipboard-list d-block mb-2" style="font-size: 28px;"></i>
                                 <span class="fw-semibold d-block">เบิกอุปทาน</span>
                                 <small style="color: var(--text-secondary); font-size: 11px;">ยื่นคำขอเบิก</small>
                             </a>
                         </div>
                         <div class="col-6 col-md-4">
-                            <a href="{{ route('inventory.borrowing.index') }}" class="erp-btn-secondary w-100 py-3 py-md-4 d-block text-center" style="min-height: 100px;">
+                            <a href="{{ route('employee.borrowings') }}" class="erp-btn-secondary w-100 py-3 py-md-4 d-block text-center" style="min-height: 100px;">
                                 <i class="fas fa-list-check d-block mb-2" style="font-size: 28px;"></i>
                                 <span class="fw-semibold d-block">รายการยืม</span>
                                 <small style="color: var(--text-secondary); font-size: 11px;">ดูทั้งหมด</small>
                             </a>
                         </div>
                         <div class="col-6 col-md-4">
-                            <a href="{{ route('inventory.requisition.index') }}" class="erp-btn-secondary w-100 py-3 py-md-4 d-block text-center" style="min-height: 100px;">
+                            <a href="{{ route('employee.requisitions') }}" class="erp-btn-secondary w-100 py-3 py-md-4 d-block text-center" style="min-height: 100px;">
                                 <i class="fas fa-file-invoice d-block mb-2" style="font-size: 28px;"></i>
                                 <span class="fw-semibold d-block">รายการเบิก</span>
                                 <small style="color: var(--text-secondary); font-size: 11px;">ดูทั้งหมด</small>

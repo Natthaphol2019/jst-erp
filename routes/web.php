@@ -151,6 +151,18 @@ Route::middleware('auth')->group(function () {
     // ==============================
     Route::middleware('role:employee')->prefix('employee')->name('employee.')->group(function () {
         Route::get('/dashboard', [EmployeeDashboardController::class, 'index'])->name('dashboard');
+        
+        // Employee borrowing history (ดูเฉพาะของตัวเอง)
+        Route::get('/borrowings', [BorrowingController::class, 'myBorrowings'])->name('borrowings');
+        Route::get('/borrowings/create', [BorrowingController::class, 'createForEmployee'])->name('borrowing.create');
+        Route::post('/borrowings', [BorrowingController::class, 'store'])->name('borrowing.store');
+        Route::get('/borrowings/{borrowing}', [BorrowingController::class, 'show'])->name('borrowing.show');
+        
+        // Employee requisition history (ดูเฉพาะของตัวเอง)
+        Route::get('/requisitions', [RequisitionController::class, 'myRequisitions'])->name('requisitions');
+        Route::get('/requisitions/create', [RequisitionController::class, 'create'])->name('requisition.create');
+        Route::post('/requisitions', [RequisitionController::class, 'store'])->name('requisition.store');
+        Route::get('/requisitions/{requisition}', [RequisitionController::class, 'show'])->name('requisition.show');
     });
 
     // ==============================

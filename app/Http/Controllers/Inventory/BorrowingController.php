@@ -70,6 +70,61 @@ class BorrowingController extends Controller
     }
 
     /**
+     * แสดงรายการยืมของ employee คนปัจจุบัน (ดูเฉพาะของตัวเอง)
+     */
+    public function myBorrowings(Request $request)
+    {
+        $user = auth()->user();
+        
+        if (!$user->employee_id) {
+            return redirect()->route('employee.dashboard')
+                ->with('error', 'ไม่พบข้อมูลพนักงานของคุณ');
+        }
+
+        $query = Requisition::with(['employee', 'items.item', 'approver'])
+            ->where('req_type', 'borrow')
+            ->where('employee_id', $user->employee_id)
+            ->latest();
+
+        // กรองตามสถานะ
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        $borrowings = $query->paginate(15);
+
+        // นับจำนวนใบยืมที่เกินกำหนดของตัวเอง
+        $overdueCount = Requisition::where('req_type', 'borrow')
+            ->where('employee_id', $user->employee_id)
+            ->whereIn('status', ['approved', 'returned_partial'])
+            ->where('due_date', '<', Carbon::today())
+            ->count();
+
+        return view('inventory.borrowing.my_borrowings', compact('borrowings', 'overdueCount'));
+    }
+
+    /**
+     * ฟอร์มสร้างใบยืมสำหรับ employee
+     */
+    public function createForEmployee()
+    {
+        $user = auth()->user();
+        
+        if (!$user->employee_id) {
+            return redirect()->route('employee.dashboard')
+                ->with('error', 'ไม่พบข้อมูลพนักงานของคุณ');
+        }
+
+        $employees = Employee::where('id', $user->employee_id)->get();
+        $items = Item::where('status', 'available')
+            ->where('type', 'equipment')
+            ->orderBy('name')
+            ->get();
+
+        return view('inventory.borrowing.create_employee', compact('employees', 'items'));
+    }
+
+    /**
      * ตรวจสอบใบยืมที่เกินกำหนดและส่งการแจ้งเตือน
      */
     protected function checkOverdueBorrowings(): void

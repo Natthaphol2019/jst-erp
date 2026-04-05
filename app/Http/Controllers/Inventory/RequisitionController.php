@@ -107,6 +107,33 @@ class RequisitionController extends Controller
     }
 
     /**
+     * แสดงรายการเบิกของ employee คนปัจจุบัน (ดูเฉพาะของตัวเอง)
+     */
+    public function myRequisitions(Request $request)
+    {
+        $user = auth()->user();
+        
+        if (!$user->employee_id) {
+            return redirect()->route('employee.dashboard')
+                ->with('error', 'ไม่พบข้อมูลพนักงานของคุณ');
+        }
+
+        $query = Requisition::with(['employee', 'items.item', 'approver'])
+            ->where('req_type', 'consume')
+            ->where('employee_id', $user->employee_id)
+            ->latest();
+
+        // กรองตามสถานะ
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        $requisitions = $query->paginate(15);
+
+        return view('inventory.requisition.my_requisitions', compact('requisitions'));
+    }
+
+    /**
      * บันทึกใบเบิก — เบิกได้เลย หักสต๊อกทันที
      */
     public function store(Request $request)
