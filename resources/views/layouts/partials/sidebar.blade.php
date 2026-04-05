@@ -188,6 +188,31 @@
                         <span class="sidebar-text">บันทึกกิจกรรม</span>
                     </a>
                 </li>
+
+                <li class="nav-item mt-3 mb-1 px-3 sidebar-text">
+                    <span class="sb-section-label">จัดการระบบ</span>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ route('admin.imports.employees.form') }}"
+                        class="sidebar-link nav-link d-flex align-items-center gap-2 px-3 py-2 mx-2 rounded-2 {{ request()->routeIs('admin.imports.*') ? 'sb-active' : '' }}">
+                        <i class="fas fa-file-import sb-icon"></i>
+                        <span class="sidebar-text">นำเข้าข้อมูล</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ route('admin.backups.index') }}"
+                        class="sidebar-link nav-link d-flex align-items-center gap-2 px-3 py-2 mx-2 rounded-2 {{ request()->routeIs('admin.backups.*') ? 'sb-active' : '' }}">
+                        <i class="fas fa-database sb-icon"></i>
+                        <span class="sidebar-text">สำรองข้อมูล</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ route('admin.health') }}"
+                        class="sidebar-link nav-link d-flex align-items-center gap-2 px-3 py-2 mx-2 rounded-2 {{ request()->routeIs('admin.health*') ? 'sb-active' : '' }}">
+                        <i class="fas fa-heartbeat sb-icon"></i>
+                        <span class="sidebar-text">ตรวจสอบระบบ</span>
+                    </a>
+                </li>
             @endif
 
         </ul>
