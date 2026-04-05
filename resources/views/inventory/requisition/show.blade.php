@@ -4,6 +4,22 @@
 
 @section('content')
 <style>
+/* Fix table background for dark mode */
+.erp-card-body .table {
+    background: transparent !important;
+    color: var(--text-primary) !important;
+    margin-bottom: 0;
+}
+.erp-card-body .table th,
+.erp-card-body .table td {
+    background: transparent !important;
+    border-color: var(--border) !important;
+    color: inherit;
+}
+.erp-card-body .table tbody tr:hover {
+    background: rgba(99, 102, 241, 0.05) !important;
+}
+
 @media print {
     .no-print, .no-print * { display: none !important; }
     .sidebar, .navbar, .btn, .alert, .erp-card-body .d-flex { display: none !important; }

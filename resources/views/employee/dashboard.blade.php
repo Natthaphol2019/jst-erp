@@ -3,6 +3,48 @@
 @section('title', 'Employee Dashboard - JST ERP')
 
 @section('content')
+{{-- Mobile Navbar for Employee --}}
+<nav class="employee-navbar d-lg-none">
+    <div class="navbar-container">
+        <div class="navbar-brand">
+            <i class="fas fa-user-circle"></i>
+            <span>เมนูพนักงาน</span>
+        </div>
+        <div class="navbar-toggle" onclick="toggleEmployeeMenu()">
+            <i class="fas fa-bars"></i>
+        </div>
+    </div>
+    <div class="navbar-menu" id="employeeMenu">
+        <a href="{{ route('employee.dashboard') }}" class="navbar-link {{ request()->routeIs('employee.dashboard') ? 'active' : '' }}">
+            <i class="fas fa-home"></i> แดชบอร์ด
+        </a>
+        <a href="{{ route('inventory.borrowing.create') }}" class="navbar-link">
+            <i class="fas fa-hand-holding"></i> ยืมอุปกรณ์
+        </a>
+        <a href="{{ route('inventory.requisition.create') }}" class="navbar-link">
+            <i class="fas fa-clipboard-list"></i> เบิกอุปทาน
+        </a>
+        <a href="{{ route('inventory.borrowing.index') }}" class="navbar-link">
+            <i class="fas fa-list-alt"></i> รายการยืมของฉัน
+        </a>
+        <a href="{{ route('inventory.requisition.index') }}" class="navbar-link">
+            <i class="fas fa-file-invoice"></i> รายการเบิกของฉัน
+        </a>
+        <a href="{{ route('profile.edit') }}" class="navbar-link">
+            <i class="fas fa-user-edit"></i> โปรไฟล์
+        </a>
+        <a href="{{ route('notifications.index') }}" class="navbar-link">
+            <i class="fas fa-bell"></i> การแจ้งเตือน
+        </a>
+        <form action="{{ route('logout') }}" method="POST" class="navbar-link logout-link">
+            @csrf
+            <button type="submit">
+                <i class="fas fa-sign-out-alt"></i> ออกจากระบบ
+            </button>
+        </form>
+    </div>
+</nav>
+
 <div class="container-fluid py-4">
     <!-- Header -->
     <div class="d-flex justify-content-between align-items-start mb-4">
@@ -20,9 +62,9 @@
     </div>
 
     <!-- Stats Cards -->
-    <div class="row g-4 mb-4">
+    <div class="row g-3 g-md-4 mb-4">
         <!-- Active Borrowings -->
-        <div class="col-xl-4 col-md-6">
+        <div class="col-6 col-xl-4">
             <div class="erp-stat-card">
                 <div class="erp-stat-icon" style="background: rgba(56,189,248,0.12); color: #38bdf8;">
                     <i class="fas fa-sign-out-alt"></i>
@@ -38,7 +80,7 @@
         </div>
 
         <!-- Pending Requests -->
-        <div class="col-xl-4 col-md-6">
+        <div class="col-6 col-xl-4">
             <div class="erp-stat-card">
                 <div class="erp-stat-icon" style="background: rgba(251,191,36,0.12); color: #fbbf24;">
                     <i class="fas fa-history"></i>
@@ -54,7 +96,7 @@
         </div>
 
         <!-- Attendance This Month -->
-        <div class="col-xl-4 col-md-12">
+        <div class="col-12 col-xl-4">
             <div class="erp-stat-card">
                 <div class="erp-stat-icon" style="background: rgba(52,211,153,0.12); color: #34d399;">
                     <i class="fas fa-calendar-check"></i>
@@ -81,28 +123,46 @@
                 </div>
                 <div class="erp-card-body">
                     <div class="row g-3">
-                        <div class="col-md-4">
-                            <a href="{{ route('inventory.borrowing.create') }}" class="erp-btn-primary w-100 py-3 d-block text-center">
-                                <i class="fas fa-plus-circle d-block mb-2 fs-3"></i>
-                                <span class="fw-semibold">ยืมอุปกรณ์</span>
-                                <br>
-                                <small style="color: var(--text-secondary);">ยื่นคำขอยืมอุปกรณ์</small>
+                        <div class="col-6 col-md-4">
+                            <a href="{{ route('inventory.borrowing.create') }}" class="erp-btn-primary w-100 py-3 py-md-4 d-block text-center" style="min-height: 100px;">
+                                <i class="fas fa-hand-holding d-block mb-2" style="font-size: 28px;"></i>
+                                <span class="fw-semibold d-block">ยืมอุปกรณ์</span>
+                                <small style="color: var(--text-secondary); font-size: 11px;">ยื่นคำขอยืม</small>
                             </a>
                         </div>
-                        <div class="col-md-4">
-                            <a href="{{ route('inventory.requisition.create') }}" class="erp-btn-primary w-100 py-3 d-block text-center" style="background: #6366f1;">
-                                <i class="fas fa-clipboard-plus d-block mb-2 fs-3"></i>
-                                <span class="fw-semibold">เบิกอุปทาน</span>
-                                <br>
-                                <small style="color: var(--text-secondary);">ยื่นคำขอเบิกสินค้า</small>
+                        <div class="col-6 col-md-4">
+                            <a href="{{ route('inventory.requisition.create') }}" class="erp-btn-primary w-100 py-3 py-md-4 d-block text-center" style="background: #6366f1; min-height: 100px;">
+                                <i class="fas fa-clipboard-list d-block mb-2" style="font-size: 28px;"></i>
+                                <span class="fw-semibold d-block">เบิกอุปทาน</span>
+                                <small style="color: var(--text-secondary); font-size: 11px;">ยื่นคำขอเบิก</small>
                             </a>
                         </div>
-                        <div class="col-md-4">
-                            <a href="{{ route('inventory.borrowing.index') }}" class="erp-btn-secondary w-100 py-3 d-block text-center">
-                                <i class="fas fa-list-check d-block mb-2 fs-3"></i>
-                                <span class="fw-semibold">ดูรายการทั้งหมด</span>
-                                <br>
-                                <small style="color: var(--text-secondary);">ตรวจสอบสถานะคำขอ</small>
+                        <div class="col-6 col-md-4">
+                            <a href="{{ route('inventory.borrowing.index') }}" class="erp-btn-secondary w-100 py-3 py-md-4 d-block text-center" style="min-height: 100px;">
+                                <i class="fas fa-list-check d-block mb-2" style="font-size: 28px;"></i>
+                                <span class="fw-semibold d-block">รายการยืม</span>
+                                <small style="color: var(--text-secondary); font-size: 11px;">ดูทั้งหมด</small>
+                            </a>
+                        </div>
+                        <div class="col-6 col-md-4">
+                            <a href="{{ route('inventory.requisition.index') }}" class="erp-btn-secondary w-100 py-3 py-md-4 d-block text-center" style="min-height: 100px;">
+                                <i class="fas fa-file-invoice d-block mb-2" style="font-size: 28px;"></i>
+                                <span class="fw-semibold d-block">รายการเบิก</span>
+                                <small style="color: var(--text-secondary); font-size: 11px;">ดูทั้งหมด</small>
+                            </a>
+                        </div>
+                        <div class="col-6 col-md-4">
+                            <a href="{{ route('profile.edit') }}" class="erp-btn-secondary w-100 py-3 py-md-4 d-block text-center" style="min-height: 100px;">
+                                <i class="fas fa-user-edit d-block mb-2" style="font-size: 28px;"></i>
+                                <span class="fw-semibold d-block">โปรไฟล์</span>
+                                <small style="color: var(--text-secondary); font-size: 11px;">แก้ไขข้อมูล</small>
+                            </a>
+                        </div>
+                        <div class="col-6 col-md-4">
+                            <a href="{{ route('notifications.index') }}" class="erp-btn-secondary w-100 py-3 py-md-4 d-block text-center" style="min-height: 100px;">
+                                <i class="fas fa-bell d-block mb-2" style="font-size: 28px;"></i>
+                                <span class="fw-semibold d-block">แจ้งเตือน</span>
+                                <small style="color: var(--text-secondary); font-size: 11px;">การแจ้งเตือน</small>
                             </a>
                         </div>
                     </div>
@@ -303,4 +363,132 @@
     </div>
     @endif
 </div>
+
+{{-- Mobile Navbar Styles --}}
+<style>
+.employee-navbar {
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    margin-bottom: 16px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.navbar-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    background: linear-gradient(135deg, var(--accent) 0%, #818cf8 100%);
+    color: white;
+}
+
+.navbar-brand {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    font-size: 16px;
+}
+
+.navbar-brand i {
+    font-size: 24px;
+}
+
+.navbar-toggle {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255,255,255,0.2);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.navbar-toggle:active {
+    background: rgba(255,255,255,0.3);
+}
+
+.navbar-menu {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+}
+
+.navbar-menu.show {
+    max-height: 500px;
+}
+
+.navbar-link {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    color: var(--text-primary);
+    text-decoration: none;
+    border-bottom: 1px solid var(--border);
+    transition: background 0.2s;
+    font-size: 14px;
+}
+
+.navbar-link:last-child {
+    border-bottom: none;
+}
+
+.navbar-link:active,
+.navbar-link.active {
+    background: rgba(99, 102, 241, 0.1);
+    color: var(--accent);
+}
+
+.navbar-link i {
+    width: 20px;
+    text-align: center;
+    font-size: 16px;
+}
+
+.navbar-link.logout-link {
+    color: #f87171;
+}
+
+.navbar-link.logout-link button {
+    background: none;
+    border: none;
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    padding: 0;
+}
+
+/* Desktop: Hide mobile navbar */
+@media (min-width: 992px) {
+    .employee-navbar {
+        display: none !important;
+    }
+}
+</style>
+
+@push('scripts')
+<script>
+function toggleEmployeeMenu() {
+    const menu = document.getElementById('employeeMenu');
+    menu.classList.toggle('show');
+}
+
+// Auto-close menu when clicking a link
+document.querySelectorAll('.navbar-link').forEach(link => {
+    link.addEventListener('click', () => {
+        document.getElementById('employeeMenu').classList.remove('show');
+    });
+});
+</script>
+@endpush
+
 @endsection
