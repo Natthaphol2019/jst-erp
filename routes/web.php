@@ -169,6 +169,7 @@ Route::middleware('auth')->group(function () {
         // ระบบปิดงวดเวลา (Lock Period)
         Route::get('/time-records/lock', [TimeRecordController::class, 'lockPeriod'])->name('time-records.lock');
         Route::post('/time-records/lock', [TimeRecordController::class, 'lockPeriodStore'])->name('time-records.lock.store');
+        Route::get('/time-records/logs', [TimeRecordController::class, 'viewLogs'])->name('time-records.logs');
     });
 
     // ==============================

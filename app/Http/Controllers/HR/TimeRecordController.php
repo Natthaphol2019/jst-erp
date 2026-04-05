@@ -7,6 +7,7 @@ use App\Models\Department;
 use App\Models\Position;
 use App\Models\TimeRecord;
 use App\Models\TimeRecordDetail;
+use App\Models\TimeRecordLog;
 use Illuminate\Http\Request;
 use Carbon\CarbonPeriod;
 
@@ -75,6 +76,7 @@ class TimeRecordController extends Controller
 
         // 🌟 จุดที่แก้บัค: ต้องเจาะเข้าไปที่ [$employee_id] ก่อนดึงวันที่มาวนลูป
         $records = $request->records[$employee_id] ?? [];
+        $changesCount = 0;
 
         if (!empty($records)) {
             foreach ($records as $date => $data) {
@@ -93,6 +95,24 @@ class TimeRecordController extends Controller
                     $status !== 'present' || !empty($remark);
 
                 if ($hasData) {
+                    // เก็บข้อมูลเก่าสำหรับ Audit Log
+                    $oldData = null;
+                    $isNew = !$existing;
+
+                    if ($existing) {
+                        $oldData = [
+                            'status' => $existing->status,
+                            'remark' => $existing->remark,
+                            'details' => $existing->details->map(function ($d) {
+                                return [
+                                    'period' => $d->period_type,
+                                    'in' => $d->check_in_time,
+                                    'out' => $d->check_out_time,
+                                ];
+                            })->toArray(),
+                        ];
+                    }
+
                     // 1. บันทึกตารางหลัก (TimeRecord) -> เก็บสถานะและหมายเหตุ
                     $tr = TimeRecord::updateOrCreate(
                         ['employee_id' => $employee_id, 'work_date' => $date],
@@ -122,6 +142,31 @@ class TimeRecordController extends Controller
                             TimeRecordDetail::where('time_record_id', $tr->id)->where('period_type', $p)->delete();
                         }
                     }
+
+                    // 3. 📝 บันทึก Audit Log
+                    $newData = [
+                        'status' => $status,
+                        'remark' => $remark,
+                        'details' => collect($periods)->map(function ($p) use ($tr) {
+                            $detail = $tr->details()->where('period_type', $p)->first();
+                            return $detail ? [
+                                'period' => $p,
+                                'in' => $detail->check_in_time,
+                                'out' => $detail->check_out_time,
+                            ] : null;
+                        })->filter()->values()->toArray(),
+                    ];
+
+                    TimeRecordLog::create([
+                        'time_record_id' => $tr->id,
+                        'action' => $isNew ? 'create' : 'update',
+                        'reason' => 'แก้ไขเวลาทำงานด้วย Batch Entry',
+                        'old_data' => $oldData ? json_encode($oldData, JSON_UNESCAPED_UNICODE) : null,
+                        'new_data' => json_encode($newData, JSON_UNESCAPED_UNICODE),
+                        'changed_by' => auth()->id(),
+                    ]);
+
+                    $changesCount++;
                 }
             }
         }
@@ -132,7 +177,7 @@ class TimeRecordController extends Controller
             'department_id' => $emp ? $emp->department_id : null,
             'start_date' => $start_date,
             'end_date' => $end_date
-        ])->with('success', 'บันทึกเวลาทำงานสำเร็จ! ข้อมูลอัปเดตแล้ว');
+        ])->with('success', "บันทึกเวลาทำงานสำเร็จ! อัปเดตแล้ว {$changesCount} วัน");
     }
 
 
@@ -202,5 +247,29 @@ class TimeRecordController extends Controller
             'month' => substr($startDate, 0, 7),
             'period' => (substr($startDate, 8, 2) == '01') ? 1 : 2
         ])->with('success', $message);
+    }
+
+    // ==========================================
+    // ดูประวัติการแก้ไขเวลา (Audit Log) - Read Only
+    // ==========================================
+    public function viewLogs(Request $request)
+    {
+        $employee_id = $request->employee_id;
+        $start_date = $request->start_date ?? now()->startOfMonth()->format('Y-m-d');
+        $end_date = $request->end_date ?? now()->endOfMonth()->format('Y-m-d');
+
+        $query = TimeRecordLog::with(['timeRecord.employee', 'changedBy'])
+            ->whereHas('timeRecord', function ($q) use ($start_date, $end_date, $employee_id) {
+                $q->whereBetween('work_date', [$start_date, $end_date]);
+                if ($employee_id) {
+                    $q->where('employee_id', $employee_id);
+                }
+            })
+            ->latest()
+            ->paginate(50);
+
+        $employees = Employee::where('status', 'active')->orderBy('employee_code')->get();
+
+        return view('hr.time_records.logs', compact('query', 'employees', 'employee_id', 'start_date', 'end_date'));
     }
 }

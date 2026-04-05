@@ -105,6 +105,13 @@
                         <span class="sidebar-text">ปิดงวดเวลาทำงาน</span>
                     </a>
                 </li>
+                <li class="nav-item">
+                    <a href="{{ route('hr.time-records.logs') }}"
+                        class="sidebar-link nav-link d-flex align-items-center gap-2 px-3 py-2 mx-2 rounded-2 {{ request()->routeIs('hr.time-records.logs') ? 'sb-active' : '' }}">
+                        <i class="fas fa-history sb-icon"></i>
+                        <span class="sidebar-text">ประวัติแก้ไขเวลา</span>
+                    </a>
+                </li>
             @endif
 
             @if (in_array(auth()->user()->role, ['admin', 'inventory']))
