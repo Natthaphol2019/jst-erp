@@ -68,37 +68,45 @@ class PermissionController extends Controller
     {
         $request->validate([
             'role' => 'required|in:admin,hr,manager,inventory,employee',
-            'permissions' => 'array',
-            'permissions.*.permission_id' => 'required|exists:permissions,id',
-            'permissions.*.can_view' => 'boolean',
-            'permissions.*.can_create' => 'boolean',
-            'permissions.*.can_edit' => 'boolean',
-            'permissions.*.can_delete' => 'boolean',
-            'permissions.*.can_export' => 'boolean',
+            'permissions' => 'nullable|array',
+            'permissions.*.permission_id' => 'nullable|exists:permissions,id',
+            'permissions.*.can_view' => 'nullable|boolean',
+            'permissions.*.can_create' => 'nullable|boolean',
+            'permissions.*.can_edit' => 'nullable|boolean',
+            'permissions.*.can_delete' => 'nullable|boolean',
+            'permissions.*.can_export' => 'nullable|boolean',
         ]);
 
         $role = $request->role;
-        $permissions = $request->permissions ?? [];
+        $submittedPermissions = $request->permissions ?? [];
 
         // Admin มีทุกสิทธิ์เสมอ - ไม่ต้องอัปเดต
         if ($role === 'admin') {
             return redirect()->back()->with('success', 'Admin มีทุกสิทธิ์อยู่แล้ว ไม่ต้องตั้งค่า');
         }
 
+        // ดึง permissions ทั้งหมดจาก database
+        $allPermissions = \App\Models\Permission::all();
+
         DB::beginTransaction();
         try {
-            foreach ($permissions as $permData) {
+            foreach ($allPermissions as $permission) {
+                $permId = $permission->id;
+                $permData = $submittedPermissions[$permId] ?? [];
+
+                // ถ้าไม่มีการส่งมา (ไม่ได้ขยาย accordion) ให้ใช้ค่าเดิม
+                // ถ้ามีการส่งมา ใช้ค่าที่ส่งมา
                 RolePermission::updateOrCreate(
                     [
                         'role' => $role,
-                        'permission_id' => $permData['permission_id'],
+                        'permission_id' => $permId,
                     ],
                     [
-                        'can_view' => $permData['can_view'] ?? false,
-                        'can_create' => $permData['can_create'] ?? false,
-                        'can_edit' => $permData['can_edit'] ?? false,
-                        'can_delete' => $permData['can_delete'] ?? false,
-                        'can_export' => $permData['can_export'] ?? false,
+                        'can_view' => isset($permData['can_view']) ? (bool)$permData['can_view'] : false,
+                        'can_create' => isset($permData['can_create']) ? (bool)$permData['can_create'] : false,
+                        'can_edit' => isset($permData['can_edit']) ? (bool)$permData['can_edit'] : false,
+                        'can_delete' => isset($permData['can_delete']) ? (bool)$permData['can_delete'] : false,
+                        'can_export' => isset($permData['can_export']) ? (bool)$permData['can_export'] : false,
                     ]
                 );
             }
