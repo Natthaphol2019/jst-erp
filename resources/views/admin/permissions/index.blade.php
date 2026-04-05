@@ -149,24 +149,37 @@
                                     <i class="{{ $moduleIcon }} me-2" style="color: #818cf8;"></i>{{ $moduleName }}
                                 </span>
                                 <div class="d-flex gap-2">
-                                    <button type="button" class="btn btn-sm btn-outline-secondary" onclick="checkModule('{{ $moduleKey }}', true)">
-                                        <i class="fas fa-check me-1"></i>เลือกทั้งหมด
+                                    <button type="button" class="btn btn-sm btn-outline-secondary" onclick="checkModule('{{ $moduleKey }}', true)" title="เลือกทั้งหมดในหมวดนี้">
+                                        <i class="fas fa-check-double me-1"></i>ทั้งหมด
                                     </button>
-                                    <button type="button" class="btn btn-sm btn-outline-secondary" onclick="checkModule('{{ $moduleKey }}', false)">
+                                    <button type="button" class="btn btn-sm btn-outline-secondary" onclick="checkModule('{{ $moduleKey }}', false)" title="ล้างทั้งหมดในหมวดนี้">
                                         <i class="fas fa-times me-1"></i>ล้าง
                                     </button>
                                 </div>
                             </div>
                         </div>
                         <div class="erp-card-body p-0">
-                            <table class="table table-sm mb-0">
-                                <thead>
-                                    <tr style="font-size: 11px; color: var(--text-muted);">
-                                        <th style="width: 40px; text-align: center;">ดู</th>
-                                        <th style="width: 50px; text-align: center;">สร้าง</th>
-                                        <th style="width: 55px; text-align: center;">แก้ไข</th>
-                                        <th style="width: 50px; text-align: center;">ลบ</th>
-                                        <th style="width: 60px; text-align: center;">Export</th>
+                            <table class="perm-table mb-0" style="width: 100%;">
+                                <thead style="background: var(--bg-raised);">
+                                    <tr>
+                                        <th class="perm-name-col" style="padding: 8px 12px; font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;">
+                                            รายการ
+                                        </th>
+                                        <th style="width: 50px; text-align: center; padding: 8px 4px; font-size: 11px; font-weight: 600; color: var(--text-muted);">
+                                            ดู
+                                        </th>
+                                        <th style="width: 55px; text-align: center; padding: 8px 4px; font-size: 11px; font-weight: 600; color: var(--text-muted);">
+                                            สร้าง
+                                        </th>
+                                        <th style="width: 55px; text-align: center; padding: 8px 4px; font-size: 11px; font-weight: 600; color: var(--text-muted);">
+                                            แก้ไข
+                                        </th>
+                                        <th style="width: 50px; text-align: center; padding: 8px 4px; font-size: 11px; font-weight: 600; color: var(--text-muted);">
+                                            ลบ
+                                        </th>
+                                        <th style="width: 60px; text-align: center; padding: 8px 4px; font-size: 11px; font-weight: 600; color: var(--text-muted);">
+                                            Export
+                                        </th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -179,38 +192,46 @@
                                             $canDelete = $rp ? $rp->can_delete : false;
                                             $canExport = $rp ? $rp->can_export : false;
                                         @endphp
-                                        <tr style="border-top: 1px solid var(--border);">
-                                            <td colspan="5" style="padding: 12px 16px; font-size: 12px; font-weight: 500;">
+                                        <tr class="perm-row" style="border-bottom: 1px solid var(--border);">
+                                            <td class="perm-name-col" style="padding: 10px 12px; font-size: 12px; color: var(--text-primary); font-weight: 500;">
                                                 {{ $perm->permission_name }}
                                             </td>
-                                        </tr>
-                                        <tr style="border-top: none;">
-                                            <td style="text-align: center;">
+                                            <td style="text-align: center; padding: 8px 4px;">
                                                 <input type="hidden" name="permissions[{{ $perm->id }}][permission_id]" value="{{ $perm->id }}">
                                                 <input type="checkbox" name="permissions[{{ $perm->id }}][can_view]" value="1"
                                                        {{ $canView ? 'checked' : '' }}
-                                                       class="form-check-input"
-                                                       onchange="autoCheckCreate(this, {{ $perm->id }})">
+                                                       class="perm-checkbox"
+                                                       data-id="{{ $perm->id }}"
+                                                       data-action="view"
+                                                       onchange="autoCheckCreate(this)">
                                             </td>
-                                            <td style="text-align: center;">
+                                            <td style="text-align: center; padding: 8px 4px;">
                                                 <input type="checkbox" name="permissions[{{ $perm->id }}][can_create]" value="1"
                                                        {{ $canCreate ? 'checked' : '' }}
-                                                       class="form-check-input perm-{{ $perm->id }}">
+                                                       class="perm-checkbox"
+                                                       data-id="{{ $perm->id }}"
+                                                       data-action="create">
                                             </td>
-                                            <td style="text-align: center;">
+                                            <td style="text-align: center; padding: 8px 4px;">
                                                 <input type="checkbox" name="permissions[{{ $perm->id }}][can_edit]" value="1"
                                                        {{ $canEdit ? 'checked' : '' }}
-                                                       class="form-check-input perm-{{ $perm->id }}">
+                                                       class="perm-checkbox"
+                                                       data-id="{{ $perm->id }}"
+                                                       data-action="edit">
                                             </td>
-                                            <td style="text-align: center;">
+                                            <td style="text-align: center; padding: 8px 4px;">
                                                 <input type="checkbox" name="permissions[{{ $perm->id }}][can_delete]" value="1"
                                                        {{ $canDelete ? 'checked' : '' }}
-                                                       class="form-check-input perm-{{ $perm->id }}">
+                                                       class="perm-checkbox"
+                                                       data-id="{{ $perm->id }}"
+                                                       data-action="delete">
                                             </td>
-                                            <td style="text-align: center;">
+                                            <td style="text-align: center; padding: 8px 4px;">
                                                 <input type="checkbox" name="permissions[{{ $perm->id }}][can_export]" value="1"
                                                        {{ $canExport ? 'checked' : '' }}
-                                                       class="form-check-input perm-{{ $perm->id }}">
+                                                       class="perm-checkbox"
+                                                       data-id="{{ $perm->id }}"
+                                                       data-action="export">
                                             </td>
                                         </tr>
                                     @endforeach
@@ -237,15 +258,56 @@
 @endsection
 
 @push('scripts')
+<style>
+/* Permission table dark mode styles */
+.perm-table {
+    background: transparent !important;
+}
+.perm-table thead {
+    background: var(--bg-raised) !important;
+}
+.perm-table th,
+.perm-table td {
+    background: transparent !important;
+    border-color: var(--border) !important;
+    color: inherit;
+}
+.perm-row:hover {
+    background: rgba(99, 102, 241, 0.05) !important;
+}
+.perm-name-col {
+    color: var(--text-primary) !important;
+}
+
+/* Checkbox styling for dark mode */
+.perm-checkbox {
+    width: 16px;
+    height: 16px;
+    margin: 0;
+    cursor: pointer;
+    accent-color: var(--accent);
+}
+
+/* Sticky header for long lists */
+.perm-table thead tr th {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+</style>
+
 <script>
 // ถ้าติ๊ก "ดู" ให้ติ๊ก "สร้าง" "แก้ไข" ด้วย
-function autoCheckCreate(viewCheckbox, permId) {
-    const createCheckbox = document.querySelector(`.perm-${permId}[name*="[can_create]"]`);
-    const editCheckbox = document.querySelector(`.perm-${permId}[name*="[can_edit]"]`);
-
+function autoCheckCreate(viewCheckbox) {
+    const permId = viewCheckbox.dataset.id;
+    const form = document.getElementById('permissionForm');
+    
     if (viewCheckbox.checked) {
-        createCheckbox.checked = true;
-        editCheckbox.checked = true;
+        const createCheckbox = form.querySelector(`.perm-checkbox[data-id="${permId}"][data-action="create"]`);
+        const editCheckbox = form.querySelector(`.perm-checkbox[data-id="${permId}"][data-action="edit"]`);
+        
+        if (createCheckbox) createCheckbox.checked = true;
+        if (editCheckbox) editCheckbox.checked = true;
     }
 }
 
