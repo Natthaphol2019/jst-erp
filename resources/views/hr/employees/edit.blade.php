@@ -135,6 +135,11 @@
 
                     <h5 class="mb-3 mt-4" style="font-size: 14px; font-weight: 600; color: #fbbf24; border-bottom: 1px solid rgba(251,191,36,0.2); padding-bottom: 8px;">
                         <i class="fas fa-lock me-2"></i>ข้อมูลเข้าระบบ & เปลี่ยนรหัสผ่าน
+                        @if($employee->user && $employee->user->role === 'admin')
+                            <span class="erp-badge" style="background: rgba(239,68,68,0.12); color: #f87171; margin-left: 8px;">
+                                <i class="fas fa-shield-alt me-1"></i>Admin (ไม่สามารถแก้ไขได้)
+                            </span>
+                        @endif
                     </h5>
                     <div class="row mb-4">
                         <div class="col-md-4">
@@ -145,22 +150,35 @@
                         </div>
                         <div class="col-md-4">
                             <label class="erp-label" style="color: #f87171; font-weight: 600;">ตั้งรหัสผ่านใหม่</label>
-                            <input type="text" name="password" class="erp-input" style="border-color: rgba(248,113,113,0.3);"
-                                placeholder="พิมพ์รหัสผ่านใหม่ที่นี่...">
-                            <small style="color: var(--text-muted);">หากไม่เปลี่ยน <strong>ให้ปล่อยว่างไว้</strong></small>
+                            @if($employee->user && $employee->user->role === 'admin')
+                                <input type="text" class="erp-input" style="opacity: 0.5; cursor: not-allowed; background: var(--input-bg);"
+                                    placeholder="🔒 Admin เท่านั้น" disabled>
+                                <small style="color: var(--text-muted);"><i class="fas fa-shield-alt"></i> HR ไม่สามารถเปลี่ยนรหัสผ่าน Admin ได้</small>
+                            @else
+                                <input type="text" name="password" class="erp-input" style="border-color: rgba(248,113,113,0.3);"
+                                    placeholder="พิมพ์รหัสผ่านใหม่ที่นี่...">
+                                <small style="color: var(--text-muted);">หากไม่เปลี่ยน <strong>ให้ปล่อยว่างไว้</strong></small>
+                            @endif
                         </div>
                         <div class="col-md-4">
                             <label class="erp-label">สิทธิ์การใช้งานระบบ (Role) <span style="color: #f87171;">*</span></label>
                             @php
                                 $currentRole = $employee->user ? $employee->user->role : 'employee';
                             @endphp
-                            <select name="role" class="erp-select" required>
-                                <option value="employee" {{ $currentRole == 'employee' ? 'selected' : '' }}>พนักงานทั่วไป (Employee)</option>
-                                <option value="hr" {{ $currentRole == 'hr' ? 'selected' : '' }}>ฝ่ายบุคคล (HR)</option>
-                                <option value="manager" {{ $currentRole == 'manager' ? 'selected' : '' }}>ผู้จัดการ (Manager)</option>
-                                <option value="inventory" {{ $currentRole == 'inventory' ? 'selected' : '' }}>ฝ่ายคลังสินค้า (Inventory)</option>
-                                <option value="admin" {{ $currentRole == 'admin' ? 'selected' : '' }}>ผู้ดูแลระบบ (Admin)</option>
-                            </select>
+                            @if($employee->user && $employee->user->role === 'admin')
+                                <select class="erp-select" disabled style="opacity: 0.6; cursor: not-allowed;">
+                                    <option value="admin" selected>ผู้ดูแลระบบ (Admin) 🔒</option>
+                                </select>
+                                <small style="color: var(--text-muted);"><i class="fas fa-info-circle"></i> HR สามารถดูได้อย่างเดียว</small>
+                            @else
+                                <select name="role" class="erp-select" required>
+                                    <option value="employee" {{ $currentRole == 'employee' ? 'selected' : '' }}>พนักงานทั่วไป (Employee)</option>
+                                    <option value="hr" {{ $currentRole == 'hr' ? 'selected' : '' }}>ฝ่ายบุคคล (HR)</option>
+                                    <option value="manager" {{ $currentRole == 'manager' ? 'selected' : '' }}>ผู้จัดการ (Manager)</option>
+                                    <option value="inventory" {{ $currentRole == 'inventory' ? 'selected' : '' }}>ฝ่ายคลังสินค้า (Inventory)</option>
+                                    <option value="admin" {{ $currentRole == 'admin' ? 'selected' : '' }}>ผู้ดูแลระบบ (Admin)</option>
+                                </select>
+                            @endif
                         </div>
                     </div>
 

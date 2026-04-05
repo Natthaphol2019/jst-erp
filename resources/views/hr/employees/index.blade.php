@@ -148,13 +148,19 @@
                                 <a href="{{ route('hr.employees.edit', $emp->id) }}" class="erp-btn-secondary" style="background: rgba(251,191,36,0.12); color: #fbbf24; border: 1px solid rgba(251,191,36,0.2);">
                                     <i class="fas fa-edit me-1"></i>แก้ไข
                                 </a>
-                                <form action="{{ route('hr.employees.destroy', $emp->id) }}" method="POST" onsubmit="return confirm('ยืนยันการลบพนักงานคนนี้หรือไม่?')">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="erp-btn-danger">
-                                        <i class="fas fa-trash me-1"></i>ลบ
-                                    </button>
-                                </form>
+                                @if($emp->user && $emp->user->role === 'admin')
+                                    <span class="erp-btn-secondary" style="opacity: 0.4; cursor: not-allowed; padding: 4px 10px; font-size: 12px;" title="HR ไม่สามารถลบ Admin ได้">
+                                        <i class="fas fa-shield-alt me-1"></i>ลบไม่ได้
+                                    </span>
+                                @else
+                                    <form action="{{ route('hr.employees.destroy', $emp->id) }}" method="POST" onsubmit="return confirm('ยืนยันการลบพนักงานคนนี้หรือไม่?')">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="erp-btn-danger">
+                                            <i class="fas fa-trash me-1"></i>ลบ
+                                        </button>
+                                    </form>
+                                @endif
                             </div>
                         </td>
                     </tr>

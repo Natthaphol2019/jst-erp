@@ -125,22 +125,33 @@ class EmployeeController extends Controller
             'role' => 'required|in:admin,hr,manager,employee,inventory' // 🌟 3. รับค่าสิทธิ์ตอนแก้ไข
         ]);
 
+        // 🛡️ ป้องกัน HR แก้ไข Admin
+        $isAdmin = $employee->user && $employee->user->role === 'admin';
+
         $employee->update($request->all());
 
         if ($employee->user) {
             $userData = [
                 'name' => trim($request->prefix . $request->firstname . ' ' . $request->lastname),
-                'role' => $request->role, // 🌟 4. อัปเดต Role ให้ด้วย
             ];
 
-            if ($request->filled('password')) {
+            // 🛡️ HR ไม่สามารถเปลี่ยน role ของ admin ได้
+            if (!$isAdmin) {
+                $userData['role'] = $request->role;
+            }
+
+            // 🛡️ HR ไม่สามารถเปลี่ยนรหัสผ่าน admin ได้
+            if ($request->filled('password') && !$isAdmin) {
                 $userData['password'] = \Illuminate\Support\Facades\Hash::make($request->password);
+            } elseif ($isAdmin && $request->filled('password')) {
+                return redirect()->back()->with('error', '⛔ คุณไม่มีสิทธิ์เปลี่ยนรหัสผ่านผู้ดูแลระบบ (Admin)');
             }
 
             $employee->user->update($userData);
         }
 
-        return redirect()->route('hr.employees.index')->with('success', 'อัปเดตข้อมูลพนักงานสำเร็จ!');
+        $message = $isAdmin ? 'อัปเดตข้อมูลพนักงานสำเร็จ (ไม่สามารถแก้ไขข้อมูล Admin ได้)' : 'อัปเดตข้อมูลพนักงานสำเร็จ!';
+        return redirect()->route('hr.employees.index')->with('success', $message);
     }
 
     // ==========================================
@@ -148,6 +159,12 @@ class EmployeeController extends Controller
     // ==========================================
     public function destroy(Employee $employee)
     {
+        // 🛡️ ป้องกัน HR ลบ Admin
+        if ($employee->user && $employee->user->role === 'admin') {
+            return redirect()->route('hr.employees.index')
+                ->with('error', '⛔ คุณไม่มีสิทธิ์ลบบัญชีผู้ดูแลระบบ (Admin) กรุณาติดต่อ Admin เท่านั้น');
+        }
+
         if ($employee->user) {
             $employee->user->delete();
         }

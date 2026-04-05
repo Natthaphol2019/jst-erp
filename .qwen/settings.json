@@ -18,7 +18,8 @@
       "Bash(:end)",
       "Bash(icacls *)",
       "Bash(git checkout *)",
-      "Bash(git add *)"
+      "Bash(git add *)",
+      "Bash(git commit *)"
     ]
   },
   "$version": 3
