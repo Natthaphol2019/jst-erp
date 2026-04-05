@@ -116,8 +116,10 @@ class BorrowingController extends Controller
         }
 
         $employees = Employee::where('id', $user->employee_id)->get();
+        
+        // แสดงสินค้าที่ ยืมได้: returnable (ยืม-คืนได้) และ equipment
         $items = Item::where('status', 'available')
-            ->where('type', 'equipment')
+            ->whereIn('type', ['returnable', 'equipment'])
             ->orderBy('name')
             ->get();
 
@@ -217,8 +219,10 @@ class BorrowingController extends Controller
     public function create()
     {
         $employees = Employee::where('status', 'active')->orderBy('firstname')->get();
+        
+        // แสดงสินค้าที่ ยืมได้: returnable (ยืม-คืนได้) และ equipment
         $items = Item::where('status', 'available')
-            ->where('type', 'equipment')
+            ->whereIn('type', ['returnable', 'equipment'])
             ->orderBy('name')
             ->get();
 
