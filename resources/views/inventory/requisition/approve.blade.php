@@ -116,8 +116,9 @@
                 </span>
             </div>
             <div class="erp-card-body">
-                <form action="{{ route('inventory.requisition.approve.store', $requisition->id) }}" method="POST">
+                <form action="{{ route('inventory.requisition.approve.store', $requisition->id) }}" method="POST" id="approveForm">
                     @csrf
+                    <input type="hidden" name="action" value="">
 
                     <div class="mb-3">
                         <label for="approve_note" class="erp-label">หมายเหตุผู้อนุมัติ</label>
@@ -130,12 +131,12 @@
                         <a href="{{ route('inventory.requisition.show', $requisition->id) }}" class="erp-btn-secondary">
                             <i class="fas fa-times me-2"></i>ยกเลิก
                         </a>
-                        <button type="submit" name="action" value="rejected" class="erp-btn-danger"
-                                onclick="return confirm('คุณแน่ใจหรือว่าจะปฏิเสธใบเบิกนี้?')">
+                        <button type="button" class="erp-btn-danger" id="rejectBtn"
+                                onclick="confirmAction('คุณต้องการปฏิเสธใบเบิกนี้ใช่หรือไม่? การปฏิเสธจะไม่สามารถย้อนกลับได้', function() { document.getElementById('approveForm').querySelector('[name=action]').value='rejected'; document.getElementById('approveForm').submit(); })">
                             <i class="fas fa-times me-2"></i>ปฏิเสธ
                         </button>
-                        <button type="submit" name="action" value="approved" class="erp-btn-primary" style="background: #22c55e; border-color: #22c55e;"
-                                onclick="return confirm('คุณแน่ใจหรือว่าจะอนุมัติใบเบิกนี้?')">
+                        <button type="button" class="erp-btn-primary" style="background: #22c55e; border-color: #22c55e;" id="approveBtn"
+                                onclick="confirmAction('คุณต้องการอนุมัติใบเบิกนี้ใช่หรือไม่? สต๊อกสินค้าจะถูกหักทันที', function() { document.getElementById('approveForm').querySelector('[name=action]').value='approved'; document.getElementById('approveForm').submit(); })">
                             <i class="fas fa-check me-2"></i>อนุมัติ
                         </button>
                     </div>

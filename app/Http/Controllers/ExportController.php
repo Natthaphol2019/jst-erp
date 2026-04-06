@@ -210,7 +210,7 @@ class ExportController extends Controller
     }
 
     /**
-     * Export borrowings to Excel
+     * Export borrowings to Excel (แยกตามบุคคล พร้อมรายการสินค้า)
      */
     public function exportBorrowings()
     {
@@ -220,66 +220,133 @@ class ExportController extends Controller
         // Title
         $sheet->setCellValue('A1', 'รายงานข้อมูลการยืม-คืนอุปกรณ์');
         $sheet->setCellValue('A2', 'วันที่ส่งออก: ' . Carbon::now()->format('d/m/Y H:i:s'));
-        $sheet->mergeCells('A1:G1');
-        $sheet->mergeCells('A2:G2');
+        $sheet->mergeCells('A1:H1');
+        $sheet->mergeCells('A2:H2');
         $sheet->getStyle('A1')->getFont()->setBold(true)->setSize(16);
         $sheet->getStyle('A1')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
         $sheet->getStyle('A2')->getFont()->setSize(10);
         $sheet->getStyle('A2')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
 
-        // Headers
-        $headers = ['เลขที่', 'วันที่ยืม', 'กําหนดคืน', 'ผู้ยืม', 'สถานะ', 'จํานวนรายการ', 'หมายเหตุ'];
-        $col = 'A';
-        foreach ($headers as $header) {
-            $sheet->setCellValue($col . '4', $header);
-            $col++;
-        }
-
-        $this->setHeaderStyle($sheet, 4, count($headers));
-
-        // Data
-        $borrowings = Requisition::with(['employee', 'items'])
+        // ดึงข้อมูล + group by employee
+        $borrowings = Requisition::with(['employee', 'employee.department', 'items', 'items.item'])
             ->where('req_type', 'borrow')
             ->latest()
             ->get();
-        $row = 5;
-        foreach ($borrowings as $borrowing) {
-            $isOverdue = in_array($borrowing->status, ['approved', 'returned_partial']) && now()->gt(Carbon::parse($borrowing->due_date));
-            $statusText = match ($borrowing->status) {
-                'approved' => $isOverdue ? 'เกินกําหนด' : 'กําลังยืม',
-                'returned_all' => 'คืนครบแล้ว',
-                'returned_partial' => 'คืนบางส่วน',
-                default => $borrowing->status
-            };
 
-            $sheet->setCellValue('A' . $row, '#' . str_pad($borrowing->id, 4, '0', STR_PAD_LEFT));
-            $sheet->setCellValue('B' . $row, Carbon::parse($borrowing->req_date)->format('d/m/Y'));
-            $sheet->setCellValue('C' . $row, Carbon::parse($borrowing->due_date)->format('d/m/Y'));
-            $sheet->setCellValue('D' . $row, $borrowing->employee->firstname . ' ' . $borrowing->employee->lastname);
-            $sheet->setCellValue('E' . $row, $statusText);
-            $sheet->setCellValue('F' . $row, $borrowing->items->count() . ' รายการ');
-            $sheet->setCellValue('G' . $row, $borrowing->note ?? '-');
+        $groupedByEmployee = $borrowings->groupBy(function($b) {
+            return $b->employee->id;
+        });
+
+        $row = 4;
+        $totalBorrowings = 0;
+        $totalItems = 0;
+
+        foreach ($groupedByEmployee as $employeeId => $empBorrowings) {
+            $employee = $empBorrowings->first()->employee;
+
+            // Employee Header
+            $sheet->setCellValue('A' . $row, 'พนักงาน: ' . $employee->firstname . ' ' . $employee->lastname);
+            $sheet->setCellValue('C' . $row, 'รหัส: ' . $employee->employee_code);
+            $sheet->setCellValue('D' . $row, 'แผนก: ' . ($employee->department->name ?? '-'));
+            $sheet->mergeCells('A' . $row . ':H' . $row);
+            $sheet->getStyle('A' . $row . ':H' . $row)->getFont()->setBold(true)->setSize(12);
+            $sheet->getStyle('A' . $row . ':H' . $row)->getFill()
+                ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
+                ->getStartColor()->setRGB('E8F5E9');
             $row++;
+
+            // Column Headers
+            $headers = ['เลขที่', 'วันที่ยืม', 'กำหนดคืน', 'สถานะ', 'รหัสสินค้า', 'ชื่อสินค้า', 'จำนวนที่ยืม', 'คืนแล้ว', 'คงเหลือ', 'หมายเหตุ'];
+            $col = 'A';
+            foreach ($headers as $header) {
+                $sheet->setCellValue($col . $row, $header);
+                $col++;
+            }
+            $this->setHeaderStyle($sheet, $row, count($headers));
+            $row++;
+
+            $empStartRow = $row;
+
+            foreach ($empBorrowings as $borrowing) {
+                $isOverdue = in_array($borrowing->status, ['approved', 'returned_partial']) && now()->gt(Carbon::parse($borrowing->due_date));
+                $statusText = match ($borrowing->status) {
+                    'approved' => $isOverdue ? 'เกินกำหนด' : 'กำลังยืม',
+                    'returned_all' => 'คืนครบแล้ว',
+                    'returned_partial' => 'คืนบางส่วน',
+                    default => $borrowing->status
+                };
+
+                $borrowStartRow = $row;
+
+                foreach ($borrowing->items as $item) {
+                    $qtyBorrowed = $item->quantity_requested ?? 0;
+                    $qtyReturned = $item->quantity_returned ?? 0;
+                    $qtyRemaining = $qtyBorrowed - $qtyReturned;
+
+                    $sheet->setCellValue('A' . $row, '#' . str_pad($borrowing->id, 4, '0', STR_PAD_LEFT));
+                    $sheet->setCellValue('B' . $row, Carbon::parse($borrowing->req_date)->format('d/m/Y'));
+                    $sheet->setCellValue('C' . $row, Carbon::parse($borrowing->due_date)->format('d/m/Y'));
+                    $sheet->setCellValue('D' . $row, $statusText);
+                    $sheet->setCellValue('E' . $row, $item->item->item_code ?? '-');
+                    $sheet->setCellValue('F' . $row, $item->item->name ?? '-');
+                    $sheet->setCellValue('G' . $row, $qtyBorrowed);
+                    $sheet->setCellValue('H' . $row, $qtyReturned);
+                    $sheet->setCellValue('I' . $row, $qtyRemaining);
+                    $sheet->setCellValue('J' . $row, $borrowing->note ?? '-');
+
+                    $row++;
+                    $totalItems++;
+                }
+
+                // Merge borrowing info
+                $borrowEndRow = $row - 1;
+                if ($borrowStartRow < $borrowEndRow) {
+                    $sheet->mergeCells('A' . $borrowStartRow . ':A' . $borrowEndRow);
+                    $sheet->mergeCells('B' . $borrowStartRow . ':B' . $borrowEndRow);
+                    $sheet->mergeCells('C' . $borrowStartRow . ':C' . $borrowEndRow);
+                    $sheet->mergeCells('D' . $borrowStartRow . ':D' . $borrowEndRow);
+                    $sheet->mergeCells('J' . $borrowStartRow . ':J' . $borrowEndRow);
+                }
+
+                // Border between borrowings
+                $sheet->getStyle('A' . ($row - 1) . ':J' . ($row - 1))->getBorders()
+                    ->getBottom()->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_MEDIUM);
+
+                $totalBorrowings++;
+            }
+
+            // Employee summary
+            $sheet->setCellValue('A' . $row, 'รวม ' . $employee->firstname . ' ' . $employee->lastname);
+            $sheet->setCellValue('G' . $row, $empBorrowings->sum(fn($b) => $b->items->sum('quantity_requested')) . ' ชิ้น');
+            $sheet->getStyle('A' . $row . ':G' . $row)->getFont()->setBold(true);
+            $sheet->getStyle('A' . $row . ':J' . $row)->getFill()
+                ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
+                ->getStartColor()->setRGB('FFF3E0');
+            $row += 2; // Gap between employees
         }
 
-        // Summary row
+        // Grand total
         $sheet->setCellValue('A' . $row, 'รวมทั้งหมด');
-        $sheet->setCellValue('B' . $row, $borrowings->count() . ' รายการ');
-        $sheet->mergeCells('A' . $row . ':B' . $row);
-        $sheet->getStyle('A' . $row)->getFont()->setBold(true);
+        $sheet->setCellValue('B' . $row, $totalBorrowings . ' ใบยืม');
+        $sheet->setCellValue('C' . $row, $totalItems . ' รายการสินค้า');
+        $sheet->getStyle('A' . $row . ':C' . $row)->getFont()->setBold(true)->setSize(12);
+        $sheet->getStyle('A' . $row . ':J' . $row)->getFill()
+            ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
+            ->getStartColor()->setRGB('E3F2FD');
 
-        // Set column widths
+        // Column widths
         $sheet->getColumnDimension('A')->setWidth(12);
-        $sheet->getColumnDimension('B')->setWidth(15);
-        $sheet->getColumnDimension('C')->setWidth(15);
-        $sheet->getColumnDimension('D')->setWidth(25);
+        $sheet->getColumnDimension('B')->setWidth(14);
+        $sheet->getColumnDimension('C')->setWidth(14);
+        $sheet->getColumnDimension('D')->setWidth(14);
         $sheet->getColumnDimension('E')->setWidth(15);
-        $sheet->getColumnDimension('F')->setWidth(15);
-        $sheet->getColumnDimension('G')->setWidth(30);
+        $sheet->getColumnDimension('F')->setWidth(30);
+        $sheet->getColumnDimension('G')->setWidth(12);
+        $sheet->getColumnDimension('H')->setWidth(12);
+        $sheet->getColumnDimension('I')->setWidth(12);
+        $sheet->getColumnDimension('J')->setWidth(25);
 
-        $this->setBorder($sheet, 4, $row, count($headers));
-
-        $filename = 'borrowings_' . Carbon::now()->format('Y-m-d_His') . '.xlsx';
+        $filename = 'borrowings_by_employee_' . Carbon::now()->format('Y-m-d_His') . '.xlsx';
         return $this->downloadSpreadsheet($spreadsheet, $filename);
     }
 

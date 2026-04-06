@@ -146,7 +146,7 @@ class HealthCheckController extends Controller
      */
     protected function checkRequiredExtensions()
     {
-        $required = ['mbstring', 'xml', 'curl', 'mysql', 'zip', 'gd', 'fileinfo'];
+        $required = ['mbstring', 'xml', 'curl', 'pdo_mysql', 'zip', 'gd', 'fileinfo'];
         $status = [];
 
         foreach ($required as $ext) {

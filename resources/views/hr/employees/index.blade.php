@@ -144,45 +144,60 @@
                             @endif
                         </td>
                         <td class="no-print">
-                            <div class="d-flex gap-2">
+                            <div class="d-flex gap-1" style="flex-wrap: wrap;">
                                 @if($emp->user && $emp->user->role === 'admin')
                                     {{-- Admin: HR ดูได้อย่างเดียว --}}
-                                    <span class="erp-btn-secondary" style="opacity: 0.4; cursor: not-allowed; padding: 4px 10px; font-size: 12px;" title="HR ไม่มีสิทธิ์แก้ไขข้อมูล Admin">
-                                        <i class="fas fa-eye me-1"></i>ดูได้เท่านั้น
+                                    <span class="erp-btn-secondary" style="opacity: 0.4; cursor: not-allowed; padding: 5px 8px; font-size: 11px; min-width: 55px; text-align: center;" title="HR ไม่มีสิทธิ์แก้ไขข้อมูล Admin">
+                                        <i class="fas fa-eye me-1"></i>ดู
                                     </span>
-                                    <span class="erp-btn-secondary" style="opacity: 0.4; cursor: not-allowed; padding: 4px 10px; font-size: 12px;" title="HR ไม่มีสิทธิ์บล็อค Admin">
+                                    <span class="erp-btn-secondary" style="opacity: 0.4; cursor: not-allowed; padding: 5px 8px; font-size: 11px; min-width: 55px; text-align: center;" title="HR ไม่มีสิทธิ์บล็อค Admin">
                                         <i class="fas fa-shield-alt me-1"></i>บล็อคไม่ได้
                                     </span>
                                 @else
-                                    <a href="{{ route('hr.employees.edit', $emp->id) }}" class="erp-btn-secondary" style="background: rgba(251,191,36,0.12); color: #fbbf24; border: 1px solid rgba(251,191,36,0.2);">
+                                    <a href="{{ route('hr.employees.edit', $emp->id) }}" class="erp-btn-secondary" style="background: rgba(251,191,36,0.12); color: #fbbf24; border: 1px solid rgba(251,191,36,0.2); padding: 5px 8px; font-size: 11px; min-width: 55px; text-align: center;">
                                         <i class="fas fa-edit me-1"></i>แก้ไข
                                     </a>
                                     @if($emp->status === 'active')
+                                        {{-- Active: แสดงปุ่ม ระงับ --}}
                                         <form action="{{ route('hr.employees.toggle-block', $emp->id) }}" method="POST" class="d-inline">
                                             @csrf
                                             @method('PATCH')
-                                            <button type="submit" class="erp-btn-warning" style="padding: 4px 10px; font-size: 12px;"
-                                                    title="บล็อคบัญชีนี้" onclick="return confirm('ต้องการบล็อคบัญชี "{{ $emp->employee_code }}" หรือไม่?')">
-                                                <i class="fas fa-ban me-1"></i>บล็อค
+                                            <button type="submit" class="erp-btn-secondary" style="background: rgba(245,158,11,0.10); color: #f59e0b; border: 1px solid rgba(245,158,11,0.2); padding: 5px 8px; font-size: 11px; min-width: 55px; text-align: center;"
+                                                    title="ระงับบัญชีนี้" onclick="return confirm('ต้องการระงับบัญชี &quot;{{ $emp->employee_code }}&quot; หรือไม่?\n\nบัญชีที่ถูกระงับจะไม่สามารถเข้าสู่ระบบได้')">
+                                                <i class="fas fa-user-lock me-1"></i>ระงับ
                                             </button>
                                         </form>
+                                        {{-- Active: ไม่แสดงปุ่มลบ (disabled) --}}
+                                        <span class="erp-btn-secondary" style="opacity: 0.30; cursor: not-allowed; padding: 5px 8px; font-size: 11px; min-width: 55px; text-align: center;" title="ต้องระงับบัญชีก่อนลบ">
+                                            <i class="fas fa-trash me-1"></i>ลบ
+                                        </span>
                                     @elseif($emp->status === 'inactive')
+                                        {{-- Inactive: แสดงปุ่ม เปิดใช้ และ ลบ --}}
                                         <form action="{{ route('hr.employees.toggle-block', $emp->id) }}" method="POST" class="d-inline">
                                             @csrf
                                             @method('PATCH')
-                                            <button type="submit" class="erp-btn-success" style="padding: 4px 10px; font-size: 12px; background: rgba(52,211,153,0.12); color: #34d399; border-color: rgba(52,211,153,0.25);"
-                                                    title="ปลดบล็อคบัญชีนี้" onclick="return confirm('ต้องการปลดบล็อคบัญชี "{{ $emp->employee_code }}" หรือไม่?')">
-                                                <i class="fas fa-unlock me-1"></i>ปลดบล็อค
+                                            <button type="submit" class="erp-btn-secondary" style="background: rgba(52,211,153,0.10); color: #34d399; border: 1px solid rgba(52,211,153,0.2); padding: 5px 8px; font-size: 11px; min-width: 55px; text-align: center;"
+                                                    title="เปิดใช้งานบัญชีนี้" onclick="return confirm('ต้องการเปิดใช้งานบัญชี &quot;{{ $emp->employee_code }}&quot; หรือไม่?')">
+                                                <i class="fas fa-user-check me-1"></i>เปิดใช้
+                                            </button>
+                                        </form>
+                                        <form action="{{ route('hr.employees.destroy', $emp->id) }}" method="POST" class="d-inline" onsubmit="return confirm('⚠️ ยืนยันการลบพนักงาน &quot;{{ $emp->employee_code }}&quot;?\n\nการกระทำนี้ไม่สามารถย้อนกลับได้!')">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="erp-btn-secondary" style="background: rgba(239,68,68,0.12); color: #ef4444; border: 1px solid rgba(239,68,68,0.2); padding: 5px 8px; font-size: 11px; min-width: 55px; text-align: center;">
+                                                <i class="fas fa-trash me-1"></i>ลบ
+                                            </button>
+                                        </form>
+                                    @else
+                                        {{-- Resigned: แสดงปุ่ม ลบ เท่านั้น --}}
+                                        <form action="{{ route('hr.employees.destroy', $emp->id) }}" method="POST" class="d-inline" onsubmit="return confirm('⚠️ ยืนยันการลบพนักงาน &quot;{{ $emp->employee_code }}&quot;?\n\nการกระทำนี้ไม่สามารถย้อนกลับได้!')">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="erp-btn-secondary" style="background: rgba(239,68,68,0.12); color: #ef4444; border: 1px solid rgba(239,68,68,0.2); padding: 5px 8px; font-size: 11px; min-width: 55px; text-align: center;">
+                                                <i class="fas fa-trash me-1"></i>ลบ
                                             </button>
                                         </form>
                                     @endif
-                                    <form action="{{ route('hr.employees.destroy', $emp->id) }}" method="POST" class="d-inline" onsubmit="return confirm('ยืนยันการลบพนักงานคนนี้หรือไม่?')">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="erp-btn-danger">
-                                            <i class="fas fa-trash me-1"></i>ลบ
-                                        </button>
-                                    </form>
                                 @endif
                             </div>
                         </td>

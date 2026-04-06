@@ -19,7 +19,9 @@
       "Bash(icacls *)",
       "Bash(git checkout *)",
       "Bash(git add *)",
-      "Bash(git commit *)"
+      "Bash(git commit *)",
+      "Bash(echo)",
+      "Bash(powershell *)"
     ]
   },
   "$version": 3

@@ -31,9 +31,9 @@
                             <i class="fas fa-camera" style="color: var(--text-muted); font-size: 24px;"></i>
                         </div>
                         <div class="flex-grow-1">
-                            <input type="file" name="image" id="imageInput" class="erp-input" accept="image/jpeg,image/png,image/jpg,image/gif,image/webp" onchange="previewImage(this)">
+                            <input type="file" name="image" id="imageInput" class="erp-input" accept="image/jpeg,image/png,image/jpg,image/gif,image/webp,image/svg+xml" onchange="previewImage(this)">
                             <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">
-                                <i class="fas fa-info-circle me-1"></i>JPG, PNG, GIF, WebP (สูงสุด 2MB)
+                                <i class="fas fa-info-circle me-1"></i>JPG, PNG, GIF, WebP, SVG (สูงสุด 5MB)
                             </div>
                         </div>
                     </div>

@@ -146,14 +146,10 @@
                         <a href="{{ route('admin.permissions.index', ['role' => $selectedRole]) }}" class="erp-btn-secondary">
                             <i class="fas fa-undo me-1"></i>รีเฟรช
                         </a>
-                        <form action="{{ route('admin.permissions.reset') }}" method="POST" class="d-inline"
-                              onsubmit="return confirm('ต้องการรีเซ็ตสิทธิ์ของ {{ $roleLabels[$selectedRole] }} กลับไปค่าเริ่มต้น ใช่หรือไม่?')">
-                            @csrf
-                            <input type="hidden" name="role" value="{{ $selectedRole }}">
-                            <button type="submit" class="erp-btn-danger" style="padding: 6px 12px; font-size: 12px;">
-                                <i class="fas fa-rotate-left me-1"></i>รีเซ็ตค่าเริ่มต้น
-                            </button>
-                        </form>
+                        <button type="button" class="erp-btn-danger" style="padding: 6px 12px; font-size: 12px;"
+                              onclick="confirmResetPermissions('{{ $roleLabels[$selectedRole] }}', '{{ $selectedRole }}')">
+                            <i class="fas fa-rotate-left me-1"></i>รีเซ็ตค่าเริ่มต้น
+                        </button>
                     </div>
                 </div>
 
@@ -277,6 +273,12 @@
                     </div>
                 </div>
             @endif
+        </form>
+
+        {{-- Hidden form for reset permissions --}}
+        <form action="{{ route('admin.permissions.reset') }}" method="POST" id="resetForm" style="display: none;">
+            @csrf
+            <input type="hidden" name="role" value="{{ $selectedRole }}">
         </form>
     </div>
 </div>
@@ -424,12 +426,23 @@ if (permissionForm && saveBtn) {
         saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>กำลังบันทึก...';
         saveBtn.style.opacity = '0.7';
         saveBtn.style.cursor = 'not-allowed';
-        
+
         // Scroll to top so user can see success message
         window.scrollTo({ top: 0, behavior: 'smooth' });
-        
+
         // Form will submit naturally after this
     });
+}
+
+// Confirm and reset permissions
+function confirmResetPermissions(roleLabel, role) {
+    if (confirm('ต้องการรีเซ็ตสิทธิ์ของ ' + roleLabel + ' กลับไปค่าเริ่มต้น ใช่หรือไม่?')) {
+        const resetForm = document.getElementById('resetForm');
+        if (resetForm) {
+            resetForm.querySelector('input[name="role"]').value = role;
+            resetForm.submit();
+        }
+    }
 }
 </script>
 @endpush

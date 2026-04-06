@@ -89,10 +89,32 @@
 {{-- Filter & Sort Bar --}}
 <div class="erp-card mb-3 no-print">
     <div class="erp-card-body" style="padding: 12px 18px;">
+        {{-- Search Bar - Instant Search --}}
+        <div class="mb-3">
+            <div class="input-group">
+                <span class="input-group-text" style="border: 2px solid var(--border, #e5e7eb); border-right: none; background: var(--bg-surface, white);">
+                    <i class="fas fa-search" style="color: var(--text-muted);"></i>
+                </span>
+                <input type="text" id="instantSearch" class="form-control"
+                       value="{{ request('search') }}"
+                       placeholder="พิมพ์เพื่อค้นหาชื่อสินค้า, รหัสสินค้า, หรือตำแหน่ง... (ค้นหาทันที)"
+                       style="border: 2px solid var(--border, #e5e7eb); border-left: none; background: var(--bg-surface, white); color: var(--text-primary); border-radius: 0 8px 8px 0;">
+                @if(request('search'))
+                    <a href="{{ route('inventory.items.index', array_filter(request()->query(), fn($k, $v) => $k !== 'search', ARRAY_FILTER_USE_BOTH)) }}"
+                       class="erp-btn-secondary" style="border-radius: 0 8px 8px 0; padding: 8px 16px;">
+                        <i class="fas fa-times"></i> ล้าง
+                    </a>
+                @endif
+            </div>
+            <div id="searchStatus" style="font-size: 11px; color: var(--text-muted); margin-top: 4px; display: none;">
+                <i class="fas fa-spinner fa-spin me-1"></i>กำลังค้นหา...
+            </div>
+        </div>
+
         <div class="row g-2 align-items-center">
             <div class="col-auto">
                 <span style="font-size: 12px; color: var(--text-muted); font-weight: 500;">
-                    <i class="fas fa-filter me-1"></i>ตัวกรอง:
+                    <i class="fas fa-filter me-1"></i>สถานะ:
                 </span>
             </div>
             <div class="col-auto">
@@ -119,6 +141,82 @@
                     <i class="fas fa-layer-group me-1"></i>ทั้งหมด
                 </a>
             </div>
+            
+            @if($categories->count() > 0)
+            <div class="col-auto" style="border-left: 2px solid var(--border); padding-left: 12px;">
+                <span style="font-size: 12px; color: var(--text-muted); font-weight: 500;">
+                    <i class="fas fa-folder me-1"></i>หมวดหมู่:
+                </span>
+            </div>
+            <div class="col-auto">
+                <a href="{{ route('inventory.items.index', array_filter(request()->query(), fn($k, $v) => $k !== 'category', ARRAY_FILTER_USE_BOTH)) }}"
+                   class="erp-filter-btn {{ !request('category') ? 'active' : '' }}" style="font-size: 11px;">
+                    ทั้งหมด
+                </a>
+            </div>
+            @foreach($categories as $cat)
+            <div class="col-auto">
+                <a href="{{ route('inventory.items.index', array_merge(request()->query(), ['category' => $cat])) }}"
+                   class="erp-filter-btn {{ request('category') == $cat ? 'active' : '' }}" style="font-size: 11px;">
+                    {{ $cat }}
+                </a>
+            </div>
+            @endforeach
+            @endif
+
+            @if($types->count() > 1)
+            <div class="col-auto" style="border-left: 2px solid var(--border); padding-left: 12px;">
+                <span style="font-size: 12px; color: var(--text-muted); font-weight: 500;">
+                    <i class="fas fa-tag me-1"></i>ประเภท:
+                </span>
+            </div>
+            <div class="col-auto">
+                <a href="{{ route('inventory.items.index', array_filter(request()->query(), fn($k, $v) => $k !== 'type', ARRAY_FILTER_USE_BOTH)) }}"
+                   class="erp-filter-btn {{ !request('type') ? 'active' : '' }}" style="font-size: 11px;">
+                    ทั้งหมด
+                </a>
+            </div>
+            @foreach($types as $type)
+            <div class="col-auto">
+                @php
+                    $typeLabel = match($type) {
+                        'returnable' => 'ยืม-คืน',
+                        'disposable' => 'ใช้แล้วหมดไป',
+                        'equipment' => 'อุปกรณ์',
+                        'consumable' => 'สิ้นเปลือง',
+                        default => $type
+                    };
+                @endphp
+                <a href="{{ route('inventory.items.index', array_merge(request()->query(), ['type' => $type])) }}"
+                   class="erp-filter-btn {{ request('type') == $type ? 'active' : '' }}" style="font-size: 11px;">
+                    {{ $typeLabel }}
+                </a>
+            </div>
+            @endforeach
+            @endif
+
+            @if($units->count() > 1)
+            <div class="col-auto" style="border-left: 2px solid var(--border); padding-left: 12px;">
+                <span style="font-size: 12px; color: var(--text-muted); font-weight: 500;">
+                    <i class="fas fa-balance-scale me-1"></i>หน่วยนับ:
+                </span>
+            </div>
+            <div class="col-auto">
+                <a href="{{ route('inventory.items.index', array_filter(request()->query(), fn($k, $v) => $k !== 'unit', ARRAY_FILTER_USE_BOTH)) }}"
+                   class="erp-filter-btn {{ !request('unit') ? 'active' : '' }}" style="font-size: 11px;">
+                    ทั้งหมด
+                </a>
+            </div>
+            @foreach($units as $unit)
+            <div class="col-auto">
+                <a href="{{ route('inventory.items.index', array_merge(request()->query(), ['unit' => $unit])) }}"
+                   class="erp-filter-btn {{ request('unit') == $unit ? 'active' : '' }}" style="font-size: 11px;">
+                    {{ $unit }}
+                </a>
+            </div>
+            @endforeach
+            @endif
+
             <div class="col"></div>
             <div class="col-auto">
                 <span style="font-size: 12px; color: var(--text-muted); font-weight: 500;">
@@ -150,6 +248,59 @@
                 </a>
             </div>
         </div>
+        
+        @if(request()->hasAny(['category', 'type', 'unit', 'status', 'search']))
+        <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border);">
+            <div class="d-flex align-items-center gap-2 flex-wrap">
+                <span style="font-size: 11px; color: var(--text-muted); font-weight: 500;">
+                    <i class="fas fa-info-circle me-1"></i>กำลังกรอง:
+                </span>
+                @if(request('search'))
+                    <span class="erp-badge" style="background: rgba(99,102,241,0.1); color: #6366f1; font-size: 11px;">
+                        <i class="fas fa-search me-1"></i>ค้นหา: "{{ request('search') }}"
+                        <a href="{{ route('inventory.items.index', array_filter(request()->query(), fn($k, $v) => $k !== 'search', ARRAY_FILTER_USE_BOTH)) }}" style="color: inherit; margin-left: 4px;">
+                            <i class="fas fa-times"></i>
+                        </a>
+                    </span>
+                @endif
+                @if(request('status'))
+                    <span class="erp-badge" style="background: rgba(99,102,241,0.1); color: #6366f1; font-size: 11px;">
+                        สถานะ: {{ request('status') }}
+                        <a href="{{ route('inventory.items.index', array_filter(request()->query(), fn($k, $v) => $k !== 'status', ARRAY_FILTER_USE_BOTH)) }}" style="color: inherit; margin-left: 4px;">
+                            <i class="fas fa-times"></i>
+                        </a>
+                    </span>
+                @endif
+                @if(request('category'))
+                    <span class="erp-badge" style="background: rgba(16,185,129,0.1); color: #10b981; font-size: 11px;">
+                        หมวดหมู่: {{ request('category') }}
+                        <a href="{{ route('inventory.items.index', array_filter(request()->query(), fn($k, $v) => $k !== 'category', ARRAY_FILTER_USE_BOTH)) }}" style="color: inherit; margin-left: 4px;">
+                            <i class="fas fa-times"></i>
+                        </a>
+                    </span>
+                @endif
+                @if(request('type'))
+                    <span class="erp-badge" style="background: rgba(59,130,246,0.1); color: #3b82f6; font-size: 11px;">
+                        ประเภท: {{ request('type') }}
+                        <a href="{{ route('inventory.items.index', array_filter(request()->query(), fn($k, $v) => $k !== 'type', ARRAY_FILTER_USE_BOTH)) }}" style="color: inherit; margin-left: 4px;">
+                            <i class="fas fa-times"></i>
+                        </a>
+                    </span>
+                @endif
+                @if(request('unit'))
+                    <span class="erp-badge" style="background: rgba(245,158,11,0.1); color: #f59e0b; font-size: 11px;">
+                        หน่วยนับ: {{ request('unit') }}
+                        <a href="{{ route('inventory.items.index', array_filter(request()->query(), fn($k, $v) => $k !== 'unit', ARRAY_FILTER_USE_BOTH)) }}" style="color: inherit; margin-left: 4px;">
+                            <i class="fas fa-times"></i>
+                        </a>
+                    </span>
+                @endif
+                <a href="{{ route('inventory.items.index') }}" style="font-size: 11px; color: #ef4444; text-decoration: underline;">
+                    <i class="fas fa-redo me-1"></i>ล้างตัวกรองทั้งหมด
+                </a>
+            </div>
+        </div>
+        @endif
     </div>
 </div>
 
@@ -161,6 +312,7 @@
                     <th style="width: 80px;">รูปภาพ</th>
                     <th>รหัส</th>
                     <th>ชื่อสินค้า</th>
+                    <th>หมวดหมู่</th>
                     <th>ประเภท</th>
                     <th style="text-align: right;">คงเหลือ</th>
                     <th>หน่วย</th>
@@ -192,12 +344,21 @@
                         <td><strong style="color: var(--text-primary);">{{ $item->item_code }}</strong></td>
                         <td style="color: var(--text-secondary);">{{ $item->name }}</td>
                         <td>
+                            @if($item->category)
+                                <span class="erp-badge" style="background: rgba(16,185,129,0.12); color: #10b981;">
+                                    <i class="fas fa-folder me-1"></i>{{ $item->category->name }}
+                                </span>
+                            @else
+                                <span style="color: var(--text-muted); font-size: 11px;">-</span>
+                            @endif
+                        </td>
+                        <td>
                             @php
                                 $typeBadge = match($item->type) {
-                                    'returnable' => ['bg' => 'rgba(56,189,248,0.12)', 'color' => '#38bdf8', 'text' => '🔧 อุปกรณ์'],
-                                    'disposable' => ['bg' => 'rgba(107,114,128,0.12)', 'color' => '#9ca3af', 'text' => '📦 วัสดุสิ้นเปลือง'],
-                                    'equipment' => ['bg' => 'rgba(167,139,250,0.12)', 'color' => '#a78bfa', 'text' => '🏭 เครื่องจักร'],
-                                    'consumable' => ['bg' => 'rgba(251,191,36,0.12)', 'color' => '#fbbf24', 'text' => '🧴 วัสดุบริโภค'],
+                                    'returnable' => ['bg' => 'rgba(56,189,248,0.12)', 'color' => '#38bdf8', 'text' => '🔧 ยืม-คืน'],
+                                    'disposable' => ['bg' => 'rgba(107,114,128,0.12)', 'color' => '#9ca3af', 'text' => '📦 ใช้แล้วหมดไป'],
+                                    'equipment' => ['bg' => 'rgba(167,139,250,0.12)', 'color' => '#a78bfa', 'text' => '🔧 อุปกรณ์'],
+                                    'consumable' => ['bg' => 'rgba(251,191,36,0.12)', 'color' => '#fbbf24', 'text' => '🧴 สิ้นเปลือง'],
                                     default => ['bg' => 'rgba(107,114,128,0.12)', 'color' => '#6b7280', 'text' => $item->type]
                                 };
                             @endphp
@@ -267,6 +428,7 @@
 
 @push('scripts')
 <script>
+// Image Modal
 function showImageModal(src, title) {
     const modal = document.getElementById('imageModal');
     const modalImg = document.getElementById('modalImage');
@@ -286,5 +448,45 @@ document.addEventListener('keydown', function(e) {
         closeImageModal();
     }
 });
+
+// Instant Search with Debounce
+let searchTimeout;
+const searchInput = document.getElementById('instantSearch');
+const searchStatus = document.getElementById('searchStatus');
+
+if (searchInput) {
+    searchInput.addEventListener('input', function() {
+        const searchTerm = this.value.trim();
+        const currentUrl = new URL(window.location.href);
+        
+        // Clear previous timeout
+        clearTimeout(searchTimeout);
+        
+        // Show searching status
+        if (searchTerm.length > 0) {
+            searchStatus.style.display = 'block';
+        } else {
+            searchStatus.style.display = 'none';
+        }
+        
+        // Debounce: wait 500ms before submitting
+        searchTimeout = setTimeout(function() {
+            if (searchTerm.length > 0) {
+                // Build URL with current query params
+                currentUrl.searchParams.set('search', searchTerm);
+                window.location.href = currentUrl.toString();
+            } else if (currentUrl.searchParams.get('search')) {
+                // Clear search if empty
+                currentUrl.searchParams.delete('search');
+                window.location.href = currentUrl.toString();
+            }
+        }, 500);
+    });
+    
+    // Focus on load if has search term
+    if (searchInput.value.length > 0) {
+        searchInput.select();
+    }
+}
 </script>
 @endpush

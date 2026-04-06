@@ -53,11 +53,10 @@
                             <a href="{{ route('inventory.categories.edit', $cat->id) }}" class="erp-btn-secondary" style="padding: 4px 8px; font-size: 12px;">
                                 <i class="fas fa-edit me-1"></i>แก้ไข
                             </a>
-                            <form action="{{ route('inventory.categories.destroy', $cat->id) }}" method="POST" class="d-inline"
-                                  onsubmit="return confirm('คุณแน่ใจหรือว่าจะลบหมวดหมู่นี้?')">
+                            <form action="{{ route('inventory.categories.destroy', $cat->id) }}" method="POST" class="d-inline" id="deleteCategoryForm{{ $cat->id }}">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="erp-btn-danger" style="padding: 4px 8px; font-size: 12px;">
+                                <button type="button" class="erp-btn-danger" style="padding: 4px 8px; font-size: 12px;" onclick="confirmAction('คุณต้องการลบหมวดหมู่ \"{{ $cat->name }}\" ใช่หรือไม่? หากมีสินค้าในหมวดหมู่นี้อยู่จะไม่สามารถลบได้', function() { document.getElementById('deleteCategoryForm{{ $cat->id }}').submit(); })">
                                     <i class="fas fa-trash me-1"></i>ลบ
                                 </button>
                             </form>

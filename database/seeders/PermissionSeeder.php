@@ -44,16 +44,14 @@ class PermissionSeeder extends Seeder
             ['hr.positions', 'จัดการตำแหน่ง', 'fas fa-briefcase', 'delete', 'ลบตำแหน่ง', 4],
 
             // ==================== HR - ระบบลงเวลา ====================
-            ['hr.time_records', 'บันทึกเวลาจากบัตร', 'fas fa-clock', 'view', 'ดู/บันทึกเวลา', 1],
-            ['hr.time_records', 'บันทึกเวลาจากบัตร', 'fas fa-clock', 'create', 'เพิ่มบันทึก', 2],
-            ['hr.time_records', 'บันทึกเวลาจากบัตร', 'fas fa-clock', 'edit', 'แก้ไขบันทึก', 3],
-            ['hr.time_records', 'บันทึกเวลาจากบัตร', 'fas fa-clock', 'delete', 'ลบบันทึก', 4],
+            ['hr.time_records', 'บันทึกเวลาทำงาน', 'fas fa-clock', 'view', 'ดู/บันทึกเวลา', 1],
+            ['hr.time_records', 'บันทึกเวลาทำงาน', 'fas fa-clock', 'create', 'เพิ่มบันทึก', 2],
+            ['hr.time_records', 'บันทึกเวลาทำงาน', 'fas fa-clock', 'edit', 'แก้ไขบันทึก', 3],
+            ['hr.time_records', 'บันทึกเวลาทำงาน', 'fas fa-clock', 'delete', 'ลบบันทึก', 4],
+            ['hr.time_records', 'บันทึกเวลาทำงาน', 'fas fa-clock', 'export', 'Export Excel', 5],
 
-            ['hr.time_summary', 'รายงานสรุปรายเดือน', 'fas fa-chart-line', 'view', 'ดูรายงาน', 1],
-            ['hr.time_summary', 'รายงานสรุปรายเดือน', 'fas fa-chart-line', 'export', 'Export Excel', 2],
-
-            ['hr.time_lock', 'ปิดงวดเวลาทำงาน', 'fas fa-lock', 'view', 'ดู/ปิดงวด', 1],
-            ['hr.time_lock', 'ปิดงวดเวลาทำงาน', 'fas fa-lock', 'create', 'ล็อกงวด', 2],
+            ['hr.time_lock', 'ปิดงวดเวลาทำงาน', 'fas fa-lock', 'view', 'ดูงวดเวลา', 1],
+            ['hr.time_lock', 'ปิดงวดเวลาทำงาน', 'fas fa-lock', 'create', 'ล็อก/ปลดล็อกงวด', 2],
 
             ['hr.time_logs', 'ประวัติแก้ไขเวลา', 'fas fa-history', 'view', 'ดูประวัติ', 1],
 
@@ -73,42 +71,31 @@ class PermissionSeeder extends Seeder
             ['inventory.borrowing', 'รายการยืม-คืน', 'fas fa-hand-holding', 'create', 'สร้างใบยืม', 2],
             ['inventory.borrowing', 'รายการยืม-คืน', 'fas fa-hand-holding', 'edit', 'แก้ไขใบยืม', 3],
             ['inventory.borrowing', 'รายการยืม-คืน', 'fas fa-hand-holding', 'delete', 'ลบใบยืม', 4],
-            ['inventory.borrowing', 'รายการยืม-คืน', 'fas fa-hand-holding', 'export', 'Export Excel', 5],
 
             ['inventory.requisition', 'รายการเบิก', 'fas fa-clipboard-list', 'view', 'ดูรายการ', 1],
             ['inventory.requisition', 'รายการเบิก', 'fas fa-clipboard-list', 'create', 'สร้างใบเบิก', 2],
-            ['inventory.requisition', 'รายการเบิก', 'fas fa-clipboard-list', 'edit', 'แก้ไขใบเบิก', 3],
+            ['inventory.requisition', 'รายการเบิก', 'fas fa-clipboard-list', 'edit', 'แก้ไข/อนุมัติใบเบิก', 3],
             ['inventory.requisition', 'รายการเบิก', 'fas fa-clipboard-list', 'delete', 'ลบใบเบิก', 4],
-            ['inventory.requisition', 'รายการเบิก', 'fas fa-clipboard-list', 'export', 'Export Excel', 5],
 
             ['inventory.transactions', 'ประวัติเคลื่อนไหวสต๊อก', 'fas fa-exchange-alt', 'view', 'ดูประวัติ', 1],
-            ['inventory.transactions', 'ประวัติเคลื่อนไหวสต๊อก', 'fas fa-exchange-alt', 'export', 'Export Excel', 2],
 
             ['inventory.stock_summary', 'สรุปยอดคงเหลือ', 'fas fa-balance-scale', 'view', 'ดูสรุป', 1],
-            ['inventory.stock_summary', 'สรุปยอดคงเหลือ', 'fas fa-balance-scale', 'export', 'Export Excel', 2],
 
             // ==================== ADMIN - จัดการระบบ ====================
-            ['admin.users', 'จัดการผู้ใช้งาน', 'fas fa-user-shield', 'view', 'ดูรายการ', 1],
-            ['admin.users', 'จัดการผู้ใช้งาน', 'fas fa-user-shield', 'create', 'เพิ่มผู้ใช้', 2],
-            ['admin.users', 'จัดการผู้ใช้งาน', 'fas fa-user-shield', 'edit', 'แก้ไขผู้ใช้', 3],
-            ['admin.users', 'จัดการผู้ใช้งาน', 'fas fa-user-shield', 'delete', 'ลบผู้ใช้', 4],
-
-            ['admin.permissions', 'ตั้งค่าสิทธิ์การใช้งาน', 'fas fa-key', 'view', 'ดู/ตั้งค่าสิทธิ์', 1],
-            ['admin.permissions', 'ตั้งค่าสิทธิ์การใช้งาน', 'fas fa-key', 'edit', 'แก้ไขสิทธิ์', 2],
-
             ['admin.activity_logs', 'บันทึกกิจกรรม', 'fas fa-clipboard-check', 'view', 'ดูบันทึก', 1],
-            ['admin.activity_logs', 'บันทึกกิจกรรม', 'fas fa-clipboard-check', 'export', 'Export Excel', 2],
 
-            ['admin.backups', 'สำรองข้อมูล', 'fas fa-database', 'view', 'ดู/สร้าง Backup', 1],
+            ['admin.backups', 'สำรองข้อมูล', 'fas fa-database', 'view', 'ดูรายการ Backup', 1],
             ['admin.backups', 'สำรองข้อมูล', 'fas fa-database', 'create', 'สร้าง Backup', 2],
-            ['admin.backups', 'สำรองข้อมูล', 'fas fa-database', 'delete', 'ลบ Backup', 3],
+            ['admin.backups', 'สำรองข้อมูล', 'fas fa-database', 'edit', 'ดาวน์โหลด/Restore Backup', 3],
+            ['admin.backups', 'สำรองข้อมูล', 'fas fa-database', 'delete', 'ลบ Backup', 4],
 
             ['admin.health', 'ตรวจสอบสถานะระบบ', 'fas fa-heartbeat', 'view', 'ดูสถานะ', 1],
 
-            ['admin.imports', 'นำเข้าข้อมูล', 'fas fa-file-import', 'view', 'นำเข้าข้อมูล', 1],
+            ['admin.imports', 'นำเข้าข้อมูล', 'fas fa-file-import', 'view', 'ดูหน้านำเข้า', 1],
             ['admin.imports', 'นำเข้าข้อมูล', 'fas fa-file-import', 'create', 'อัปโหลดไฟล์', 2],
 
-            ['admin.exports', 'ส่งออกข้อมูล', 'fas fa-file-export', 'view', 'ส่งออกข้อมูล', 1],
+            ['admin.permissions', 'ตั้งค่าสิทธิ์การใช้งาน', 'fas fa-key', 'view', 'ดู/ตั้งค่าสิทธิ์', 1],
+            ['admin.permissions', 'ตั้งค่าสิทธิ์การใช้งาน', 'fas fa-key', 'edit', 'แก้ไขสิทธิ์', 2],
 
             // ==================== PROFILE - โปรไฟล์ ====================
             ['profile.edit', 'แก้ไขโปรไฟล์', 'fas fa-user-edit', 'view', 'แก้ไขข้อมูลส่วนตัว', 1],
@@ -166,6 +153,15 @@ class PermissionSeeder extends Seeder
         }
     }
 
+    /**
+     * กำหนดสิทธิ์เริ่มต้นของแต่ละ role
+     * 
+     * Admin = ทุกสิทธิ์
+     * HR = จัดการพนักงาน + เวลาทำงาน + ดูกิจกรรม logs
+     * Manager = ดูรายงาน + export อย่างเดียว
+     * Inventory = จัดการคลังสินค้าทั้งหมด
+     * Employee = เบิก/ยืม ของตัวเอง + โปรไฟล์
+     */
     private function getDefaultPermissions(string $role, string $moduleKey): array
     {
         // ==================== ADMIN - ทุกสิทธิ์ทุกอย่าง ====================
@@ -180,10 +176,10 @@ class PermissionSeeder extends Seeder
                 'hr.employees' => ['view' => true, 'create' => true, 'edit' => true, 'delete' => true, 'export' => true],
                 'hr.departments' => ['view' => true, 'create' => true, 'edit' => true, 'delete' => true],
                 'hr.positions' => ['view' => true, 'create' => true, 'edit' => true, 'delete' => true],
-                'hr.time_records' => ['view' => true, 'create' => true, 'edit' => true, 'delete' => true],
-                'hr.time_summary' => ['view' => true, 'export' => true],
+                'hr.time_records' => ['view' => true, 'create' => true, 'edit' => true, 'delete' => true, 'export' => true],
                 'hr.time_lock' => ['view' => true, 'create' => true],
                 'hr.time_logs' => ['view' => true],
+                'admin.activity_logs' => ['view' => true],
                 'profile.edit' => ['view' => true],
                 'profile.password' => ['view' => true],
                 'notifications' => ['view' => true],
@@ -196,13 +192,12 @@ class PermissionSeeder extends Seeder
             return match ($moduleKey) {
                 'manager.dashboard' => ['view' => true],
                 'hr.dashboard' => ['view' => true],
-                'hr.employees' => ['view' => true, 'export' => true], // ดูได้อย่างเดียว
-                'hr.time_summary' => ['view' => true, 'export' => true],
+                'hr.employees' => ['view' => true, 'export' => true],
                 'hr.time_logs' => ['view' => true],
-                'inventory.stock_summary' => ['view' => true, 'export' => true],
-                'inventory.transactions' => ['view' => true, 'export' => true],
-                'inventory.borrowing' => ['view' => true, 'export' => true],
-                'inventory.requisition' => ['view' => true, 'export' => true],
+                'inventory.stock_summary' => ['view' => true],
+                'inventory.transactions' => ['view' => true],
+                'inventory.borrowing' => ['view' => true],
+                'inventory.requisition' => ['view' => true],
                 'profile.edit' => ['view' => true],
                 'profile.password' => ['view' => true],
                 'notifications' => ['view' => true],
@@ -214,12 +209,12 @@ class PermissionSeeder extends Seeder
         if ($role === 'inventory') {
             return match ($moduleKey) {
                 'inventory.dashboard' => ['view' => true],
-                'inventory.items' => ['view' => true, 'create' => true, 'edit' => true, 'delete' => true, 'export' => true],
+                'inventory.items' => ['view' => true, 'create' => true, 'edit' => true, 'delete' => true],
                 'inventory.categories' => ['view' => true, 'create' => true, 'edit' => true, 'delete' => true],
-                'inventory.borrowing' => ['view' => true, 'create' => true, 'edit' => true, 'delete' => true, 'export' => true],
-                'inventory.requisition' => ['view' => true, 'create' => true, 'edit' => true, 'delete' => true, 'export' => true],
-                'inventory.transactions' => ['view' => true, 'export' => true],
-                'inventory.stock_summary' => ['view' => true, 'export' => true],
+                'inventory.borrowing' => ['view' => true, 'create' => true, 'edit' => true, 'delete' => true],
+                'inventory.requisition' => ['view' => true, 'create' => true, 'edit' => true, 'delete' => true],
+                'inventory.transactions' => ['view' => true],
+                'inventory.stock_summary' => ['view' => true],
                 'profile.edit' => ['view' => true],
                 'profile.password' => ['view' => true],
                 'notifications' => ['view' => true],
@@ -231,8 +226,8 @@ class PermissionSeeder extends Seeder
         if ($role === 'employee') {
             return match ($moduleKey) {
                 'employee.dashboard' => ['view' => true],
-                'inventory.borrowing' => ['view' => true, 'create' => true], // ยืมของได้
-                'inventory.requisition' => ['view' => true, 'create' => true], // เบิกของได้
+                'inventory.borrowing' => ['view' => true, 'create' => true],
+                'inventory.requisition' => ['view' => true, 'create' => true],
                 'profile.edit' => ['view' => true],
                 'profile.password' => ['view' => true],
                 'notifications' => ['view' => true],

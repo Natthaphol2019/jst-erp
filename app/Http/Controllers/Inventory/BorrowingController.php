@@ -329,8 +329,35 @@ class BorrowingController extends Controller
         }
 
         $borrowing->load(['employee.department', 'employee.position', 'items.item', 'approver']);
-        
+
         return view('inventory.borrowing.show', compact('borrowing'));
+    }
+
+    /**
+     * PDF view สำหรับใบยืม (หน้าสะอาดสำหรับพิมพ์)
+     */
+    public function pdf(Requisition $borrowing)
+    {
+        if ($borrowing->req_type !== 'borrow') {
+            abort(404, 'ไม่พบข้อมูลใบยืม');
+        }
+
+        $borrowing->load(['employee.department', 'employee.position', 'items.item', 'approver']);
+
+        return view('inventory.borrowing.pdf', compact('borrowing'));
+    }
+
+    /**
+     * PDF list สำหรับรายการยืมทั้งหมด
+     */
+    public function pdfList()
+    {
+        $borrowings = Requisition::with(['employee', 'items.item'])
+            ->where('req_type', 'borrow')
+            ->latest()
+            ->get();
+
+        return view('inventory.borrowing.pdf-list', compact('borrowings'));
     }
 
     /**

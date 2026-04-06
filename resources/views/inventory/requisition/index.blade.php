@@ -4,6 +4,38 @@
 
 @section('content')
 <style>
+/* Filter Buttons */
+.erp-filter-btn {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 500;
+    text-decoration: none;
+    background: var(--input-bg);
+    border: 1px solid var(--input-border);
+    color: var(--text-secondary);
+    transition: all 0.15s;
+    cursor: pointer;
+    white-space: nowrap;
+}
+.erp-filter-btn:hover {
+    background: rgba(99,102,241,0.12);
+    border-color: rgba(99,102,241,0.3);
+    color: var(--accent);
+    text-decoration: none;
+}
+.erp-filter-btn.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: white;
+    font-weight: 600;
+}
+.erp-filter-btn.active i {
+    color: white;
+}
+
 @media print {
     .no-print, .no-print * { display: none !important; }
     .sidebar, .navbar, .btn, .alert, .erp-card-body form { display: none !important; }
@@ -63,22 +95,74 @@
             </div>
             <div class="col-md-4">
                 <label class="erp-label">สถานะ</label>
-                <select name="status" class="erp-select">
-                    <option value="">-- ทั้งหมด --</option>
-                    <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>รออนุมัติ</option>
-                    <option value="approved" {{ request('status') == 'approved' ? 'selected' : '' }}>อนุมัติแล้ว</option>
-                    <option value="rejected" {{ request('status') == 'rejected' ? 'selected' : '' }}>ปฏิเสธ</option>
-                </select>
+                <div class="d-flex gap-2 flex-wrap" style="padding-top: 6px;">
+                    <a href="{{ route('inventory.requisition.index', array_merge(request()->query(), ['status' => ''])) }}"
+                       class="erp-filter-btn {{ !request('status') ? 'active' : '' }}">
+                        <i class="fas fa-layer-group me-1"></i>ทั้งหมด
+                    </a>
+                    <a href="{{ route('inventory.requisition.index', array_merge(request()->query(), ['status' => 'issued'])) }}"
+                       class="erp-filter-btn {{ request('status') == 'issued' ? 'active' : '' }}"
+                       style="{{ request('status') == 'issued' ? '' : 'background: rgba(52,211,153,0.08); border-color: rgba(52,211,153,0.3); color: #34d399;' }}">
+                        <i class="fas fa-check-circle me-1"></i>เบิกแล้ว
+                    </a>
+                    <a href="{{ route('inventory.requisition.index', array_merge(request()->query(), ['status' => 'rejected'])) }}"
+                       class="erp-filter-btn {{ request('status') == 'rejected' ? 'active' : '' }}"
+                       style="{{ request('status') == 'rejected' ? '' : 'background: rgba(239,68,68,0.08); border-color: rgba(239,68,68,0.3); color: #f87171;' }}">
+                        <i class="fas fa-times-circle me-1"></i>ปฏิเสธ
+                    </a>
+                </div>
             </div>
             <div class="col-md-3 d-flex align-items-end gap-2">
                 <button type="submit" class="erp-btn-primary flex-grow-1">
                     <i class="fas fa-search me-1"></i>ค้นหา
                 </button>
                 <a href="{{ route('inventory.requisition.index') }}" class="erp-btn-secondary">
-                    <i class="fas fa-times me-1"></i>รีเซ็ต
+                    <i class="fas fa-redo me-1"></i>รีเซ็ต
                 </a>
             </div>
         </form>
+        
+        {{-- Active Filters Indicator --}}
+        @if(request()->hasAny(['search', 'status']))
+        <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border);">
+            <div class="d-flex align-items-center gap-2 flex-wrap">
+                <span style="font-size: 11px; color: var(--text-muted); font-weight: 500;">
+                    <i class="fas fa-info-circle me-1"></i>กำลังกรอง:
+                </span>
+                @if(request('search'))
+                    <span class="erp-badge" style="background: rgba(99,102,241,0.1); color: #6366f1; font-size: 11px;">
+                        <i class="fas fa-search me-1"></i>ค้นหา: "{{ request('search') }}"
+                        <a href="{{ route('inventory.requisition.index', array_filter(request()->query(), fn($k, $v) => $k !== 'search', ARRAY_FILTER_USE_BOTH)) }}" style="color: inherit; margin-left: 4px;">
+                            <i class="fas fa-times"></i>
+                        </a>
+                    </span>
+                @endif
+                @if(request('status'))
+                    @php
+                        $statusText = match(request('status')) {
+                            'issued' => 'เบิกแล้ว',
+                            'rejected' => 'ปฏิเสธ',
+                            default => request('status')
+                        };
+                        $statusColor = match(request('status')) {
+                            'issued' => '#34d399',
+                            'rejected' => '#f87171',
+                            default => '#6366f1'
+                        };
+                    @endphp
+                    <span class="erp-badge" style="background: rgba(52,211,153,0.1); color: {{ $statusColor }}; font-size: 11px;">
+                        <i class="fas fa-filter me-1"></i>สถานะ: {{ $statusText }}
+                        <a href="{{ route('inventory.requisition.index', array_filter(request()->query(), fn($k, $v) => $k !== 'status', ARRAY_FILTER_USE_BOTH)) }}" style="color: inherit; margin-left: 4px;">
+                            <i class="fas fa-times"></i>
+                        </a>
+                    </span>
+                @endif
+                <a href="{{ route('inventory.requisition.index') }}" style="font-size: 11px; color: #ef4444; text-decoration: underline;">
+                    <i class="fas fa-redo me-1"></i>ล้างตัวกรองทั้งหมด
+                </a>
+            </div>
+        </div>
+        @endif
     </div>
 </div>
 

@@ -12,7 +12,7 @@ class ItemController extends Controller
     public function index(Request $request)
     {
         $query = Item::with('category');
-        
+
         // Filter by status
         if ($request->filled('status')) {
             $query->where('status', $request->status);
@@ -20,7 +20,34 @@ class ItemController extends Controller
             // Default: show only available items
             $query->where('status', 'available');
         }
-        
+
+        // Search by name, code, or location
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('item_code', 'like', "%{$search}%")
+                  ->orWhere('location', 'like', "%{$search}%");
+            });
+        }
+
+        // Filter by category
+        if ($request->filled('category')) {
+            $query->whereHas('category', function($q) use ($request) {
+                $q->where('name', $request->category);
+            });
+        }
+
+        // Filter by type
+        if ($request->filled('type')) {
+            $query->where('type', $request->type);
+        }
+
+        // Filter by unit
+        if ($request->filled('unit')) {
+            $query->where('unit', $request->unit);
+        }
+
         // Sort
         $sort = $request->get('sort', 'latest');
         switch ($sort) {
@@ -38,9 +65,16 @@ class ItemController extends Controller
                 $query->latest();
                 break;
         }
-        
+
         $items = $query->paginate(10)->appends($request->query());
-        return view('inventory.items.index', compact('items'));
+
+        // Get all unique categories, types, and units for filters
+        $allItems = Item::with('category')->get();
+        $categories = $allItems->pluck('category.name')->unique()->filter()->values();
+        $types = $allItems->pluck('type')->unique()->filter()->values();
+        $units = $allItems->pluck('unit')->unique()->filter()->values();
+
+        return view('inventory.items.index', compact('items', 'categories', 'types', 'units'));
     }
 
     // 2. หน้าฟอร์มเพิ่มสินค้าใหม่ (Create - Form)
@@ -56,21 +90,30 @@ class ItemController extends Controller
     {
         $validated = $request->validate([
             'category_id' => 'required|exists:item_categories,id',
-            'item_code'   => 'required|string|max:50|unique:items,item_code', // ต้องไม่ซ้ำ
+            'item_code'   => 'required|string|max:50|unique:items,item_code',
             'name'        => 'required|string|max:255',
-            'type'        => 'required|in:equipment,consumable', // ต้องเป็น 2 ค่านี้เท่านั้น
+            'type'        => 'required|in:disposable,returnable,equipment,consumable',
             'unit'        => 'required|string|max:50',
             'current_stock'=> 'nullable|integer|min:0',
             'min_stock'   => 'nullable|integer|min:0',
             'location'    => 'nullable|string|max:100',
-            'image'       => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+            'image'       => 'nullable|image|mimes:jpeg,png,jpg,gif,webp,svg|max:5120',
         ]);
 
         // จัดการอัปโหลดรูปภาพ
         if ($request->hasFile('image')) {
             $image = $request->file('image');
-            $imageName = time() . '_' . $image->getClientOriginalName();
-            $image->storeAs('public/items', $imageName);
+            $imageName = time() . '_' . uniqid() . '_' . $image->getClientOriginalName();
+            
+            // สร้าง directory ถ้ายังไม่มี
+            $targetDir = storage_path('app/public/items');
+            if (!file_exists($targetDir)) {
+                mkdir($targetDir, 0755, true);
+            }
+            
+            $targetPath = $targetDir . '/' . $imageName;
+            copy($image->getPathname(), $targetPath);
+            
             $validated['image_url'] = 'items/' . $imageName;
         }
 
@@ -102,13 +145,13 @@ class ItemController extends Controller
             // ยกเว้นการเช็ค unique กับ ID ของตัวเอง
             'item_code'   => 'required|string|max:50|unique:items,item_code,' . $item->id,
             'name'        => 'required|string|max:255',
-            'type'        => 'required|in:equipment,consumable',
+            'type'        => 'required|in:disposable,returnable,equipment,consumable',
             'unit'        => 'required|string|max:50',
             'current_stock'=> 'required|integer|min:0',
             'min_stock'   => 'required|integer|min:0',
             'location'    => 'nullable|string|max:100',
             'status'      => 'required|in:available,unavailable,maintenance',
-            'image'       => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+            'image'       => 'nullable|image|mimes:jpeg,png,jpg,gif,webp,svg|max:5120',
         ]);
 
         // จัดการอัปโหลดรูปภาพใหม่

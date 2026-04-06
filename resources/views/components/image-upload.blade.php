@@ -32,11 +32,11 @@
                 @if($hasImage)
                 <form action="{{ $type === 'employee' ? route('uploads.employee.delete', $entity->id) : route('uploads.item.delete', $entity->id) }}"
                       method="POST"
-                      class="d-inline">
+                      class="d-inline" id="deleteImageForm">
                     @csrf
                     @method('DELETE')
-                    <button type="submit" class="erp-btn-danger" style="padding: 5px 12px; font-size: 12px;"
-                            onclick="return confirm('คุณแน่ใจหรือว่าจะลบรูปนี้?')">
+                    <button type="button" class="erp-btn-danger" style="padding: 5px 12px; font-size: 12px;"
+                            onclick="confirmAction('คุณต้องการลบรูปภาพนี้ใช่หรือไม่?', function() { document.getElementById('deleteImageForm').submit(); })">
                         <i class="fas fa-trash me-1"></i>ลบรูป
                     </button>
                 </form>

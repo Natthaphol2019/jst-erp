@@ -16,6 +16,49 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Noto+Sans+Thai:wght@300;400;500;600&display=swap" rel="stylesheet">
 
+    {{-- SweetAlert2 --}}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.js"></script>
+
+    <style>
+    /* SweetAlert2 Custom Styling */
+    .swal2-popup {
+        font-family: 'Noto Sans Thai', 'IBM Plex Sans', sans-serif !important;
+        border-radius: 16px !important;
+        padding: 24px !important;
+    }
+    .swal2-title {
+        font-family: 'Noto Sans Thai', 'IBM Plex Sans', sans-serif !important;
+        font-weight: 600 !important;
+        font-size: 20px !important;
+    }
+    .swal2-html-container {
+        font-family: 'Noto Sans Thai', 'IBM Plex Sans', sans-serif !important;
+        font-size: 14px !important;
+    }
+    .swal2-confirm {
+        font-family: 'Noto Sans Thai', 'IBM Plex Sans', sans-serif !important;
+        font-weight: 600 !important;
+        border-radius: 8px !important;
+        padding: 10px 24px !important;
+    }
+    .swal2-cancel {
+        font-family: 'Noto Sans Thai', 'IBM Plex Sans', sans-serif !important;
+        font-weight: 600 !important;
+        border-radius: 8px !important;
+        padding: 10px 24px !important;
+    }
+    .swal2-toast {
+        font-family: 'Noto Sans Thai', 'IBM Plex Sans', sans-serif !important;
+        border-radius: 10px !important;
+        padding: 12px 16px !important;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
+    }
+    .swal2-toast .swal2-title {
+        font-size: 14px !important;
+    }
+    </style>
+
     <style>
         /* ═══════════════════════════════════════════════
            THEME TOKENS — Light (default) & Dark
@@ -125,6 +168,13 @@
             background-color: var(--bg-base);
             color: var(--text-primary);
             -webkit-font-smoothing: antialiased;
+        }
+
+        /* Print: ใช้ Noto Sans Thai ก่อนเพื่อรองรับภาษาไทย */
+        @media print {
+            body, h1, h2, h3, h4, h5, h6, p, span, div, td, th, strong, small {
+                font-family: 'Noto Sans Thai', 'Tahoma', sans-serif !important;
+            }
         }
 
         /* ── Layout ── */
@@ -454,6 +504,83 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+{{-- ── Global SweetAlert2 Helpers ── --}}
+<script>
+// Global helper: Show success toast
+function showToastSuccess(message) {
+    const Toast = Swal.mixin({
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 3000,
+        timerProgressBar: true,
+        didOpen: (toast) => {
+            toast.onmouseenter = () => Toast.stopTimer();
+            toast.onmouseleave = () => Toast.resumeTimer();
+        }
+    });
+    Toast.fire({
+        icon: 'success',
+        title: message || 'สำเร็จ!'
+    });
+}
+
+// Global helper: Show error toast
+function showToastError(message) {
+    const Toast = Swal.mixin({
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 4000,
+        timerProgressBar: true
+    });
+    Toast.fire({
+        icon: 'error',
+        title: message || 'เกิดข้อผิดพลาด!'
+    });
+}
+
+// Global helper: Confirm dialog
+function confirmAction(message, callback) {
+    Swal.fire({
+        title: 'ยืนยันการทำรายการ',
+        text: message,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#6366f1',
+        cancelButtonColor: '#6b7280',
+        confirmButtonText: '<i class="fas fa-check me-1"></i>ใช่, ดำเนินการ',
+        cancelButtonText: '<i class="fas fa-times me-1"></i>ยกเลิก',
+        reverseButtons: true
+    }).then((result) => {
+        if (result.isConfirmed && callback) {
+            callback();
+        }
+    });
+}
+
+// Auto show notification from session flash messages
+document.addEventListener('DOMContentLoaded', function() {
+    @if(session('success'))
+        showToastSuccess('{{ session('success') }}');
+    @endif
+
+    @if(session('error'))
+        showToastError('{{ session('error') }}');
+    @endif
+
+    @if(session('warning'))
+        Swal.fire({
+            icon: 'warning',
+            title: 'แจ้งเตือน',
+            text: '{{ session('warning') }}',
+            confirmButtonColor: '#f59e0b',
+            confirmButtonText: 'ตกลง'
+        });
+    @endif
+});
+</script>
 
 {{-- ── Global Theme Toggle Script ── --}}
 <script>

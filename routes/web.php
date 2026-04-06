@@ -104,13 +104,6 @@ Route::middleware('auth')->group(function () {
         Route::get('/activity-logs/{id}', [ActivityLogController::class, 'show'])->name('activity-logs.show');
 
         // ==============================
-        // ตั้งค่าสิทธิ์การใช้งาน (Permissions)
-        // ==============================
-        Route::get('/permissions', [\App\Http\Controllers\Admin\PermissionController::class, 'index'])->name('permissions.index');
-        Route::post('/permissions/update', [\App\Http\Controllers\Admin\PermissionController::class, 'update'])->name('permissions.update');
-        Route::post('/permissions/reset', [\App\Http\Controllers\Admin\PermissionController::class, 'reset'])->name('permissions.reset');
-
-        // ==============================
         // ระบบนําเข้าข้อมูล (Import)
         // ==============================
         Route::prefix('imports')->name('imports.')->group(function () {
@@ -151,13 +144,13 @@ Route::middleware('auth')->group(function () {
     // ==============================
     Route::middleware('role:employee')->prefix('employee')->name('employee.')->group(function () {
         Route::get('/dashboard', [EmployeeDashboardController::class, 'index'])->name('dashboard');
-        
+
         // Employee borrowing history (ดูเฉพาะของตัวเอง)
         Route::get('/borrowings', [BorrowingController::class, 'myBorrowings'])->name('borrowings');
         Route::get('/borrowings/create', [BorrowingController::class, 'createForEmployee'])->name('borrowing.create');
         Route::post('/borrowings', [BorrowingController::class, 'store'])->name('borrowing.store');
         Route::get('/borrowings/{borrowing}', [BorrowingController::class, 'show'])->name('borrowing.show');
-        
+
         // Employee requisition history (ดูเฉพาะของตัวเอง)
         Route::get('/requisitions', [RequisitionController::class, 'myRequisitions'])->name('requisitions');
         Route::get('/requisitions/create', [RequisitionController::class, 'create'])->name('requisition.create');
@@ -173,9 +166,9 @@ Route::middleware('auth')->group(function () {
         // ระบบจัดการพนักงาน (Employees)
         Route::resource('employees', EmployeeController::class);
         Route::patch('/employees/{employee}/toggle-block', [EmployeeController::class, 'toggleBlock'])->name('employees.toggle-block');
-        // ระบบจัดการแผนก (Departments) เผื่อไว้สำหรับทำระบบ Workflow ส่งต่องานในอนาคต
+        // ระบบจัดการแผนก (Departments)
         Route::resource('departments', DepartmentController::class);
-        // ระบบจัดการตำแหน่งงาน (Positions) เผื่อไว้สำหรับทำระบบ Workflow ส่งต่องานในอนาคต
+        // ระบบจัดการตำแหน่งงาน (Positions)
         Route::resource('positions', PositionController::class);
 
         // ระบบบันทึกเวลาทำงาน (Time Records)
@@ -222,7 +215,9 @@ Route::middleware('auth')->group(function () {
         Route::get('/borrowing', [BorrowingController::class, 'index'])->name('borrowing.index');
         Route::get('/borrowing/create', [BorrowingController::class, 'create'])->name('borrowing.create');
         Route::post('/borrowing', [BorrowingController::class, 'store'])->name('borrowing.store');
+        Route::get('/borrowing/pdf', [BorrowingController::class, 'pdfList'])->name('borrowing.pdf-list');
         Route::get('/borrowing/{borrowing}', [BorrowingController::class, 'show'])->name('borrowing.show');
+        Route::get('/borrowing/{borrowing}/pdf', [BorrowingController::class, 'pdf'])->name('borrowing.pdf');
         Route::get('/borrowing/{borrowing}/edit', [BorrowingController::class, 'edit'])->name('borrowing.edit');
         Route::put('/borrowing/{borrowing}', [BorrowingController::class, 'update'])->name('borrowing.update');
         Route::get('/borrowing/{borrowing}/return', [BorrowingController::class, 'returnForm'])->name('borrowing.return');

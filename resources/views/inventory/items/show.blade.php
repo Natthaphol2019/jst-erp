@@ -193,10 +193,10 @@
     <a href="{{ route('inventory.items.index') }}" class="erp-btn-secondary">
         <i class="fas fa-arrow-left me-2"></i>กลับหน้ารายการ
     </a>
-    <form action="{{ route('inventory.items.destroy', $item->id) }}" method="POST" class="d-inline">
+    <form action="{{ route('inventory.items.destroy', $item->id) }}" method="POST" class="d-inline" id="deleteItemForm">
         @csrf
         @method('DELETE')
-        <button type="submit" class="erp-btn-danger" onclick="return confirm('ต้องการลบสินค้านี้ใช่หรือไม่?')">
+        <button type="button" class="erp-btn-danger" onclick="confirmAction('คุณต้องการลบสินค้า "{{ $item->name }}" ใช่หรือไม่? การลบจะไม่สามารถกู้คืนได้', function() { document.getElementById('deleteItemForm').submit(); })">
             <i class="fas fa-trash me-2"></i>ลบสินค้า
         </button>
     </form>

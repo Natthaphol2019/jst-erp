@@ -172,14 +172,7 @@
 
             @if (auth()->user()->role === 'admin')
                 <li class="nav-item mt-3 mb-1 px-3 sidebar-text">
-                    <span class="sb-section-label">ระบบจัดการผู้ใช้</span>
-                </li>
-                <li class="nav-item">
-                    <a href="{{ route('admin.permissions.index') }}"
-                        class="sidebar-link nav-link d-flex align-items-center gap-2 px-3 py-2 mx-2 rounded-2 {{ request()->routeIs('admin.permissions.*') ? 'sb-active' : '' }}">
-                        <i class="fas fa-key sb-icon"></i>
-                        <span class="sidebar-text">ตั้งค่าสิทธิ์ (Access Rights)</span>
-                    </a>
+                    <span class="sb-section-label">ระบบจัดการ</span>
                 </li>
                 <li class="nav-item">
                     <a href="{{ route('admin.activity-logs.index') }}"

@@ -1,0 +1,1131 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JST ERP - คู่มือระบบ</title>
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --bg: #ffffff;
+            --bg-alt: #f9fafb;
+            --text: #111827;
+            --text-muted: #6b7280;
+            --border: #e5e7eb;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--text);
+            background: var(--bg);
+        }
+
+        /* Sidebar */
+        .sidebar {
+            position: fixed;
+            left: 0; top: 0;
+            width: 280px;
+            height: 100vh;
+            background: #1e1e2d;
+            color: #fff;
+            overflow-y: auto;
+            padding: 20px 0;
+            z-index: 100;
+        }
+
+        .sidebar h2 {
+            padding: 0 20px 15px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            font-size: 18px;
+            margin-bottom: 15px;
+        }
+
+        .sidebar h2 span {
+            color: #818cf8;
+        }
+
+        .sidebar a {
+            display: block;
+            padding: 10px 20px;
+            color: rgba(255,255,255,0.7);
+            text-decoration: none;
+            transition: all 0.2s;
+            font-size: 14px;
+        }
+
+        .sidebar a:hover {
+            background: rgba(99,102,241,0.2);
+            color: #fff;
+            padding-left: 25px;
+        }
+
+        .sidebar .section-title {
+            padding: 15px 20px 5px;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: rgba(255,255,255,0.4);
+            font-weight: 600;
+        }
+
+        /* Main Content */
+        .content {
+            margin-left: 280px;
+            padding: 40px;
+            max-width: 1200px;
+        }
+
+        h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+            color: var(--primary);
+        }
+
+        h2 {
+            font-size: 26px;
+            margin: 40px 0 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--primary);
+            color: var(--text);
+        }
+
+        h3 {
+            font-size: 20px;
+            margin: 30px 0 15px;
+            color: var(--primary-dark);
+        }
+
+        h4 {
+            font-size: 17px;
+            margin: 20px 0 10px;
+            color: var(--text);
+        }
+
+        p { margin-bottom: 15px; }
+
+        .subtitle {
+            font-size: 16px;
+            color: var(--text-muted);
+            margin-bottom: 30px;
+        }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0 25px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        th {
+            background: var(--primary);
+            color: #fff;
+            padding: 12px 15px;
+            text-align: left;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        td {
+            padding: 10px 15px;
+            border-top: 1px solid var(--border);
+            font-size: 13px;
+        }
+
+        tr:hover { background: var(--bg-alt); }
+
+        tr:nth-child(even) { background: #f8f9fa; }
+        tr:nth-child(even):hover { background: #e5e7eb; }
+
+        /* Code */
+        code {
+            background: #f1f5f9;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 13px;
+            color: #e11d48;
+            font-family: 'Consolas', 'Monaco', monospace;
+        }
+
+        pre {
+            background: #1e1e2d;
+            color: #e5e7eb;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 15px 0 25px;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        pre code {
+            background: none;
+            color: inherit;
+            padding: 0;
+        }
+
+        /* Badges */
+        .badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .badge-get { background: #dbeafe; color: #1d4ed8; }
+        .badge-post { background: #dcfce7; color: #15803d; }
+        .badge-put { background: #fef3c7; color: #b45309; }
+        .badge-patch { background: #f3e8ff; color: #7e22ce; }
+        .badge-delete { background: #fee2e2; color: #dc2626; }
+
+        .badge-yes { background: #dcfce7; color: #15803d; }
+        .badge-no { background: #fee2e2; color: #dc2626; }
+
+        /* Alerts */
+        .alert {
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid;
+        }
+
+        .alert-warning {
+            background: #fef3c7;
+            border-color: #f59e0b;
+            color: #92400e;
+        }
+
+        .alert-info {
+            background: #dbeafe;
+            border-color: #3b82f6;
+            color: #1e40af;
+        }
+
+        /* TOC */
+        .toc {
+            background: var(--bg-alt);
+            padding: 20px 25px;
+            border-radius: 8px;
+            margin: 20px 0 30px;
+            border: 1px solid var(--border);
+        }
+
+        .toc h3 {
+            margin: 0 0 15px;
+            font-size: 18px;
+        }
+
+        .toc ol {
+            padding-left: 20px;
+        }
+
+        .toc li {
+            margin: 5px 0;
+        }
+
+        .toc a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        .toc a:hover {
+            text-decoration: underline;
+        }
+
+        /* Print */
+        @media print {
+            .sidebar { display: none; }
+            .content { margin-left: 0; }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar { display: none; }
+            .content { margin-left: 0; padding: 20px; }
+            table { font-size: 12px; }
+            th, td { padding: 8px 10px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="sidebar">
+    <h2>🏭 <span>JST</span> ERP</h2>
+
+    <div class="section-title">ภาพรวม</div>
+    <a href="#overview">ระบบคืออะไร</a>
+    <a href="#roles">บทบาทผู้ใช้</a>
+    <a href="#auth">การเข้าสู่ระบบ</a>
+
+    <div class="section-title">API Endpoints</div>
+    <a href="#endpoints-public">Public Routes</a>
+    <a href="#endpoints-auth">Auth Routes</a>
+    <a href="#endpoints-admin">Admin Routes</a>
+    <a href="#endpoints-manager">Manager Routes</a>
+    <a href="#endpoints-employee">Employee Routes</a>
+    <a href="#endpoints-hr">HR Routes</a>
+    <a href="#endpoints-inventory">Inventory Routes</a>
+
+    <div class="section-title">ฟีเจอร์</div>
+    <a href="#features-hr">บุคลากร (HR)</a>
+    <a href="#features-time">ลงเวลา</a>
+    <a href="#features-inventory">คลังสินค้า</a>
+    <a href="#features-borrowing">ยืม-คืน</a>
+    <a href="#features-requisition">เบิกของ</a>
+    <a href="#features-import">นำเข้า/ส่งออก</a>
+    <a href="#features-backup">สำรองข้อมูล</a>
+
+    <div class="section-title">คู่มือใช้งาน</div>
+    <a href="#guide-start">เริ่มต้นใช้งาน</a>
+    <a href="#guide-employee">เพิ่มพนักงาน</a>
+    <a href="#guide-time">บันทึกเวลา</a>
+    <a href="#guide-item">เพิ่มสินค้า</a>
+    <a href="#guide-borrowing">สร้างใบยืม</a>
+    <a href="#guide-requisition">สร้างใบเบิก</a>
+    <a href="#guide-import">นำเข้าข้อมูล</a>
+    <a href="#guide-backup">สำรองข้อมูล</a>
+
+    <div class="section-title">ข้อมูลเทคนิค</div>
+    <a href="#tech-stack">Technology Stack</a>
+    <a href="#tech-db">Database Schema</a>
+    <a href="#tech-status">Status Codes</a>
+</div>
+
+<div class="content">
+
+<h1>🏭 JST ERP System Documentation</h1>
+<p class="subtitle">คู่มือระบบบริหารจัดการองค์กรครบวงจร | Version 1.0.0 | April 6, 2026</p>
+
+<div class="toc">
+    <h3>📋 สารบัญ</h3>
+    <ol>
+        <li><a href="#overview">ภาพรวมระบบ</a></li>
+        <li><a href="#roles">บทบาทผู้ใช้ (User Roles)</a></li>
+        <li><a href="#auth">การเข้าสู่ระบบ (Authentication)</a></li>
+        <li><a href="#endpoints-public">API Endpoints - Public</a></li>
+        <li><a href="#endpoints-auth">API Endpoints - Authenticated</a></li>
+        <li><a href="#endpoints-admin">API Endpoints - Admin</a></li>
+        <li><a href="#endpoints-manager">API Endpoints - Manager</a></li>
+        <li><a href="#endpoints-employee">API Endpoints - Employee</a></li>
+        <li><a href="#endpoints-hr">API Endpoints - HR</a></li>
+        <li><a href="#endpoints-inventory">API Endpoints - Inventory</a></li>
+        <li><a href="#features-hr">ฟีเจอร์ HR</a></li>
+        <li><a href="#features-time">ฟีเจอร์ลงเวลา</a></li>
+        <li><a href="#features-inventory">ฟีเจอร์คลังสินค้า</a></li>
+        <li><a href="#features-borrowing">ระบบยืม-คืน</a></li>
+        <li><a href="#features-requisition">ระบบเบิกของ</a></li>
+        <li><a href="#guide-start">เริ่มต้นใช้งาน</a></li>
+    </ol>
+</div>
+
+<h2 id="overview">📖 ภาพรวมระบบ</h2>
+<p><strong>JST ERP</strong> คือระบบบริหารจัดการองค์กรครบวงจร พัฒนาด้วย <strong>Laravel 12</strong> ครอบคลุมการบริหารบุคลากร การจัดการคลังสินค้า ระบบยืม-คืนอุปกรณ์ และกระบวนการเบิกจ่ายอุปทาน</p>
+
+<div class="alert alert-info">
+    <strong>URL:</strong> <code>http://127.0.0.1:8000</code> | <strong>ฐานข้อมูล:</strong> MySQL | <strong>PHP:</strong> 8.2.12
+</div>
+
+<h2 id="roles">👥 บทบาทผู้ใช้ (User Roles)</h2>
+
+<table>
+    <thead>
+        <tr>
+            <th>Role</th>
+            <th>คำอธิบาย</th>
+            <th>สิทธิ์การเข้าถึง</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><code>admin</code></td>
+            <td>ผู้ดูแลระบบ</td>
+            <td>เข้าถึงทุกโมดูล</td>
+        </tr>
+        <tr>
+            <td><code>hr</code></td>
+            <td>ฝ่ายบุคคล</td>
+            <td>จัดการพนักงาน, ลงเวลา</td>
+        </tr>
+        <tr>
+            <td><code>manager</code></td>
+            <td>ผู้จัดการ</td>
+            <td>ดูรายงานและแดชบอร์ด</td>
+        </tr>
+        <tr>
+            <td><code>inventory</code></td>
+            <td>ฝ่ายคลังสินค้า</td>
+            <td>จัดการคลังสินค้าทั้งหมด</td>
+        </tr>
+        <tr>
+            <td><code>employee</code></td>
+            <td>พนักงานทั่วไป</td>
+            <td>ยืม/เบิก ของตัวเอง</td>
+        </tr>
+    </tbody>
+</table>
+
+<h3>ตารางสิทธิ์การเข้าถึง</h3>
+<table>
+    <thead>
+        <tr>
+            <th>โมดูล</th>
+            <th>admin</th>
+            <th>hr</th>
+            <th>manager</th>
+            <th>inventory</th>
+            <th>employee</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>Admin Dashboard</td>
+            <td><span class="badge badge-yes">✅</span></td>
+            <td><span class="badge badge-no">❌</span></td>
+            <td><span class="badge badge-no">❌</span></td>
+            <td><span class="badge badge-no">❌</span></td>
+            <td><span class="badge badge-no">❌</span></td>
+        </tr>
+        <tr>
+            <td>HR Management</td>
+            <td><span class="badge badge-yes">✅</span></td>
+            <td><span class="badge badge-yes">✅</span></td>
+            <td><span class="badge badge-no">❌</span></td>
+            <td><span class="badge badge-no">❌</span></td>
+            <td><span class="badge badge-no">❌</span></td>
+        </tr>
+        <tr>
+            <td>Time Records</td>
+            <td><span class="badge badge-yes">✅</span></td>
+            <td><span class="badge badge-yes">✅</span></td>
+            <td><span class="badge badge-no">❌</span></td>
+            <td><span class="badge badge-no">❌</span></td>
+            <td><span class="badge badge-no">❌</span></td>
+        </tr>
+        <tr>
+            <td>Inventory</td>
+            <td><span class="badge badge-yes">✅</span></td>
+            <td><span class="badge badge-no">❌</span></td>
+            <td><span class="badge badge-no">❌</span></td>
+            <td><span class="badge badge-yes">✅</span></td>
+            <td><span class="badge badge-no">❌</span></td>
+        </tr>
+        <tr>
+            <td>Borrowing</td>
+            <td><span class="badge badge-yes">✅</span></td>
+            <td><span class="badge badge-no">❌</span></td>
+            <td><span class="badge badge-no">❌</span></td>
+            <td><span class="badge badge-yes">✅</span></td>
+            <td><span class="badge badge-yes">✅ (ตัวเอง)</span></td>
+        </tr>
+        <tr>
+            <td>Requisition</td>
+            <td><span class="badge badge-yes">✅</span></td>
+            <td><span class="badge badge-no">❌</span></td>
+            <td><span class="badge badge-no">❌</span></td>
+            <td><span class="badge badge-yes">✅</span></td>
+            <td><span class="badge badge-yes">✅ (ตัวเอง)</span></td>
+        </tr>
+    </tbody>
+</table>
+
+<h2 id="auth">🔐 การเข้าสู่ระบบ</h2>
+
+<h3>Login</h3>
+<pre><code>POST /login
+Content-Type: application/x-www-form-urlencoded
+
+username: your_username
+password: your_password</code></pre>
+
+<h3>Logout</h3>
+<pre><code>POST /logout</code></pre>
+
+<div class="alert alert-warning">
+    <strong>⚠️ ค่าเริ่มต้น:</strong> Username: <code>admin</code> | Password: <code>password</code> — เปลี่ยนทันทีหลังเข้าระบบครั้งแรก!
+</div>
+
+<h2 id="endpoints-public">🌐 API Endpoints - Public (ไม่ต้อง Login)</h2>
+
+<table>
+    <thead>
+        <tr>
+            <th>Method</th>
+            <th>Endpoint</th>
+            <th>คำอธิบาย</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><span class="badge badge-get">GET</span></td>
+            <td><code>/</code></td>
+            <td>Redirect ไปหน้า Login</td>
+        </tr>
+        <tr>
+            <td><span class="badge badge-get">GET</span></td>
+            <td><code>/login</code></td>
+            <td>แสดงฟอร์ม Login</td>
+        </tr>
+        <tr>
+            <td><span class="badge badge-post">POST</span></td>
+            <td><code>/login</code></td>
+            <td>ตรวจสอบและเข้าสู่ระบบ</td>
+        </tr>
+    </tbody>
+</table>
+
+<h2 id="endpoints-auth">🔑 API Endpoints - Authenticated (ทุก Role)</h2>
+
+<h3>โปรไฟล์</h3>
+<table>
+    <thead>
+        <tr>
+            <th>Method</th>
+            <th>Endpoint</th>
+            <th>คำอธิบาย</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><span class="badge badge-get">GET</span></td>
+            <td><code>/profile/edit</code></td>
+            <td>แก้ไขโปรไฟล์</td>
+        </tr>
+        <tr>
+            <td><span class="badge badge-put">PUT</span></td>
+            <td><code>/profile/update</code></td>
+            <td>บันทึกการแก้ไข</td>
+        </tr>
+        <tr>
+            <td><span class="badge badge-get">GET</span></td>
+            <td><code>/profile/change-password</code></td>
+            <td>เปลี่ยนรหัสผ่าน</td>
+        </tr>
+        <tr>
+            <td><span class="badge badge-put">PUT</span></td>
+            <td><code>/profile/update-password</code></td>
+            <td>บันทึกรหัสผ่านใหม่</td>
+        </tr>
+    </tbody>
+</table>
+
+<h3>การแจ้งเตือน</h3>
+<table>
+    <thead>
+        <tr>
+            <th>Method</th>
+            <th>Endpoint</th>
+            <th>คำอธิบาย</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><span class="badge badge-get">GET</span></td>
+            <td><code>/notifications</code></td>
+            <td>ดูการแจ้งเตือนทั้งหมด</td>
+        </tr>
+        <tr>
+            <td><span class="badge badge-post">POST</span></td>
+            <td><code>/notifications/{id}/read</code></td>
+            <td>อ่านแล้ว</td>
+        </tr>
+        <tr>
+            <td><span class="badge badge-post">POST</span></td>
+            <td><code>/notifications/read-all</code></td>
+            <td>อ่านทั้งหมดแล้ว</td>
+        </tr>
+    </tbody>
+</table>
+
+<h3>Export Excel</h3>
+<table>
+    <thead>
+        <tr>
+            <th>Method</th>
+            <th>Endpoint</th>
+            <th>คำอธิบาย</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><span class="badge badge-get">GET</span></td>
+            <td><code>/exports/employees</code></td>
+            <td>ส่งออกข้อมูลพนักงาน</td>
+        </tr>
+        <tr>
+            <td><span class="badge badge-get">GET</span></td>
+            <td><code>/exports/items</code></td>
+            <td>ส่งออกข้อมูลสินค้า</td>
+        </tr>
+        <tr>
+            <td><span class="badge badge-get">GET</span></td>
+            <td><code>/exports/borrowings</code></td>
+            <td>ส่งออกข้อมูลการยืม</td>
+        </tr>
+        <tr>
+            <td><span class="badge badge-get">GET</span></td>
+            <td><code>/exports/requisitions</code></td>
+            <td>ส่งออกข้อมูลการเบิก</td>
+        </tr>
+    </tbody>
+</table>
+
+<h2 id="endpoints-admin">🛡️ API Endpoints - Admin เท่านั้น</h2>
+
+<h3>Dashboard & ระบบ</h3>
+<table>
+    <thead>
+        <tr>
+            <th>Method</th>
+            <th>Endpoint</th>
+            <th>คำอธิบาย</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><span class="badge badge-get">GET</span></td>
+            <td><code>/admin/dashboard</code></td>
+            <td>แดชบอร์ดผู้ดูแลระบบ</td>
+        </tr>
+        <tr>
+            <td><span class="badge badge-get">GET</span></td>
+            <td><code>/admin/activity-logs</code></td>
+            <td>ดูกิจกรรมในระบบ</td>
+        </tr>
+        <tr>
+            <td><span class="badge badge-get">GET</span></td>
+            <td><code>/admin/health</code></td>
+            <td>ตรวจสอบสุขภาพระบบ</td>
+        </tr>
+    </tbody>
+</table>
+
+<h3>นำเข้าข้อมูล (Import)</h3>
+<table>
+    <thead>
+        <tr>
+            <th>Method</th>
+            <th>Endpoint</th>
+            <th>คำอธิบาย</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><span class="badge badge-get">GET</span></td>
+            <td><code>/admin/imports/employees</code></td>
+            <td>ฟอร์มนำเข้าพนักงาน</td>
+        </tr>
+        <tr>
+            <td><span class="badge badge-post">POST</span></td>
+            <td><code>/admin/imports/employees</code></td>
+            <td>ประมวลผลนำเข้า (CSV/Excel)</td>
+        </tr>
+        <tr>
+            <td><span class="badge badge-get">GET</span></td>
+            <td><code>/admin/imports/template/employees</code></td>
+            <td>ดาวน์โหลดเทมเพลต</td>
+        </tr>
+    </tbody>
+</table>
+
+<h3>สำรองข้อมูล (Backup)</h3>
+<table>
+    <thead>
+        <tr>
+            <th>Method</th>
+            <th>Endpoint</th>
+            <th>คำอธิบาย</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><span class="badge badge-get">GET</span></td>
+            <td><code>/admin/backups</code></td>
+            <td>รายการ Backup</td>
+        </tr>
+        <tr>
+            <td><span class="badge badge-post">POST</span></td>
+            <td><code>/admin/backups</code></td>
+            <td>สร้าง Backup ใหม่</td>
+        </tr>
+        <tr>
+            <td><span class="badge badge-get">GET</span></td>
+            <td><code>/admin/backups/{file}/download</code></td>
+            <td>ดาวน์โหลด Backup</td>
+        </tr>
+        <tr>
+            <td><span class="badge badge-delete">DELETE</span></td>
+            <td><code>/admin/backups/{file}</code></td>
+            <td>ลบ Backup</td>
+        </tr>
+    </tbody>
+</table>
+
+<h2 id="endpoints-hr">👔 API Endpoints - HR (admin, hr)</h2>
+
+<h3>จัดการพนักงาน</h3>
+<table>
+    <thead>
+        <tr>
+            <th>Method</th>
+            <th>Endpoint</th>
+            <th>คำอธิบาย</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><span class="badge badge-get">GET</span></td>
+            <td><code>/hr/employees</code></td>
+            <td>รายการพนักงาน (รองรับค้นหา)</td>
+        </tr>
+        <tr>
+            <td><span class="badge badge-get">GET</span></td>
+            <td><code>/hr/employees/create</code></td>
+            <td>ฟอร์มเพิ่มพนักงาน (รหัส JST-NNN อัตโนมัติ)</td>
+        </tr>
+        <tr>
+            <td><span class="badge badge-post">POST</span></td>
+            <td><code>/hr/employees</code></td>
+            <td>บันทึกพนักงาน + สร้าง User อัตโนมัติ</td>
+        </tr>
+        <tr>
+            <td><span class="badge badge-get">GET</span></td>
+            <td><code>/hr/employees/{id}</code></td>
+            <td>รายละเอียดพนักงาน</td>
+        </tr>
+        <tr>
+            <td><span class="badge badge-get">GET</span></td>
+            <td><code>/hr/employees/{id}/edit</code></td>
+            <td>แก้ไขพนักงาน</td>
+        </tr>
+        <tr>
+            <td><span class="badge badge-put">PUT</span></td>
+            <td><code>/hr/employees/{id}</code></td>
+            <td>บันทึกการแก้ไข</td>
+        </tr>
+        <tr>
+            <td><span class="badge badge-delete">DELETE</span></td>
+            <td><code>/hr/employees/{id}</code></td>
+            <td>ลบพนักงาน</td>
+        </tr>
+        <tr>
+            <td><span class="badge badge-patch">PATCH</span></td>
+            <td><code>/hr/employees/{id}/toggle-block</code></td>
+            <td>เปิด/ปิดการใช้งาน (active/inactive)</td>
+        </tr>
+    </tbody>
+</table>
+
+<h3>แผนก & ตำแหน่ง</h3>
+<table>
+    <thead>
+        <tr>
+            <th>Method</th>
+            <th>Endpoint</th>
+            <th>คำอธิบาย</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><span class="badge badge-get">GET</span></td>
+            <td><code>/hr/departments</code></td>
+            <td>รายการแผนก</td>
+        </tr>
+        <tr>
+            <td><span class="badge badge-post">POST</span></td>
+            <td><code>/hr/departments</code></td>
+            <td>เพิ่มแผนก</td>
+        </tr>
+        <tr>
+            <td><span class="badge badge-get">GET</span></td>
+            <td><code>/hr/positions</code></td>
+            <td>รายการตำแหน่ง</td>
+        </tr>
+        <tr>
+            <td><span class="badge badge-post">POST</span></td>
+            <td><code>/hr/positions</code></td>
+            <td>เพิ่มตำแหน่ง</td>
+        </tr>
+    </tbody>
+</table>
+
+<h3>ลงเวลาทำงาน</h3>
+<table>
+    <thead>
+        <tr>
+            <th>Method</th>
+            <th>Endpoint</th>
+            <th>คำอธิบาย</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><span class="badge badge-get">GET</span></td>
+            <td><code>/hr/time-records/batch-select</code></td>
+            <td>เลือกพนักงาน/ช่วงวันที่ เพื่อบันทึกเวลา</td>
+        </tr>
+        <tr>
+            <td><span class="badge badge-post">POST</span></td>
+            <td><code>/hr/time-records/batch-store</code></td>
+            <td>บันทึกเวลาแบบ Batch (เช้า/บ่าย/OT)</td>
+        </tr>
+        <tr>
+            <td><span class="badge badge-get">GET</span></td>
+            <td><code>/hr/time-records/summary</code></td>
+            <td>รายงานสรุปรายเดือน</td>
+        </tr>
+        <tr>
+            <td><span class="badge badge-get">GET</span></td>
+            <td><code>/hr/time-records/lock</code></td>
+            <td>ฟอร์มปิดงวดเวลา</td>
+        </tr>
+        <tr>
+            <td><span class="badge badge-post">POST</span></td>
+            <td><code>/hr/time-records/lock</code></td>
+            <td>ล็อก/ปลดล็อกงวดเวลา</td>
+        </tr>
+        <tr>
+            <td><span class="badge badge-get">GET</span></td>
+            <td><code>/hr/time-records/logs</code></td>
+            <td>ประวัติการแก้ไขเวลา (Audit Log)</td>
+        </tr>
+    </tbody>
+</table>
+
+<h2 id="endpoints-inventory">📦 API Endpoints - Inventory (admin, inventory)</h2>
+
+<h3>จัดการสินค้า</h3>
+<table>
+    <thead>
+        <tr>
+            <th>Method</th>
+            <th>Endpoint</th>
+            <th>คำอธิบาย</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><span class="badge badge-get">GET</span></td>
+            <td><code>/inventory/items</code></td>
+            <td>รายการสินค้า (กรองตามสถานะ)</td>
+        </tr>
+        <tr>
+            <td><span class="badge badge-post">POST</span></td>
+            <td><code>/inventory/items</code></td>
+            <td>เพิ่มสินค้า (รองรับอัปโหลดรูป)</td>
+        </tr>
+        <tr>
+            <td><span class="badge badge-get">GET</span></td>
+            <td><code>/inventory/items/{id}</code></td>
+            <td>รายละเอียดสินค้า</td>
+        </tr>
+        <tr>
+            <td><span class="badge badge-put">PUT</span></td>
+            <td><code>/inventory/items/{id}</code></td>
+            <td>แก้ไขสินค้า</td>
+        </tr>
+        <tr>
+            <td><span class="badge badge-delete">DELETE</span></td>
+            <td><code>/inventory/items/{id}</code></td>
+            <td>ลบสินค้า</td>
+        </tr>
+        <tr>
+            <td><span class="badge badge-patch">PATCH</span></td>
+            <td><code>/inventory/items/{id}/toggle-status</code></td>
+            <td>สลับ available/unavailable</td>
+        </tr>
+    </tbody>
+</table>
+
+<h3>ระบบยืม-คืน</h3>
+<table>
+    <thead>
+        <tr>
+            <th>Method</th>
+            <th>Endpoint</th>
+            <th>คำอธิบาย</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><span class="badge badge-get">GET</span></td>
+            <td><code>/inventory/borrowing</code></td>
+            <td>รายการยืมทั้งหมด (กรองตามสถานะ)</td>
+        </tr>
+        <tr>
+            <td><span class="badge badge-post">POST</span></td>
+            <td><code>/inventory/borrowing</code></td>
+            <td>สร้างใบยืม (อนุมัติอัตโนมัติ, ตัดสต็อก)</td>
+        </tr>
+        <tr>
+            <td><span class="badge badge-get">GET</span></td>
+            <td><code>/inventory/borrowing/{id}</code></td>
+            <td>รายละเอียดการยืม</td>
+        </tr>
+        <tr>
+            <td><span class="badge badge-put">PUT</span></td>
+            <td><code>/inventory/borrowing/{id}</code></td>
+            <td>แก้ไขใบยืม</td>
+        </tr>
+        <tr>
+            <td><span class="badge badge-get">GET</span></td>
+            <td><code>/inventory/borrowing/{id}/return</code></td>
+            <td>ฟอร์มคืนของ</td>
+        </tr>
+        <tr>
+            <td><span class="badge badge-post">POST</span></td>
+            <td><code>/inventory/borrowing/{id}/return</code></td>
+            <td>ประมวลผลคืน (เพิ่มสต็อกกลับ)</td>
+        </tr>
+    </tbody>
+</table>
+
+<h3>ระบบเบิกของ</h3>
+<table>
+    <thead>
+        <tr>
+            <th>Method</th>
+            <th>Endpoint</th>
+            <th>คำอธิบาย</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><span class="badge badge-get">GET</span></td>
+            <td><code>/inventory/requisition</code></td>
+            <td>รายการเบิกทั้งหมด</td>
+        </tr>
+        <tr>
+            <td><span class="badge badge-get">GET</span></td>
+            <td><code>/inventory/requisition/{id}/approve</code></td>
+            <td>ฟอร์มอนุมัติ</td>
+        </tr>
+        <tr>
+            <td><span class="badge badge-post">POST</span></td>
+            <td><code>/inventory/requisition/{id}/approve</code></td>
+            <td>อนุมัติ/ปฏิเสธ (ตัดสต็อกเมื่ออนุมัติ)</td>
+        </tr>
+    </tbody>
+</table>
+
+<h3>รายงานคลังสินค้า</h3>
+<table>
+    <thead>
+        <tr>
+            <th>Method</th>
+            <th>Endpoint</th>
+            <th>คำอธิบาย</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><span class="badge badge-get">GET</span></td>
+            <td><code>/inventory/transactions</code></td>
+            <td>ประวัติเคลื่อนไหวสต็อก</td>
+        </tr>
+        <tr>
+            <td><span class="badge badge-get">GET</span></td>
+            <td><code>/inventory/transactions/summary</code></td>
+            <td>สรุปยอดคงเหลือ</td>
+        </tr>
+        <tr>
+            <td><span class="badge badge-get">GET</span></td>
+            <td><code>/inventory/transactions/daily-report</code></td>
+            <td>รายงานรายวัน</td>
+        </tr>
+        <tr>
+            <td><span class="badge badge-get">GET</span></td>
+            <td><code>/inventory/transactions/category-report</code></td>
+            <td>รายงานตามหมวดหมู่</td>
+        </tr>
+    </tbody>
+</table>
+
+<h2 id="features-hr">👔 ฟีเจอร์ HR</h2>
+<ul>
+    <li>✅ จัดการพนักงานครบวงจร (CRUD)</li>
+    <li>✅ รหัสพนักงานอัตโนมัติรูปแบบ <code>JST-NNN</code></li>
+    <li>✅ สร้าง User Account อัตโนมัติเมื่อเพิ่มพนักงาน</li>
+    <li>✅ จัดการแผนกและตำแหน่ง</li>
+    <li>✅ อัปโหลดรูปพนักงาน</li>
+    <li>✅ ปิดกันการแก้ไขผู้ใช้ที่เป็น Admin</li>
+    <li>✅ Soft Delete (ซ่อนแทนลบ)</li>
+</ul>
+
+<h2 id="features-time">⏰ ฟีเจอร์ลงเวลา</h2>
+<ul>
+    <li>✅ บันทึกเวลาแบบ Batch หลายพนักงาน/หลายวัน</li>
+    <li>✅ 3 กะ: <strong>เช้า</strong> (08:00-12:00), <strong>บ่าย</strong> (13:00-17:00), <strong>OT</strong> (หลัง 17:00)</li>
+    <li>✅ สถานะ: มาปกติ, สาย, ลา, ขาด</li>
+    <li>✅ ล็อกงวดเวลา (ครึ่งเดือนแรก/หลัง)</li>
+    <li>✅ รายงานสรุปรายเดือน + Export Excel</li>
+    <li>✅ Audit Log บันทึกการแก้ไขทุกครั้ง</li>
+</ul>
+
+<h2 id="features-inventory">📦 ฟีเจอร์คลังสินค้า</h2>
+<ul>
+    <li>✅ จัดการสินค้าและหมวดหมู่</li>
+    <li>✅ ติดตามสต็อก (เตือนเมื่อต่ำกว่าขั้นต่ำ)</li>
+    <li>✅ สร้าง Barcode/QR Code อัตโนมัติ</li>
+    <li>✅ อัปโหลดรูปสินค้า</li>
+    <li>✅ ประวัติเคลื่อนไหวสต็อกทุกครั้ง</li>
+    <li>✅ รายงานคงเหลือ + รายงานรายวัน + หมวดหมู่</li>
+</ul>
+
+<h2 id="features-borrowing">🔄 ระบบยืม-คืน</h2>
+<ul>
+    <li>✅ สร้างใบยืมได้เฉพาะสินค้าประเภท <strong>equipment/returnable</strong></li>
+    <li>✅ อนุมัติอัตโนมัติเมื่อพนักงานสร้าง</li>
+    <li>✅ ตัดสต็อกทันทีเมื่อยืม</li>
+    <li>✅ คำนวณเกินกำหนดอัตโนมัติ</li>
+    <li>✅ คืนบางส่วนหรือคืนครบได้</li>
+    <li>✅ เพิ่มสต็อกกลับเมื่อคืน</li>
+    <li>✅ แจ้งเตือนของเกินกำหนด</li>
+</ul>
+
+<h2 id="features-requisition">📝 ระบบเบิกของ</h2>
+<ul>
+    <li>✅ เบิกได้เฉพาะสินค้าประเภท <strong>consumable</strong></li>
+    <li>✅ ต้องผ่านการอนุมัติ</li>
+    <li>✅ ตัดสต็อกเมื่ออนุมัติ</li>
+    <li>✅ แจ้งเตือนผู้อนุมัติ</li>
+    <li>✅ ปฏิเสธได้พร้อมเหตุผล</li>
+</ul>
+
+<h2 id="guide-start">🚀 เริ่มต้นใช้งาน</h2>
+
+<h3>1. เข้าสู่ระบบครั้งแรก</h3>
+<ol>
+    <li>เปิดเบราว์เซอร์ไปที่ <code>http://127.0.0.1:8000</code></li>
+    <li>กรอก Username/Password ของ Admin</li>
+    <li>กด <strong>เข้าสู่ระบบ</strong></li>
+    <li>เปลี่ยนรหัสผ่านทันทีที่ <strong>แก้ไขข้อมูลส่วนตัว → เปลี่ยนรหัสผ่าน</strong></li>
+</ol>
+
+<h3>2. เพิ่มพนักงานคนใหม่</h3>
+<ol>
+    <li>ไปที่เมนู <strong>HR → จัดการพนักงาน</strong></li>
+    <li>กด <strong>เพิ่มพนักงาน</strong></li>
+    <li>กรอกข้อมูล (รหัส JST-NNN จะสร้างอัตโนมัติ)</li>
+    <li>กำหนด Role (hr, inventory, employee)</li>
+    <li>ตั้ง Username และ Password</li>
+    <li>กด <strong>บันทึก</strong></li>
+</ol>
+
+<h3>3. บันทึกเวลาทำงาน</h3>
+<ol>
+    <li>ไปที่เมนู <strong>HR → บันทึกเวลาจากบัตร</strong></li>
+    <li>เลือกแผนกและช่วงวันที่</li>
+    <li>เลือกพนักงาน</li>
+    <li>กรอกเวลา เข้า-ออก (เช้า/บ่าย/OT)</li>
+    <li>เลือกสถานะ (มาปกติ/สาย/ลา/ขาด)</li>
+    <li>กด <strong>บันทึก</strong></li>
+</ol>
+
+<h3>4. เพิ่มสินค้าเข้าคลัง</h3>
+<ol>
+    <li>ไปที่เมนู <strong>Inventory → รายการสินค้า/อุปกรณ์</strong></li>
+    <li>กด <strong>เพิ่มสินค้า</strong></li>
+    <li>กรอกข้อมูล (เลือกหมวดหมู่, ประเภท)</li>
+    <li>กำหนดจำนวนและขั้นต่ำ</li>
+    <li>อัปโหลดรูป (ถ้ามี)</li>
+    <li>กด <strong>บันทึก</strong></li>
+</ol>
+
+<h3>5. สร้างใบยืม</h3>
+<ol>
+    <li>ไปที่เมนู <strong>Inventory → สร้างใบยืมใหม่</strong></li>
+    <li>เลือกพนักงาน</li>
+    <li>เพิ่มสินค้า (แสดงเฉพาะประเภทที่หยิบคืนได้)</li>
+    <li>กำหนดวันยืมและวันคืน</li>
+    <li>กด <strong>บันทึก</strong> (อนุมัติอัตโนมัติ)</li>
+</ol>
+
+<h3>6. นำเข้าข้อมูลจำนวนมาก</h3>
+<ol>
+    <li>ไปที่เมนู <strong>Admin → นำเข้าข้อมูล</strong></li>
+    <li>ดาวน์โหลดเทมเพลต (พนักงาน หรือ สินค้า)</li>
+    <li>กรอกข้อมูลใน Excel/CSV</li>
+    <li>อัปโหลดไฟล์ (สูงสุด 5MB)</li>
+    <li>ดูผลลัพธ์ (สำเร็จ/ล้มเหลว)</li>
+</ol>
+
+<h3>7. สำรองข้อมูล</h3>
+<ol>
+    <li>ไปที่เมนู <strong>Admin → สำรองข้อมูล</strong></li>
+    <li>กด <strong>สร้าง Backup</strong></li>
+    <li>รอจนเสร็จ</li>
+    <li>ดาวน์โหลดหรือลบได้ตามต้องการ</li>
+</ol>
+
+<h2 id="tech-status">📊 Status Codes</h2>
+
+<h3>สถานะพนักงาน</h3>
+<table>
+    <thead>
+        <tr><th>Code</th><th>ความหมาย</th></tr>
+    </thead>
+    <tbody>
+        <tr><td><code>active</code></td><td>ทำงานอยู่</td></tr>
+        <tr><td><code>inactive</code></td><td>พักงาน</td></tr>
+        <tr><td><code>resigned</code></td><td>ลาออก</td></tr>
+    </tbody>
+</table>
+
+<h3>สถานะสินค้า</h3>
+<table>
+    <thead>
+        <tr><th>Code</th><th>ความหมาย</th></tr>
+    </thead>
+    <tbody>
+        <tr><td><code>available</code></td><td>พร้อมใช้งาน</td></tr>
+        <tr><td><code>unavailable</code></td><td>ไม่พร้อม</td></tr>
+        <tr><td><code>maintenance</code></td><td>อยู่ระหว่างซ่อมบำรุง</td></tr>
+    </tbody>
+</table>
+
+<h3>สถานะการเบิก/ยืม</h3>
+<table>
+    <thead>
+        <tr><th>Code</th><th>ความหมาย</th></tr>
+    </thead>
+    <tbody>
+        <tr><td><code>pending</code></td><td>รออนุมัติ</td></tr>
+        <tr><td><code>approved</code></td><td>อนุมัติแล้ว</td></tr>
+        <tr><td><code>rejected</code></td><td>ปฏิเสธ</td></tr>
+        <tr><td><code>returned_all</code></td><td>คืนครบแล้ว</td></tr>
+        <tr><td><code>returned_partial</code></td><td>คืนบางส่วน</td></tr>
+    </tbody>
+</table>
+
+<h3>ประเภทสินค้า</h3>
+<table>
+    <thead>
+        <tr><th>Code</th><th>ความหมาย</th><th>ใช้ทำอะไร</th></tr>
+    </thead>
+    <tbody>
+        <tr><td><code>equipment</code></td><td>อุปกรณ์</td><td>ยืม-คืนได้</td></tr>
+        <tr><td><code>consumable</code></td><td>วัสดุสิ้นเปลือง</td><td>เบิกใช้หมดไป</td></tr>
+    </tbody>
+</table>
+
+<div style="margin-top: 50px; padding: 20px; border-top: 2px solid var(--border); text-align: center; color: var(--text-muted); font-size: 13px;">
+    <p><strong>JST ERP System</strong> | Version 1.0.0</p>
+    <p>Last Updated: April 6, 2026</p>
+    <p>พัฒนาด้วย ❤️ และ Laravel 12</p>
+</div>
+
+</div>
+
+</body>
+</html>

@@ -80,9 +80,9 @@
                         @endif
                     </div>
                     <div class="col-md-8">
-                        <input type="file" name="image" id="imageInput" class="erp-input" accept="image/jpeg,image/png,image/jpg,image/gif,image/webp" onchange="previewImage(this)">
+                        <input type="file" name="image" id="imageInput" class="erp-input" accept="image/jpeg,image/png,image/jpg,image/gif,image/webp,image/svg+xml" onchange="previewImage(this)">
                         <div style="font-size: 11px; color: var(--text-muted); margin-top: 6px;">
-                            <i class="fas fa-info-circle me-1"></i>JPG, PNG, GIF, WebP (สูงสุด 2MB) • อัปโหลดรูปใหม่จะแทนที่รูปเก่า
+                            <i class="fas fa-info-circle me-1"></i>JPG, PNG, GIF, WebP, SVG (สูงสุด 5MB) • อัปโหลดรูปใหม่จะแทนที่รูปเก่า
                         </div>
                         <div class="erp-alert erp-alert-info mt-3" style="padding: 10px 14px; font-size: 12px;">
                             <i class="fas fa-lightbulb me-1"></i>
