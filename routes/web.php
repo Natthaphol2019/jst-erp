@@ -12,6 +12,7 @@ use App\Http\Controllers\HR\DepartmentController;
 use App\Http\Controllers\HR\EmployeeController;
 use App\Http\Controllers\HR\PositionController;
 use App\Http\Controllers\HR\TimeRecordController;
+use App\Http\Controllers\HR\TimeImportController;
 use App\Http\Controllers\ImageUploadController;
 use App\Http\Controllers\ImportController;
 use App\Http\Controllers\Inventory\BarcodeController;
@@ -22,6 +23,7 @@ use App\Http\Controllers\Inventory\ItemController;
 use App\Http\Controllers\Inventory\RequisitionController;
 use App\Http\Controllers\Inventory\StockTransactionController;
 use App\Http\Controllers\Manager\DashboardController as ManagerDashboardController;
+use App\Http\Controllers\Manager\ManagerApprovalController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SearchController;
@@ -137,6 +139,12 @@ Route::middleware('auth')->group(function () {
     // ==============================
     Route::middleware('role:manager')->prefix('manager')->name('manager.')->group(function () {
         Route::get('/dashboard', [ManagerDashboardController::class, 'index'])->name('dashboard');
+        
+        // Manager Approval Routes
+        Route::get('/approval', [ManagerApprovalController::class, 'index'])->name('approval.index');
+        Route::get('/approval/{requisition}', [ManagerApprovalController::class, 'show'])->name('approval.show');
+        Route::post('/approval/{requisition}/approve', [ManagerApprovalController::class, 'approve'])->name('approval.approve');
+        Route::post('/approval/{requisition}/reject', [ManagerApprovalController::class, 'reject'])->name('approval.reject');
     });
 
     // ==============================
@@ -184,6 +192,11 @@ Route::middleware('auth')->group(function () {
         Route::get('/time-records/lock', [TimeRecordController::class, 'lockPeriod'])->name('time-records.lock');
         Route::post('/time-records/lock', [TimeRecordController::class, 'lockPeriodStore'])->name('time-records.lock.store');
         Route::get('/time-records/logs', [TimeRecordController::class, 'viewLogs'])->name('time-records.logs');
+
+        // Import เวลาทำงาน
+        Route::get('/time-records/import', [TimeImportController::class, 'index'])->name('time-records.import');
+        Route::post('/time-records/import', [TimeImportController::class, 'import'])->name('time-records.import.store');
+        Route::get('/time-records/import/template', [TimeImportController::class, 'downloadTemplate'])->name('time-records.import.template');
     });
 
     // ==============================

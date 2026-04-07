@@ -261,37 +261,28 @@ class BorrowingController extends Controller
 
         try {
             DB::beginTransaction();
-            
-            // สร้างใบยืม
+
+            // สร้างใบยืม - อนุมัติและหักสต๊อกทันที (แอดมินเป็นคนคีย์ข้อมูล)
             $borrowing = Requisition::create([
                 'employee_id' => $validated['employee_id'],
                 'req_type' => 'borrow',
-                'status' => 'approved', // ยืมไม่ต้องอนุมัติ
+                'status' => 'approved',
                 'req_date' => $validated['borrow_date'],
                 'due_date' => $validated['expected_return_date'],
                 'note' => $validated['note'] ?? null,
                 'approved_by' => auth()->id(),
             ]);
 
-            // เตรียมข้อมูลสินค้าสำหรับหักสต๊อก
-            $stockItems = [];
+            // เพิ่มรายการสินค้าในใบยืม และหักสต๊อกทันที
             foreach ($validated['items'] as $itemData) {
-                $stockItems[] = [
-                    'item_id' => $itemData['item_id'],
-                    'quantity' => $itemData['quantity'],
-                ];
-
-                // เพิ่มรายการสินค้าในใบยืม
                 RequisitionItem::create([
                     'requisition_id' => $borrowing->id,
                     'item_id' => $itemData['item_id'],
                     'quantity_requested' => $itemData['quantity'],
                     'quantity_returned' => 0,
                 ]);
-            }
 
-            // หักสต๊อกโดยใช้ StockService (มี lockForUpdate และตรวจสอบสต๊อกภายใน transaction)
-            foreach ($stockItems as $itemData) {
+                // หักสต๊อกทันทีโดยใช้ StockService (มี lockForUpdate ภายใน transaction)
                 $this->stockService->deductStock(
                     itemId: $itemData['item_id'],
                     quantity: $itemData['quantity'],

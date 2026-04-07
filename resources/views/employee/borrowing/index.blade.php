@@ -110,9 +110,10 @@
                         <td style="text-align: center;">
                             @php
                                 $statusBadge = match($borrowing->status) {
-                                    'approved' => ['bg' => 'rgba(52,211,153,0.12)', 'color' => '#34d399', 'text' => 'กำลังยืม'],
+                                    'approved' => ['bg' => 'rgba(99,102,241,0.12)', 'color' => '#818cf8', 'text' => 'กำลังยืม'],
                                     'returned_partial' => ['bg' => 'rgba(56,189,248,0.12)', 'color' => '#38bdf8', 'text' => 'คืนบางส่วน'],
-                                    'returned_all' => ['bg' => 'rgba(107,114,128,0.12)', 'color' => '#6b7280', 'text' => 'คืนครบแล้ว'],
+                                    'returned_all' => ['bg' => 'rgba(52,211,153,0.12)', 'color' => '#34d399', 'text' => 'คืนครบแล้ว'],
+                                    'rejected' => ['bg' => 'rgba(239,68,68,0.12)', 'color' => '#f87171', 'text' => 'ปฏิเสธ'],
                                     default => ['bg' => 'rgba(107,114,128,0.12)', 'color' => '#9ca3af', 'text' => $borrowing->status]
                                 };
                             @endphp

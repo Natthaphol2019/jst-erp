@@ -91,6 +91,13 @@
                     </a>
                 </li>
                 <li class="nav-item">
+                    <a href="{{ route('hr.time-records.import') }}"
+                        class="sidebar-link nav-link d-flex align-items-center gap-2 px-3 py-2 mx-2 rounded-2 {{ request()->routeIs('hr.time-records.import*') ? 'sb-active' : '' }}">
+                        <i class="fas fa-file-import sb-icon"></i>
+                        <span class="sidebar-text">นำเข้าข้อมูลเวลา (Excel)</span>
+                    </a>
+                </li>
+                <li class="nav-item">
                     <a href="{{ route('hr.time-records.summary') }}"
                         class="sidebar-link nav-link d-flex align-items-center gap-2 px-3 py-2 mx-2 rounded-2 {{ request()->routeIs('hr.time-records.summary') ? 'sb-active' : '' }}">
                         <i class="fas fa-chart-line sb-icon"></i>
@@ -110,6 +117,28 @@
                         class="sidebar-link nav-link d-flex align-items-center gap-2 px-3 py-2 mx-2 rounded-2 {{ request()->routeIs('hr.time-records.logs') ? 'sb-active' : '' }}">
                         <i class="fas fa-history sb-icon"></i>
                         <span class="sidebar-text">ประวัติแก้ไขเวลา</span>
+                    </a>
+                </li>
+            @endif
+
+            @if (auth()->user()->role === 'manager')
+                <li class="nav-item mt-3 mb-1 px-3 sidebar-text">
+                    <span class="sb-section-label">อนุมัติคำขอ (Manager)</span>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ route('manager.approval.index') }}"
+                        class="sidebar-link nav-link d-flex align-items-center gap-2 px-3 py-2 mx-2 rounded-2 {{ request()->routeIs('manager.approval.*') ? 'sb-active' : '' }}">
+                        <i class="fas fa-clipboard-check sb-icon"></i>
+                        <span class="sidebar-text">รออนุมัติ</span>
+                        @php
+                            $user = auth()->user();
+                            $managedDeptIds = $user->managedDepartments()->pluck('id');
+                            $employeeIds = \App\Models\Employee::whereIn('department_id', $managedDeptIds)->pluck('id');
+                            $pendingCount = \App\Models\Requisition::whereIn('employee_id', $employeeIds)->where('status', 'pending')->count();
+                        @endphp
+                        @if($pendingCount > 0)
+                            <span class="sidebar-badge" style="background: #ef4444; color: white; font-size: 11px; padding: 2px 6px; border-radius: 10px; margin-left: auto;">{{ $pendingCount }}</span>
+                        @endif
                     </a>
                 </li>
             @endif

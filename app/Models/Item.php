@@ -56,6 +56,33 @@ class Item extends Model
     }
 
     /**
+     * รายการที่รอการอนุมัติ (pending requisitions)
+     */
+    public function pendingRequisitionItems()
+    {
+        return $this->hasMany(RequisitionItem::class)
+            ->whereHas('requisition', function ($query) {
+                $query->where('status', 'pending');
+            });
+    }
+
+    /**
+     * คำนวณจำนวนที่ถูกจองไว้ (รอการอนุมัติ)
+     */
+    public function getReservedQuantity(): int
+    {
+        return $this->pendingRequisitionItems()->sum('quantity_requested');
+    }
+
+    /**
+     * คำนวณจำนวนที่พร้อมใช้งาน (สต๊อกจริง - ที่จองไว้)
+     */
+    public function getAvailableQuantity(): int
+    {
+        return max(0, $this->current_stock - $this->getReservedQuantity());
+    }
+
+    /**
      * Get the URL for generating a barcode image.
      */
     public function getBarcodeUrl(): string

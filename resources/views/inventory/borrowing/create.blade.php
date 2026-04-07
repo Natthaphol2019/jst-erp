@@ -3,6 +3,10 @@
 @section('title', 'สร้างใบยืมใหม่ - JST ERP')
 
 @push('styles')
+<!-- Select2 CSS -->
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet" />
+
 <style>
 /* Item Selection Grid - Responsive */
 .item-selection-grid {
@@ -547,13 +551,14 @@
                     {{-- Items Grid --}}
                     <div class="item-selection-grid" id="itemsGrid">
                         @forelse($items as $item)
-                            <div class="item-card" 
+                            <div class="item-card"
                                  data-item-id="{{ $item->id }}"
                                  data-item-name="{{ $item->name }}"
                                  data-item-stock="{{ $item->current_stock }}"
                                  data-item-type="{{ $item->type }}"
                                  data-item-category="{{ $item->category->name ?? '' }}"
                                  data-item-unit="{{ $item->unit }}"
+                                 data-item-barcode="{{ $item->barcode ?? $item->item_code ?? '' }}"
                                  @if($item->current_stock == 0) style="pointer-events: none; opacity: 0.5;" @endif>
                                 <div class="item-image">
                                     @if($item->image_url)
@@ -853,6 +858,97 @@ document.getElementById('borrowingForm').addEventListener('submit', function(e) 
     submitBtn.disabled = true;
     submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>กำลังบันทึกข้อมูล...';
 });
+
+// Barcode Scanner Support - ฟังชันรับค่าจากเครื่องสแกนบาร์โค้ด
+let barcodeBuffer = '';
+let barcodeTimeout = null;
+
+document.addEventListener('keydown', function(e) {
+    // Ignore if typing in input
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') {
+        return;
+    }
+
+    // Barcode scanners typically send Enter key after scanning
+    if (e.key === 'Enter' && barcodeBuffer.length > 0) {
+        e.preventDefault();
+        handleBarcodeScan(barcodeBuffer);
+        barcodeBuffer = '';
+        return;
+    }
+
+    // Accumulate barcode characters
+    if (e.key.length === 1 && !e.ctrlKey && !e.altKey) {
+        barcodeBuffer += e.key;
+
+        // Clear timeout
+        clearTimeout(barcodeTimeout);
+
+        // Reset buffer after 100ms of inactivity (scanners are fast)
+        barcodeTimeout = setTimeout(() => {
+            barcodeBuffer = '';
+        }, 100);
+    }
+});
+
+function handleBarcodeScan(barcode) {
+    // Search for item by barcode/SKU
+    const itemCard = document.querySelector(`.item-card[data-item-barcode="${barcode}"]`);
+
+    if (itemCard) {
+        const itemId = parseInt(itemCard.dataset.itemId);
+        const stock = parseInt(itemCard.dataset.itemStock);
+
+        if (stock === 0) {
+            alert('สินค้านี้หมดสต๊อก');
+            return;
+        }
+
+        // Auto select or increment quantity
+        if (selectedItems.has(itemId)) {
+            updateQuantity(itemId, 1);
+        } else {
+            itemCard.click();
+        }
+
+        // Visual feedback
+        itemCard.style.borderColor = '#10b981';
+        itemCard.style.boxShadow = '0 0 20px rgba(16, 185, 129, 0.4)';
+        setTimeout(() => {
+            itemCard.style.borderColor = '';
+            itemCard.style.boxShadow = '';
+        }, 1000);
+
+        // Scroll to selected items
+        document.getElementById('selectedItemsContainer').scrollIntoView({ behavior: 'smooth' });
+    } else {
+        alert(`ไม่พบสินค้าที่มีรหัส: ${barcode}`);
+    }
+}
+</script>
+
+<!-- Select2 JS -->
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+<script>
+// Initialize Select2 for employee dropdown
+$(document).ready(function() {
+    $('#employee_id').select2({
+        theme: 'bootstrap-5',
+        placeholder: '-- เลือกพนักงาน --',
+        allowClear: true,
+        width: '100%',
+        language: {
+            noResults: function() {
+                return 'ไม่พบข้อมูลพนักงาน';
+            },
+            searching: function() {
+                return 'กำลังค้นหา...';
+            }
+        }
+    });
+});
+</script>
 </script>
 @endpush
 @endsection

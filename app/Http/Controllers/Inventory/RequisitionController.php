@@ -176,17 +176,24 @@ class RequisitionController extends Controller
 
         DB::beginTransaction();
         try {
-            // สร้างใบเบิก — สถานะ 'issued' (เบิกแล้ว) ไม่ต้องรออนุมัติ
+            // ตรวจสอบว่าเป็น employee สร้างเองหรือไม่
+            $isEmployeeSelf = $user->role === 'employee' && $user->employee_id == $validated['employee_id'];
+            
+            // ถ้า employee สร้างเอง ให้เป็น pending รออนุมัติ
+            // ถ้า admin/hr สร้าง ให้ issued ทันที
+            $status = $isEmployeeSelf ? 'pending' : 'issued';
+
+            // สร้างใบเบิก
             $requisition = Requisition::create([
                 'employee_id' => $validated['employee_id'],
                 'req_type' => 'consume',
-                'status' => 'issued',
+                'status' => $status,
                 'req_date' => $validated['req_date'],
                 'note' => $validated['note'] ?? null,
-                'approved_by' => $user->id,
+                'approved_by' => $isEmployeeSelf ? null : $user->id,
             ]);
 
-            // บันทึกสินค้า + หักสต๊อกทันที
+            // บันทึกสินค้า
             foreach ($validated['items'] as $itemData) {
                 RequisitionItem::create([
                     'requisition_id' => $requisition->id,
@@ -195,19 +202,29 @@ class RequisitionController extends Controller
                     'quantity_returned' => 0,
                 ]);
 
-                // หักสต๊อกทันที
-                $item = Item::find($itemData['item_id']);
-                $this->stockService->deductStock(
-                    itemId: $itemData['item_id'],
-                    quantity: $itemData['quantity'],
-                    transactionType: 'consume_out',
-                    requisitionId: $requisition->id,
-                    userId: $user->id,
-                    remark: "เบิกโดย: {$requisition->employee->firstname} {$requisition->employee->lastname} เมื่อ {$now->format('H:i')} น."
-                );
+                // หักสต๊อกเฉพาะเมื่อ status เป็น 'issued' (admin สร้าง)
+                if ($status === 'issued') {
+                    $item = Item::find($itemData['item_id']);
+                    $this->stockService->deductStock(
+                        itemId: $itemData['item_id'],
+                        quantity: $itemData['quantity'],
+                        transactionType: 'consume_out',
+                        requisitionId: $requisition->id,
+                        userId: $user->id,
+                        remark: "เบิกโดย: {$requisition->employee->firstname} {$requisition->employee->lastname} เมื่อ {$now->format('H:i')} น."
+                    );
+                }
             }
 
             DB::commit();
+
+            // ส่งแจ้งเตือนถึง manager เมื่อ employee สร้างใบเบิก
+            if ($isEmployeeSelf && $status === 'pending') {
+                $employee = $requisition->employee;
+                if ($employee && $employee->department && $employee->department->manager) {
+                    \App\Notifications\RequisitionSubmitted::send($employee->department->manager, $requisition);
+                }
+            }
 
             // แจ้งเตือน admin/inventory (เฉพาะกรณี employee เบิก)
             if ($isEmployee) {
@@ -217,8 +234,9 @@ class RequisitionController extends Controller
                 }
             }
 
+            $successMsg = $isEmployeeSelf ? 'ส่งคำขอเบิกเรียบร้อยแล้ว รอการอนุมัติ' : 'เบิกสินค้าเรียบร้อยแล้ว';
             return redirect()->route('inventory.requisition.show', $requisition->id)
-                ->with('success', 'เบิกสินค้าเรียบร้อยแล้ว');
+                ->with('success', $successMsg);
 
         } catch (Exception $e) {
             DB::rollBack();

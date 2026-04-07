@@ -12,12 +12,18 @@ class Department extends Model
 
     protected $activityLogName = 'hr';
 
-    protected $fillable = ['name', 'description', 'next_department_id'];
+    protected $fillable = ['name', 'description', 'next_department_id', 'manager_id'];
 
     // 1 แผนก มีหลายพนักงาน
     public function employees()
     {
         return $this->hasMany(Employee::class);
+    }
+
+    // หัวหน้าแผนก (Manager)
+    public function manager()
+    {
+        return $this->belongsTo(User::class, 'manager_id');
     }
 
     // 1 แผนก สามารถมีแผนกถัดไปได้

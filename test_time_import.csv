@@ -1,0 +1,4 @@
+employee_code,work_date,status,morning_in,morning_out,afternoon_in,afternoon_out,ot_in,ot_out,remark
+EMP001,2026-04-07,present,08:00,12:00,13:00,17:00,,,
+EMP002,2026-04-07,late,08:30,12:00,13:00,17:00,,,สาย 30 นาที
+EMP003,2026-04-07,present,08:00,12:00,13:00,17:00,18:00,20:00,ทำ OT

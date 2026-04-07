@@ -315,6 +315,8 @@
                     <th>หมวดหมู่</th>
                     <th>ประเภท</th>
                     <th style="text-align: right;">คงเหลือ</th>
+                    <th style="text-align: right;">จองไว้</th>
+                    <th style="text-align: right;">พร้อมใช้</th>
                     <th>หน่วย</th>
                     <th>สถานะ</th>
                     <th style="text-align: center;">จัดการ</th>
@@ -366,7 +368,29 @@
                                 {{ $typeBadge['text'] }}
                             </span>
                         </td>
-                        <td style="text-align: right; color: var(--text-secondary);">{{ number_format($item->current_stock) }}</td>
+                        <td style="text-align: right; color: var(--text-secondary);">
+                            <strong>{{ number_format($item->current_stock) }}</strong>
+                        </td>
+                        <td style="text-align: right;">
+                            @php
+                                $reserved = $item->getReservedQuantity();
+                            @endphp
+                            @if($reserved > 0)
+                                <span class="erp-badge" style="background: rgba(251,191,36,0.12); color: #f59e0b; font-size: 11px;">
+                                    {{ number_format($reserved) }}
+                                </span>
+                            @else
+                                <span style="color: var(--text-muted); font-size: 12px;">-</span>
+                            @endif
+                        </td>
+                        <td style="text-align: right; color: var(--text-primary);">
+                            @php
+                                $available = $item->getAvailableQuantity();
+                            @endphp
+                            <strong style="color: {{ $available > 0 ? '#10b981' : '#ef4444' }};">
+                                {{ number_format($available) }}
+                            </strong>
+                        </td>
                         <td style="color: var(--text-secondary);">{{ $item->unit }}</td>
                         <td>
                             @if ($item->status == 'available')

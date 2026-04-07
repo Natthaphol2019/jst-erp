@@ -27,6 +27,12 @@ class User extends Authenticatable
         return $this->belongsTo(Employee::class);
     }
 
+    // แผนกที่ผู้ใช้เป็นหัวหน้า
+    public function managedDepartments()
+    {
+        return $this->hasMany(Department::class, 'manager_id');
+    }
+
     // ==========================================
     // Permission Helper Methods
     // ==========================================

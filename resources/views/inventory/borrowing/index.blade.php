@@ -227,9 +227,10 @@
                     @php
                         $isOverdue = in_array($borrowing->status, ['approved', 'returned_partial']) && now()->gt(\Carbon\Carbon::parse($borrowing->due_date));
                         $statusBadge = match($borrowing->status) {
-                            'approved' => $isOverdue ? ['bg' => 'rgba(239,68,68,0.12)', 'color' => '#f87171', 'text' => 'เกินกำหนด'] : ['bg' => 'rgba(251,191,36,0.12)', 'color' => '#fbbf24', 'text' => 'กำลังยืม'],
+                            'approved' => $isOverdue ? ['bg' => 'rgba(239,68,68,0.12)', 'color' => '#f87171', 'text' => 'เกินกำหนด'] : ['bg' => 'rgba(99,102,241,0.12)', 'color' => '#818cf8', 'text' => 'กำลังยืม'],
                             'returned_all' => ['bg' => 'rgba(52,211,153,0.12)', 'color' => '#34d399', 'text' => 'คืนครบแล้ว'],
                             'returned_partial' => ['bg' => 'rgba(56,189,248,0.12)', 'color' => '#38bdf8', 'text' => 'คืนบางส่วน'],
+                            'rejected' => ['bg' => 'rgba(239,68,68,0.12)', 'color' => '#f87171', 'text' => 'ปฏิเสธ'],
                             default => ['bg' => 'rgba(107,114,128,0.12)', 'color' => '#9ca3af', 'text' => $borrowing->status]
                         };
                     @endphp
