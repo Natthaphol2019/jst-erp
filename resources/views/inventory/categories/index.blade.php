@@ -32,6 +32,7 @@
         <table class="erp-table">
             <thead>
                 <tr>
+                    <th style="width: 80px;">รหัสย่อ</th>
                     <th>ชื่อหมวดหมู่</th>
                     <th>รายละเอียด</th>
                     <th style="text-align: center;">จำนวนสินค้า</th>
@@ -41,6 +42,15 @@
             <tbody>
                 @forelse($categories as $cat)
                 <tr>
+                    <td>
+                        @if($cat->code_prefix)
+                            <span class="erp-badge" style="background: rgba(129,140,248,0.15); color: #818cf8; font-weight: 600; font-family: monospace; font-size: 13px; padding: 4px 8px;">
+                                {{ $cat->code_prefix }}
+                            </span>
+                        @else
+                            <span style="color: var(--text-muted); font-size: 12px;">-</span>
+                        @endif
+                    </td>
                     <td style="color: var(--text-primary);">{{ $cat->name }}</td>
                     <td style="color: var(--text-secondary);">{{ $cat->description ?? '-' }}</td>
                     <td style="text-align: center;">

@@ -14,8 +14,14 @@ class ProfileController extends Controller
      */
     public function edit()
     {
+        // ถ้าเป็น employee role ให้ redirect ไป dashboard
+        if (auth()->user()->role === 'employee') {
+            return redirect()->route('employee.dashboard')
+                ->with('error', 'พนักงานไม่สามารถแก้ไขข้อมูลส่วนตัวได้ กรุณาติดต่อ HR/Admin');
+        }
+
         $employee = Employee::where('id', Auth::user()->employee_id)->first();
-        
+
         return view('profile.edit', compact('employee'));
     }
 
@@ -24,6 +30,12 @@ class ProfileController extends Controller
      */
     public function update(Request $request)
     {
+        // ถ้าเป็น employee role ให้ redirect กลับ
+        if (auth()->user()->role === 'employee') {
+            return redirect()->route('employee.dashboard')
+                ->with('error', 'พนักงานไม่สามารถแก้ไขข้อมูลส่วนตัวได้ กรุณาติดต่อ HR/Admin');
+        }
+
         $user = Auth::user();
         $employee = Employee::where('id', $user->employee_id)->first();
 
@@ -39,7 +51,38 @@ class ProfileController extends Controller
             'phone' => 'nullable|string|max:20',
             'email' => 'nullable|email|max:255|unique:users,email,' . $user->id,
             'address' => 'nullable|string|max:500',
+            'profile_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+            'remove_image' => 'nullable|boolean',
         ]);
+
+        // จัดการอัปโหลดรูปภาพ
+        if ($request->hasFile('profile_image')) {
+            // ลบรูปเก่าถ้ามี
+            if ($employee->profile_image) {
+                \Storage::disk('public')->delete($employee->profile_image);
+            }
+
+            $image = $request->file('profile_image');
+            $imageName = 'employees/' . time() . '_' . uniqid() . '_' . $image->getClientOriginalName();
+            
+            // สร้าง directory ถ้ายังไม่มี
+            $targetDir = storage_path('app/public/employees');
+            if (!file_exists($targetDir)) {
+                mkdir($targetDir, 0755, true);
+            }
+
+            $image->move($targetDir, basename($imageName));
+            $validated['profile_image'] = 'employees/' . basename($imageName);
+        } elseif ($request->boolean('remove_image')) {
+            // ลบรูปถ้าผู้ใช้ต้องการลบ
+            if ($employee->profile_image) {
+                \Storage::disk('public')->delete($employee->profile_image);
+            }
+            $validated['profile_image'] = null;
+        } else {
+            // ไม่ต้องอัปเดตรูปภาพ
+            unset($validated['profile_image']);
+        }
 
         // อัปเดตข้อมูลพนักงาน
         $employee->update([
@@ -49,12 +92,18 @@ class ProfileController extends Controller
             'gender' => $validated['gender'],
             'phone' => $validated['phone'] ?? $employee->phone,
             'address' => $validated['address'] ?? $employee->address,
+            'profile_image' => $validated['profile_image'] ?? $employee->profile_image,
         ]);
 
         // อัปเดตข้อมูลผู้ใช้ (email)
         if (!empty($validated['email'])) {
             $user->update(['email' => $validated['email']]);
         }
+
+        // อัปเดตชื่อใน user table
+        $user->update([
+            'name' => trim(($validated['prefix'] ?? $employee->prefix) . ' ' . $validated['firstname'] . ' ' . $validated['lastname']),
+        ]);
 
         return redirect()->route('profile.edit')
             ->with('success', 'อัปเดตข้อมูลส่วนตัวเรียบร้อยแล้ว');

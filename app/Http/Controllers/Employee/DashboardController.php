@@ -21,7 +21,12 @@ class DashboardController extends Controller
                 'myRequisitions' => collect(),
                 'activeBorrowingsCount' => 0,
                 'pendingRequestsCount' => 0,
-                'attendanceThisMonth' => 0
+                'totalBorrowings' => 0,
+                'totalRequisitions' => 0,
+                'overdueBorrowings' => collect(),
+                'recentNotifications' => collect(),
+                'attendanceThisMonth' => 0,
+                'recentAttendance' => collect(),
             ]);
         }
 
@@ -31,6 +36,7 @@ class DashboardController extends Controller
             ->where('req_type', 'borrow')
             ->whereIn('status', ['approved', 'returned_partial'])
             ->latest()
+            ->take(5)
             ->get();
 
         $activeBorrowingsCount = $myBorrowings->count();
@@ -53,6 +59,28 @@ class DashboardController extends Controller
             ->take(10)
             ->get();
 
+        // Total borrowings count
+        $totalBorrowings = Requisition::where('employee_id', $employee->id)
+            ->where('req_type', 'borrow')
+            ->count();
+
+        // Total requisitions count
+        $totalRequisitions = Requisition::where('employee_id', $employee->id)
+            ->where('req_type', 'consumption')
+            ->count();
+
+        // Overdue borrowings
+        $overdueBorrowings = Requisition::with(['items.item'])
+            ->where('employee_id', $employee->id)
+            ->where('req_type', 'borrow')
+            ->whereIn('status', ['approved', 'returned_partial'])
+            ->where('due_date', '<', Carbon::today())
+            ->latest()
+            ->get();
+
+        // Recent notifications
+        $recentNotifications = $user->notifications()->latest()->take(10)->get();
+
         // Attendance this month
         $startOfMonth = Carbon::now()->startOfMonth();
         $endOfMonth = Carbon::now()->endOfMonth();
@@ -74,6 +102,10 @@ class DashboardController extends Controller
             'myPendingRequests',
             'activeBorrowingsCount',
             'pendingRequestsCount',
+            'totalBorrowings',
+            'totalRequisitions',
+            'overdueBorrowings',
+            'recentNotifications',
             'attendanceThisMonth',
             'recentAttendance'
         ));

@@ -11,6 +11,15 @@ return new class extends Migration {
      */
     public function up(): void
     {
+        // Check if we're using SQLite (for testing)
+        $driver = DB::getDriverName();
+        
+        if ($driver === 'sqlite') {
+            // SQLite doesn't support ENUM or MODIFY COLUMN
+            // Just ensure the column exists, validation is handled at app level
+            return;
+        }
+        
         // MySQL: Need to drop and recreate enum column
         Schema::table('stock_transactions', function (Blueprint $table) {
             // Add new transaction types
@@ -23,6 +32,14 @@ return new class extends Migration {
      */
     public function down(): void
     {
+        // Check if we're using SQLite (for testing)
+        $driver = DB::getDriverName();
+        
+        if ($driver === 'sqlite') {
+            // SQLite doesn't support ENUM or MODIFY COLUMN
+            return;
+        }
+        
         Schema::table('stock_transactions', function (Blueprint $table) {
             DB::statement("ALTER TABLE stock_transactions MODIFY COLUMN transaction_type ENUM('in', 'out', 'return', 'adjust') NOT NULL");
         });

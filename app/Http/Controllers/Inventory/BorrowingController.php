@@ -259,8 +259,9 @@ class BorrowingController extends Controller
             return back()->withErrors(['items' => $e->getMessage()])->withInput();
         }
 
-        DB::beginTransaction();
         try {
+            DB::beginTransaction();
+            
             // สร้างใบยืม
             $borrowing = Requisition::create([
                 'employee_id' => $validated['employee_id'],
@@ -303,6 +304,13 @@ class BorrowingController extends Controller
 
             DB::commit();
 
+            // ตรวจสอบว่าเป็นใครสร้าง - ถ้า employee สร้างให้ redirect ไปหน้า employee
+            $user = auth()->user();
+            if ($user->role === 'employee' && $user->employee_id == $validated['employee_id']) {
+                return redirect()->route('employee.borrowing.show', $borrowing->id)
+                    ->with('success', 'สร้างใบยืมเรียบร้อยแล้ว');
+            }
+
             return redirect()->route('inventory.borrowing.show', $borrowing->id)
                 ->with('success', 'สร้างใบยืมเรียบร้อยแล้ว');
 
@@ -320,12 +328,18 @@ class BorrowingController extends Controller
     }
 
     /**
-     * แสดงรายละเอียดใบยืม
+     * แสดงรายละเอียดใบยืม (สำหรับ admin/inventory)
      */
     public function show(Requisition $borrowing)
     {
         if ($borrowing->req_type !== 'borrow') {
             abort(404, 'ไม่พบข้อมูลใบยืม');
+        }
+
+        // ถ้าเป็น employee พยายามเข้าหน้า admin ให้ redirect ไปหน้า employee
+        $user = auth()->user();
+        if ($user->role === 'employee' && $user->employee_id == $borrowing->employee_id) {
+            return redirect()->route('employee.borrowing.show', $borrowing->id);
         }
 
         $borrowing->load(['employee.department', 'employee.position', 'items.item', 'approver']);

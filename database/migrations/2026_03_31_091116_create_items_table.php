@@ -13,7 +13,7 @@ return new class extends Migration {
             $table->string('item_code', 50)->unique();
             $table->string('asset_number', 100)->nullable()->unique()->comment('เลขครุภัณฑ์ สำหรับอุปกรณ์'); // 🌟 เพิ่มฟิลด์นี้
             $table->string('name', 255);
-            $table->enum('type', ['equipment', 'consumable']); // แยกยืมคืน กับ สิ้นเปลือง
+            $table->enum('type', ['disposable', 'returnable', 'equipment', 'consumable']); // แยกยืมคืน กับ สิ้นเปลือง
             $table->string('unit', 50); // เช่น ชิ้น, ลิตร, กก.
             $table->integer('current_stock')->default(0);
             $table->integer('min_stock')->default(0);

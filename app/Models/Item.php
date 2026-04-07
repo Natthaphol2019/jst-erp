@@ -3,12 +3,13 @@
 namespace App\Models;
 
 use App\Traits\ActivityLogTrait;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Item extends Model
 {
-    use ActivityLogTrait, SoftDeletes;
+    use ActivityLogTrait, SoftDeletes, HasFactory;
 
     protected $activityLogName = 'inventory';
 

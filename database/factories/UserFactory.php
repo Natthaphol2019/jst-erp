@@ -3,43 +3,51 @@
 namespace Database\Factories;
 
 use App\Models\User;
+use App\Models\Employee;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str;
 
-/**
- * @extends Factory<User>
- */
 class UserFactory extends Factory
 {
-    /**
-     * The current password being used by the factory.
-     */
-    protected static ?string $password;
+    protected $model = User::class;
 
-    /**
-     * Define the model's default state.
-     *
-     * @return array<string, mixed>
-     */
     public function definition(): array
     {
         return [
             'name' => fake()->name(),
-            'email' => fake()->unique()->safeEmail(),
-            'email_verified_at' => now(),
-            'password' => static::$password ??= Hash::make('password'),
-            'remember_token' => Str::random(10),
+            'username' => fake()->unique()->userName(),
+            'password' => Hash::make('password'),
+            'role' => fake()->randomElement(['admin', 'hr', 'inventory', 'employee']),
+            'employee_id' => Employee::factory(),
+            'remember_token' => fake()->randomAscii(),
         ];
     }
 
-    /**
-     * Indicate that the model's email address should be unverified.
-     */
-    public function unverified(): static
+    public function admin(): static
     {
         return $this->state(fn (array $attributes) => [
-            'email_verified_at' => null,
+            'role' => 'admin',
+        ]);
+    }
+
+    public function hr(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'role' => 'hr',
+        ]);
+    }
+
+    public function inventory(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'role' => 'inventory',
+        ]);
+    }
+
+    public function employeeRole(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'role' => 'employee',
         ]);
     }
 }

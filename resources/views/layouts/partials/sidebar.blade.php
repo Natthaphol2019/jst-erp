@@ -170,6 +170,55 @@
                 </li>
             @endif
 
+            @if (auth()->user()->role === 'employee')
+                <li class="nav-item mt-3 mb-1 px-3 sidebar-text">
+                    <span class="sb-section-label">ระบบยืม-คืนอุปกรณ์</span>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ route('employee.borrowing.create') }}"
+                        class="sidebar-link nav-link d-flex align-items-center gap-2 px-3 py-2 mx-2 rounded-2 {{ request()->routeIs('employee.borrowing.create') ? 'sb-active' : '' }}">
+                        <i class="fas fa-plus-circle sb-icon"></i>
+                        <span class="sidebar-text">ยืมอุปกรณ์ใหม่</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ route('employee.borrowings') }}"
+                        class="sidebar-link nav-link d-flex align-items-center gap-2 px-3 py-2 mx-2 rounded-2 {{ request()->routeIs('employee.borrowings') ? 'sb-active' : '' }}">
+                        <i class="fas fa-hand-holding sb-icon"></i>
+                        <span class="sidebar-text">รายการยืมของฉัน</span>
+                    </a>
+                </li>
+
+                <li class="nav-item mt-3 mb-1 px-3 sidebar-text">
+                    <span class="sb-section-label">ระบบเบิกอุปทาน</span>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ route('employee.requisition.create') }}"
+                        class="sidebar-link nav-link d-flex align-items-center gap-2 px-3 py-2 mx-2 rounded-2 {{ request()->routeIs('employee.requisition.create') ? 'sb-active' : '' }}">
+                        <i class="fas fa-clipboard-list sb-icon"></i>
+                        <span class="sidebar-text">เบิกอุปทานใหม่</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ route('employee.requisitions') }}"
+                        class="sidebar-link nav-link d-flex align-items-center gap-2 px-3 py-2 mx-2 rounded-2 {{ request()->routeIs('employee.requisitions') ? 'sb-active' : '' }}">
+                        <i class="fas fa-file-invoice sb-icon"></i>
+                        <span class="sidebar-text">รายการเบิกของฉัน</span>
+                    </a>
+                </li>
+
+                <li class="nav-item mt-3 mb-1 px-3 sidebar-text">
+                    <span class="sb-section-label">ข้อมูลส่วนตัว</span>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ route('profile.change-password') }}"
+                        class="sidebar-link nav-link d-flex align-items-center gap-2 px-3 py-2 mx-2 rounded-2 {{ request()->routeIs('profile.change-password') ? 'sb-active' : '' }}">
+                        <i class="fas fa-key sb-icon"></i>
+                        <span class="sidebar-text">เปลี่ยนรหัสผ่าน</span>
+                    </a>
+                </li>
+            @endif
+
             @if (auth()->user()->role === 'admin')
                 <li class="nav-item mt-3 mb-1 px-3 sidebar-text">
                     <span class="sb-section-label">ระบบจัดการ</span>
@@ -244,6 +293,7 @@
                     <span class="sidebar-text">แก้ไขข้อมูลส่วนตัว</span>
                 </a>
             </li>
+            @if(auth()->user()->role !== 'employee')
             <li class="nav-item">
                 <a href="{{ route('profile.change-password') }}"
                     class="sidebar-link nav-link d-flex align-items-center gap-2 px-3 py-2 mx-1 rounded-2 {{ request()->routeIs('profile.change-password') ? 'sb-active' : '' }}">
@@ -251,6 +301,7 @@
                     <span class="sidebar-text">เปลี่ยนรหัสผ่าน</span>
                 </a>
             </li>
+            @endif
             <li class="nav-item">
                 <form action="{{ route('logout') }}" method="POST" class="m-0">
                     @csrf

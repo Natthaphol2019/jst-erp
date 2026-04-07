@@ -31,13 +31,58 @@
 @endif
 
 @if($employee)
-<form action="{{ route('profile.update') }}" method="POST">
+<form action="{{ route('profile.update') }}" method="POST" enctype="multipart/form-data">
     @csrf
     @method('PUT')
 
     <div class="row g-3">
         {{-- Left Column - Personal Info --}}
         <div class="col-md-6">
+            {{-- Profile Image Upload --}}
+            <div class="erp-card mb-3">
+                <div class="erp-card-header" style="border-bottom: 2px solid rgba(99,102,241,0.2);">
+                    <span class="erp-card-title">
+                        <i class="fas fa-camera me-1" style="color: #818cf8;"></i>รูปโปรไฟล์
+                    </span>
+                </div>
+                <div class="erp-card-body text-center">
+                    <div class="position-relative d-inline-block">
+                        <div id="profileImagePreview" 
+                             style="width: 120px; height: 120px; border-radius: 50%; overflow: hidden; margin: 0 auto 16px; border: 3px solid var(--accent); background: linear-gradient(135deg, var(--accent), #a78bfa); display: flex; align-items: center; justify-content: center; color: white; font-size: 48px;">
+                            @if($employee->profile_image)
+                                <img src="{{ asset('storage/' . $employee->profile_image) }}" 
+                                     alt="Profile" 
+                                     style="width: 100%; height: 100%; object-fit: cover;"
+                                     onerror="this.style.display='none'; this.parentElement.innerHTML='<i class=\'fas fa-user\'></i>';">
+                            @else
+                                <i class="fas fa-user"></i>
+                            @endif
+                        </div>
+                        <label for="profileImageInput" 
+                               style="position: absolute; bottom: 8px; right: 8px; width: 36px; height: 36px; border-radius: 50%; background: var(--accent); color: white; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.2);">
+                            <i class="fas fa-camera" style="font-size: 14px;"></i>
+                        </label>
+                        <input type="file" 
+                               name="profile_image" 
+                               id="profileImageInput" 
+                               accept="image/jpeg,image/png,image/jpg,image/gif,image/webp"
+                               style="display: none;"
+                               onchange="previewProfileImage(this)">
+                    </div>
+                    <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px;">
+                        <i class="fas fa-info-circle me-1"></i>JPG, PNG, GIF, WebP (สูงสุด 2MB)
+                    </div>
+                    @if($employee->profile_image)
+                        <div class="form-check d-inline-block">
+                            <input type="checkbox" name="remove_image" id="removeImage" value="1" class="form-check-input">
+                            <label for="removeImage" style="color: #f87171; font-size: 13px; cursor: pointer;">
+                                <i class="fas fa-trash me-1"></i>ลบรูปโปรไฟล์
+                            </label>
+                        </div>
+                    @endif
+                </div>
+            </div>
+
             <div class="erp-card mb-3">
                 <div class="erp-card-header" style="border-bottom: 2px solid rgba(99,102,241,0.2);">
                     <span class="erp-card-title">
@@ -204,5 +249,36 @@
     <i class="fas fa-exclamation-triangle me-2"></i>ไม่พบข้อมูลพนักงาน
 </div>
 @endif
+
+@push('scripts')
+<script>
+function previewProfileImage(input) {
+    const preview = document.getElementById('profileImagePreview');
+    const file = input.files[0];
+
+    if (file) {
+        // Check file size (2MB max)
+        if (file.size > 2 * 1024 * 1024) {
+            alert('ไฟล์มีขนาดเกิน 2MB');
+            input.value = '';
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            preview.innerHTML = '<img src="' + e.target.result + '" style="width: 100%; height: 100%; object-fit: cover;">';
+            preview.style.background = 'none';
+        };
+        reader.readAsDataURL(file);
+
+        // Uncheck remove image checkbox when new file is selected
+        const removeCheckbox = document.getElementById('removeImage');
+        if (removeCheckbox) {
+            removeCheckbox.checked = false;
+        }
+    }
+}
+</script>
+@endpush
 
 @endsection

@@ -152,17 +152,26 @@
 
     {{-- User Info --}}
     <div class="d-flex align-items-center gap-2" style="cursor: default;">
-        <div class="d-flex align-items-center justify-content-center rounded-circle fw-semibold"
-             style="width: 32px; height: 32px; background: linear-gradient(135deg, #06b6d4, #3b82f6);
-                    color: white; font-size: 12px; flex-shrink: 0;">
-            {{ strtoupper(substr(auth()->user()->name, 0, 2)) }}
-        </div>
+        @if(auth()->user()->employee && auth()->user()->employee->profile_image)
+            <div class="d-flex align-items-center justify-content-center rounded-circle"
+                 style="width: 32px; height: 32px; overflow: hidden; flex-shrink: 0; border: 2px solid var(--accent);">
+                <img src="{{ asset('storage/' . auth()->user()->employee->profile_image) }}" 
+                     style="width: 100%; height: 100%; object-fit: cover;"
+                     onerror="this.style.display='none'; this.parentElement.innerHTML='{{ strtoupper(substr(auth()->user()->name, 0, 2)) }}'; this.parentElement.style.background='linear-gradient(135deg, #06b6d4, #3b82f6)'; this.parentElement.style.color='white'; this.parentElement.style.fontSize='12px';">
+            </div>
+        @else
+            <div class="d-flex align-items-center justify-content-center rounded-circle fw-semibold"
+                 style="width: 32px; height: 32px; background: linear-gradient(135deg, #06b6d4, #3b82f6);
+                        color: white; font-size: 12px; flex-shrink: 0;">
+                {{ strtoupper(substr(auth()->user()->name, 0, 2)) }}
+            </div>
+        @endif
         <div class="d-none d-md-block">
             <div style="font-size: 13px; font-weight: 500; color: var(--text-primary); line-height: 1.2;">
                 {{ auth()->user()->name }}
             </div>
             <div style="font-size: 10px; color: var(--text-muted); line-height: 1.2;">
-                {{ strtoupper(auth()->user()->role) }}
+                {{ auth()->user()->employee ? auth()->user()->employee->employee_code : strtoupper(auth()->user()->role) }}
             </div>
         </div>
         <span style="font-size: 10px; padding: 2px 8px; border-radius: 10px;

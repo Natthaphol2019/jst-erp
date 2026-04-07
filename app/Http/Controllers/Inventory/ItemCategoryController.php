@@ -23,6 +23,7 @@ class ItemCategoryController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:100|unique:item_categories,name',
+            'code_prefix' => 'nullable|string|max:10|unique:item_categories,code_prefix',
             'description' => 'nullable|string|max:500',
         ]);
 
@@ -41,6 +42,7 @@ class ItemCategoryController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:100|unique:item_categories,name,' . $category->id,
+            'code_prefix' => 'nullable|string|max:10|unique:item_categories,code_prefix,' . $category->id,
             'description' => 'nullable|string|max:500',
         ]);
 

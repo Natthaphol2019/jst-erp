@@ -80,9 +80,35 @@ class ItemController extends Controller
     // 2. หน้าฟอร์มเพิ่มสินค้าใหม่ (Create - Form)
     public function create()
     {
-        // ดึงหมวดหมู่ทั้งหมดมาเพื่อใช้ใน Dropdown
+        // ดึงหมวดหมู่ทั้งหมดพร้อม code_prefix
         $categories = ItemCategory::all();
+        
         return view('inventory.items.create', compact('categories'));
+    }
+
+    // 3. ฟังก์ชันสร้างรหัสสินค้าอัตโนมัติ
+    public function generateCode(Request $request)
+    {
+        $categoryId = $request->category_id;
+        $category = ItemCategory::find($categoryId);
+        
+        if (!$category || !$category->code_prefix) {
+            return response()->json(['error' => 'Category not found or no prefix'], 400);
+        }
+        
+        // นับจำนวนสินค้าในหมวดหมู่นี้
+        $count = Item::where('category_id', $categoryId)
+            ->withTrashed()
+            ->count();
+        
+        $nextNumber = $count + 1;
+        $newCode = $category->code_prefix . '-' . str_pad($nextNumber, 3, '0', STR_PAD_LEFT);
+        
+        return response()->json([
+            'code' => $newCode,
+            'prefix' => $category->code_prefix,
+            'number' => $nextNumber
+        ]);
     }
 
     // 3. บันทึกข้อมูลสินค้าใหม่ลงฐานข้อมูล (Create - Store)

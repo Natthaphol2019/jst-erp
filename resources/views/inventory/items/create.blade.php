@@ -41,7 +41,16 @@
 
                 <div class="col-md-6">
                     <label class="erp-label">รหัสสินค้า <span style="color: #f87171;">*</span></label>
-                    <input type="text" name="item_code" class="erp-input" placeholder="เช่น ITEM-001" required>
+                    <div class="input-group">
+                        <span id="codePrefixBadge" class="input-group-text" style="background: var(--input-bg); font-weight: 600; color: #818cf8;">-</span>
+                        <input type="text" name="item_code" id="itemCode" class="erp-input" placeholder="เลือกหมวดหมู่เพื่อสร้างรหัสอัตโนมัติ" required>
+                        <button type="button" class="erp-btn-secondary" id="generateCodeBtn" style="white-space: nowrap;">
+                            <i class="fas fa-magic me-1"></i>สร้างอัตโนมัติ
+                        </button>
+                    </div>
+                    <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">
+                        <i class="fas fa-info-circle me-1"></i>รหัสจะสร้างอัตโนมัติตามหมวดหมู่ หรือพิมพ์เองก็ได้
+                    </div>
                 </div>
                 <div class="col-md-6">
                     <label class="erp-label">บาร์โค้ด</label>
@@ -56,9 +65,12 @@
                 </div>
                 <div class="col-md-6">
                     <label class="erp-label">หมวดหมู่ <span style="color: #f87171;">*</span></label>
-                    <select name="category_id" class="erp-select" required>
+                    <select name="category_id" id="categorySelect" class="erp-select" required>
+                        <option value="">-- เลือกหมวดหมู่ --</option>
                         @foreach($categories as $cat)
-                            <option value="{{ $cat->id }}">{{ $cat->name }}</option>
+                            <option value="{{ $cat->id }}" data-prefix="{{ $cat->code_prefix }}">
+                                {{ $cat->name }} @if($cat->code_prefix)({{ $cat->code_prefix }})@endif
+                            </option>
                         @endforeach
                     </select>
                 </div>
@@ -104,14 +116,14 @@
 function previewImage(input) {
     const preview = document.getElementById('imagePreview');
     const file = input.files[0];
-    
+
     if (file) {
         if (file.size > 2 * 1024 * 1024) {
             alert('ไฟล์มีขนาดเกิน 2MB');
             input.value = '';
             return;
         }
-        
+
         const reader = new FileReader();
         reader.onload = function(e) {
             preview.innerHTML = '<img src="' + e.target.result + '" style="width: 100%; height: 100%; object-fit: cover;">';
@@ -119,5 +131,71 @@ function previewImage(input) {
         reader.readAsDataURL(file);
     }
 }
+
+// Auto-generate item code based on category
+document.getElementById('categorySelect').addEventListener('change', function() {
+    const categoryId = this.value;
+    const prefix = this.options[this.selectedIndex].dataset.prefix || '';
+    const codeInput = document.getElementById('itemCode');
+    const prefixBadge = document.getElementById('codePrefixBadge');
+    
+    if (prefix) {
+        prefixBadge.style.background = '#e0e7ff';
+        prefixBadge.style.color = '#4f46e5';
+        prefixBadge.textContent = prefix + '-';
+        codeInput.placeholder = prefix + '-XXX (จะสร้างอัตโนมัติ)';
+    } else {
+        prefixBadge.style.background = 'var(--input-bg)';
+        prefixBadge.style.color = '#818cf8';
+        prefixBadge.textContent = '-';
+        codeInput.placeholder = 'เช่น ITEM-001';
+    }
+});
+
+document.getElementById('generateCodeBtn').addEventListener('click', function() {
+    const categoryId = document.getElementById('categorySelect').value;
+    const codeInput = document.getElementById('itemCode');
+    const prefixBadge = document.getElementById('codePrefixBadge');
+    
+    if (!categoryId) {
+        alert('กรุณาเลือกหมวดหมู่ก่อนสร้างรหัส');
+        return;
+    }
+    
+    // Disable button while loading
+    const btn = this;
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>กำลังสร้าง...';
+    
+    fetch('{{ route("inventory.items.generate-code") }}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+        },
+        body: JSON.stringify({ category_id: categoryId })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.code) {
+            codeInput.value = data.code;
+            if (data.prefix) {
+                prefixBadge.style.background = '#e0e7ff';
+                prefixBadge.style.color = '#4f46e5';
+                prefixBadge.textContent = data.prefix + '-';
+            }
+        } else {
+            alert('เกิดข้อผิดพลาด: ' + (data.error || 'ไม่สามารถสร้างรหัสได้'));
+        }
+    })
+    .catch(error => {
+        alert('เกิดข้อผิดพลาดในการสร้างรหัส');
+        console.error('Error:', error);
+    })
+    .finally(() => {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-magic me-1"></i>สร้างอัตโนมัติ';
+    });
+});
 </script>
 @endpush

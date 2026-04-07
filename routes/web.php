@@ -207,6 +207,7 @@ Route::middleware('auth')->group(function () {
         // ระบบจัดการสินค้า (Items)
         Route::resource('items', ItemController::class);
         Route::patch('/items/{item}/toggle-status', [ItemController::class, 'toggleStatus'])->name('items.toggle-status');
+        Route::post('/items/generate-code', [ItemController::class, 'generateCode'])->name('items.generate-code');
 
         // ระบบจัดการหมวดหมู่สินค้า (Item Categories)
         Route::resource('categories', ItemCategoryController::class);

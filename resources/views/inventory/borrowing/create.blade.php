@@ -34,7 +34,7 @@
     border: 2px solid var(--border, #e5e7eb);
     border-radius: 12px;
     padding: 14px;
-    background: var(--bg-surface, white);
+    background: var(--input-bg, #f9fafb);
     cursor: pointer;
     transition: all 0.2s ease;
     position: relative;
@@ -45,13 +45,14 @@
 }
 
 .item-card:hover {
-    border-color: #818cf8;
+    border-color: var(--accent, #818cf8);
+    background: rgba(129, 140, 248, 0.08);
     box-shadow: 0 4px 12px rgba(129, 140, 248, 0.15);
     transform: translateY(-2px);
 }
 
 .item-card.selected {
-    border-color: #818cf8;
+    border-color: var(--accent, #818cf8);
     background: linear-gradient(135deg, rgba(99,102,241,0.08) 0%, rgba(129,140,248,0.12) 100%);
     box-shadow: 0 4px 16px rgba(129, 140, 248, 0.25);
 }
@@ -64,7 +65,7 @@
     top: 10px;
     right: 10px;
     font-size: 20px;
-    color: #818cf8;
+    color: var(--accent, #818cf8);
 }
 
 .item-card .item-image {
@@ -88,7 +89,7 @@
 
 .item-card .item-image i {
     font-size: 32px;
-    color: #818cf8;
+    color: var(--accent, #818cf8);
 }
 
 .item-card .item-info {
@@ -136,7 +137,7 @@
 
 .item-card .item-stock {
     font-size: 13px;
-    color: var(--text-muted, #6b7280);
+    color: var(--text-secondary, #6b7280);
     display: flex;
     align-items: center;
     gap: 5px;
@@ -833,12 +834,24 @@ function applyFilters() {
 }
 
 // Form validation
+let formSubmitted = false;
 document.getElementById('borrowingForm').addEventListener('submit', function(e) {
+    if (formSubmitted) {
+        e.preventDefault();
+        return false;
+    }
+    
     if (selectedItems.size === 0) {
         e.preventDefault();
         alert('กรุณาเลือกสินค้าอย่างน้อย 1 รายการ');
         return false;
     }
+    
+    // Prevent double submission
+    formSubmitted = true;
+    const submitBtn = document.getElementById('submitBtn');
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>กำลังบันทึกข้อมูล...';
 });
 </script>
 @endpush
