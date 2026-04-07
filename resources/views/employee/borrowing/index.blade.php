@@ -121,10 +121,18 @@
                             </span>
                         </td>
                         <td style="text-align: center;">
-                            <a href="{{ route('employee.borrowing.show', $borrowing->id) }}"
-                               class="erp-btn-secondary" title="ดูรายละเอียด" style="padding: 4px 8px; font-size: 12px;">
-                                <i class="fas fa-eye"></i>
-                            </a>
+                            <div class="d-flex gap-1 justify-content-center">
+                                <a href="{{ route('employee.borrowing.show', $borrowing->id) }}"
+                                   class="erp-btn-secondary" title="ดูรายละเอียด" style="padding: 4px 8px; font-size: 12px;">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                @if(in_array($borrowing->status, ['approved', 'returned_partial']))
+                                    <a href="{{ route('employee.borrowing.return', $borrowing->id) }}"
+                                       class="erp-btn-primary" title="คืนสินค้า" style="padding: 4px 8px; font-size: 12px;">
+                                        <i class="fas fa-undo"></i>
+                                    </a>
+                                @endif
+                            </div>
                         </td>
                     </tr>
                 @empty

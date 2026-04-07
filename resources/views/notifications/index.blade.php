@@ -81,15 +81,20 @@
                             <div class="col-auto">
                                 <div class="d-flex gap-2">
                                     @if(isset($data['action_url']))
+                                        @php
+                                            // แปลง URL จาก /approve เป็นหน้า show (ทุกคนเข้าได้)
+                                            $displayUrl = str_replace('/approve', '', $data['action_url']);
+                                        @endphp
                                         @if(!$isRead)
                                             <form action="{{ route('notifications.read', $notification->id) }}" method="POST">
                                                 @csrf
+                                                <input type="hidden" name="redirect_url" value="{{ $displayUrl }}">
                                                 <button type="submit" class="erp-btn-secondary" style="padding: 4px 12px; font-size: 12px;" title="อ่านและเปิดดู">
                                                     <i class="fas fa-external-link-alt me-1"></i> {{ $data['action_text'] ?? 'ดู' }}
                                                 </button>
                                             </form>
                                         @else
-                                            <a href="{{ $data['action_url'] }}" class="erp-btn-secondary" style="padding: 4px 12px; font-size: 12px;">
+                                            <a href="{{ $displayUrl }}" class="erp-btn-secondary" style="padding: 4px 12px; font-size: 12px;">
                                                 <i class="fas fa-eye me-1"></i> ดู
                                             </a>
                                         @endif

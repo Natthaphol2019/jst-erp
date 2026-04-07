@@ -31,10 +31,10 @@
 
 /* Item Card - Large touch targets */
 .item-card {
-    border: 2px solid var(--border, #e5e7eb);
+    border: 2px solid var(--border);
     border-radius: 12px;
     padding: 16px;
-    background: white;
+    background: var(--bg-surface);
     cursor: pointer;
     transition: all 0.2s ease;
     position: relative;
@@ -42,14 +42,14 @@
 }
 
 .item-card:hover {
-    border-color: #818cf8;
+    border-color: var(--accent-light);
     box-shadow: 0 4px 12px rgba(129, 140, 248, 0.15);
     transform: translateY(-2px);
 }
 
 .item-card.selected {
-    border-color: #818cf8;
-    background: linear-gradient(135deg, #f0f9ff 0%, #e0e7ff 100%);
+    border-color: var(--accent-light);
+    background: rgba(99, 102, 241, 0.08);
     box-shadow: 0 4px 16px rgba(129, 140, 248, 0.25);
 }
 
@@ -61,7 +61,7 @@
     top: 12px;
     right: 12px;
     font-size: 24px;
-    color: #818cf8;
+    color: var(--accent-light);
 }
 
 .item-card .item-icon {
@@ -75,12 +75,59 @@
     margin-bottom: 12px;
     font-size: 28px;
     color: white;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.item-card .item-icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.item-card .item-icon .icon-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+}
+
+.item-card .item-image-wrapper {
+    width: 60px;
+    height: 60px;
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 12px;
+    flex-shrink: 0;
+    border: 2px solid var(--border);
+    background: var(--input-bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.item-card .item-image-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.item-card .item-image-wrapper .icon-fallback {
+    display: none;
+    color: var(--text-muted);
+    font-size: 24px;
+}
+
+.item-card .item-image-wrapper img:not([src]) + .icon-fallback,
+.item-card .item-image-wrapper img[src=""] + .icon-fallback {
+    display: flex;
 }
 
 .item-card .item-name {
     font-size: 15px;
     font-weight: 600;
-    color: var(--text-primary, #1f2937);
+    color: var(--text-primary);
     margin-bottom: 8px;
     line-height: 1.4;
     padding-right: 30px;
@@ -88,14 +135,14 @@
 
 .item-card .item-stock {
     font-size: 13px;
-    color: var(--text-muted, #6b7280);
+    color: var(--text-secondary);
     display: flex;
     align-items: center;
     gap: 6px;
 }
 
 .item-card .item-stock strong {
-    color: #059669;
+    color: #10b981;
     font-size: 14px;
 }
 
@@ -105,7 +152,8 @@
     pointer-events: none;
 }
 
-.item-card.out-of-stock .item-icon {
+.item-card.out-of-stock .item-icon,
+.item-card.out-of-stock .item-image-wrapper {
     background: linear-gradient(135deg, #9ca3af 0%, #6b7280 100%);
 }
 
@@ -117,10 +165,10 @@
 }
 
 .selected-item-card {
-    border: 2px solid var(--border, #e5e7eb);
+    border: 2px solid var(--border);
     border-radius: 10px;
     padding: 12px 16px;
-    background: white;
+    background: var(--bg-surface);
     display: flex;
     align-items: center;
     gap: 12px;
@@ -128,8 +176,33 @@
 }
 
 .selected-item-card:hover {
-    border-color: #818cf8;
+    border-color: var(--accent-light);
     box-shadow: 0 2px 8px rgba(129, 140, 248, 0.1);
+}
+
+.selected-item-card .item-image {
+    width: 50px;
+    height: 50px;
+    border-radius: 8px;
+    overflow: hidden;
+    flex-shrink: 0;
+    border: 2px solid var(--border);
+    background: var(--input-bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.selected-item-card .item-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.selected-item-card .item-image .icon-fallback {
+    display: none;
+    color: var(--text-muted);
+    font-size: 20px;
 }
 
 .selected-item-card .item-info {
@@ -139,13 +212,13 @@
 .selected-item-card .item-name {
     font-size: 14px;
     font-weight: 600;
-    color: var(--text-primary, #1f2937);
+    color: var(--text-primary);
     margin-bottom: 4px;
 }
 
 .selected-item-card .item-stock-info {
     font-size: 12px;
-    color: var(--text-muted, #6b7280);
+    color: var(--text-muted);
 }
 
 .quantity-control {
@@ -157,10 +230,10 @@
 .quantity-btn {
     width: 36px;
     height: 36px;
-    border: 2px solid var(--border, #e5e7eb);
+    border: 2px solid var(--border);
     border-radius: 8px;
-    background: white;
-    color: var(--text-primary, #1f2937);
+    background: var(--bg-surface);
+    color: var(--text-primary);
     font-size: 18px;
     font-weight: 600;
     cursor: pointer;
@@ -171,9 +244,9 @@
 }
 
 .quantity-btn:hover {
-    border-color: #818cf8;
-    background: #f0f9ff;
-    color: #818cf8;
+    border-color: var(--accent-light);
+    background: rgba(99, 102, 241, 0.08);
+    color: var(--accent);
 }
 
 .quantity-btn:active {
@@ -185,19 +258,19 @@
     text-align: center;
     font-size: 18px;
     font-weight: 700;
-    color: #818cf8;
+    color: var(--accent);
     padding: 6px 12px;
-    background: #f0f9ff;
+    background: var(--input-bg);
     border-radius: 8px;
-    border: 2px solid #e0e7ff;
+    border: 2px solid var(--border);
 }
 
 .remove-item-btn {
     width: 36px;
     height: 36px;
-    border: 2px solid #fee2e2;
+    border: 2px solid rgba(239, 68, 68, 0.2);
     border-radius: 8px;
-    background: #fef2f2;
+    background: rgba(239, 68, 68, 0.1);
     color: #ef4444;
     cursor: pointer;
     display: flex;
@@ -207,7 +280,7 @@
 }
 
 .remove-item-btn:hover {
-    background: #fee2e2;
+    background: rgba(239, 68, 68, 0.2);
     border-color: #ef4444;
 }
 
@@ -215,15 +288,17 @@
 .item-search-input {
     width: 100%;
     padding: 12px 16px 12px 44px;
-    border: 2px solid var(--border, #e5e7eb);
+    border: 2px solid var(--border);
     border-radius: 10px;
     font-size: 15px;
+    background: var(--input-bg);
+    color: var(--text-primary);
     transition: all 0.2s ease;
 }
 
 .item-search-input:focus {
     outline: none;
-    border-color: #818cf8;
+    border-color: var(--accent-light);
     box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.1);
 }
 
@@ -236,7 +311,7 @@
     left: 16px;
     top: 50%;
     transform: translateY(-50%);
-    color: var(--text-muted, #9ca3af);
+    color: var(--text-muted);
     font-size: 16px;
 }
 
@@ -244,7 +319,7 @@
 .empty-state {
     text-align: center;
     padding: 40px 20px;
-    color: var(--text-muted, #6b7280);
+    color: var(--text-muted);
 }
 
 .empty-state i {
@@ -259,12 +334,12 @@
     align-items: center;
     gap: 8px;
     padding: 8px 16px;
-    background: linear-gradient(135deg, #f0f9ff 0%, #e0e7ff 100%);
-    border: 2px solid #818cf8;
+    background: rgba(99, 102, 241, 0.08);
+    border: 2px solid var(--accent-light);
     border-radius: 20px;
     font-size: 14px;
     font-weight: 600;
-    color: #6366f1;
+    color: var(--accent);
     margin-bottom: 16px;
 }
 
@@ -373,15 +448,27 @@
                     {{-- Items Grid --}}
                     <div class="item-selection-grid" id="itemsGrid">
                         @forelse($items as $item)
-                            <div class="item-card" 
+                            <div class="item-card"
                                  data-item-id="{{ $item->id }}"
                                  data-item-name="{{ $item->name }}"
                                  data-item-stock="{{ $item->current_stock }}"
                                  data-item-type="{{ $item->type }}"
+                                 data-item-image="{{ $item->image_url ?? '' }}"
                                  @if($item->current_stock == 0) style="pointer-events: none; opacity: 0.5;" @endif>
-                                <div class="item-icon">
-                                    <i class="fas fa-box-open"></i>
-                                </div>
+                                @if($item->image_url)
+                                    <div class="item-image-wrapper">
+                                        <img src="{{ asset('storage/' . $item->image_url) }}" 
+                                             alt="{{ $item->name }}"
+                                             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                        <div class="icon-fallback" style="display: none;">
+                                            <i class="fas fa-box-open"></i>
+                                        </div>
+                                    </div>
+                                @else
+                                    <div class="item-icon">
+                                        <i class="fas fa-box-open"></i>
+                                    </div>
+                                @endif
                                 <div class="item-name">{{ $item->name }}</div>
                                 <div class="item-stock">
                                     <i class="fas fa-warehouse"></i>
@@ -462,7 +549,8 @@ const selectedItems = new Map();
                 name: '{{ $item->name }}',
                 stock: {{ $item->current_stock }},
                 unit: '{{ $item->unit }}',
-                quantity: {{ $oldItem['quantity'] }}
+                quantity: {{ $oldItem['quantity'] }},
+                image: '{{ $item->image_url ? url("storage/" . $item->image_url) : "" }}'
             });
         @endif
     @endforeach
@@ -473,6 +561,7 @@ document.querySelectorAll('.item-card').forEach(card => {
     card.addEventListener('click', function() {
         const itemId = parseInt(this.dataset.itemId);
         const stock = parseInt(this.dataset.itemStock);
+        const imageUrl = this.dataset.itemImage || '';
         
         if (stock === 0) return;
 
@@ -487,7 +576,8 @@ document.querySelectorAll('.item-card').forEach(card => {
                 name: this.dataset.itemName,
                 stock: stock,
                 unit: '{{ $items->first()?->unit ?? "ชิ้น" }}',
-                quantity: 1
+                quantity: 1,
+                image: imageUrl ? '{{ url("storage") }}/' + imageUrl : ''
             });
             this.classList.add('selected');
         }
@@ -534,7 +624,18 @@ function updateSelectedItems() {
         // Create selected item card
         const card = document.createElement('div');
         card.className = 'selected-item-card';
+        
+        const imageHtml = item.image 
+            ? `<div class="item-image">
+                   <img src="${item.image}" alt="${item.name}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                   <div class="icon-fallback" style="display:none;"><i class="fas fa-box-open"></i></div>
+               </div>`
+            : `<div class="item-image" style="background: linear-gradient(135deg, #818cf8 0%, #6366f1 100%);">
+                   <i class="fas fa-box-open" style="color: white; font-size: 20px;"></i>
+               </div>`;
+        
         card.innerHTML = `
+            ${imageHtml}
             <div class="item-info">
                 <div class="item-name">${item.name}</div>
                 <div class="item-stock-info">คงเหลือ: ${item.stock} ${item.unit}</div>

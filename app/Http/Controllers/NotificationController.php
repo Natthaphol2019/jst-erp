@@ -24,7 +24,7 @@ class NotificationController extends Controller
     /**
      * ทำเครื่องหมายว่าอ่านแล้ว (รายการเดียว)
      */
-    public function markAsRead(string $id)
+    public function markAsRead(string $id, Request $request)
     {
         $notification = auth()->user()->notifications()->findOrFail($id);
         $notification->markAsRead();
@@ -33,6 +33,16 @@ class NotificationController extends Controller
         $userId = auth()->id();
         cache()->forget("unread_count_{$userId}");
         cache()->forget("recent_notifications_{$userId}");
+
+        // ถ้ามีการส่ง redirect_url (จาก topbar)
+        if ($request->filled('redirect_url')) {
+            $redirectUrl = $request->input('redirect_url');
+            
+            // ตรวจสอบว่า URL มาจาก domain เดียวกัน
+            if (filter_var($redirectUrl, FILTER_VALIDATE_URL) && parse_url($redirectUrl, PHP_URL_HOST) === request()->getHost()) {
+                return redirect($redirectUrl)->with('success', 'อ่านการแจ้งเตือนแล้ว');
+            }
+        }
 
         // ถ้ามีการส่ง action_url กลับไปหน้าที่เกี่ยวข้อง
         $actionUrl = $notification->data['action_url'] ?? route('notifications.index');

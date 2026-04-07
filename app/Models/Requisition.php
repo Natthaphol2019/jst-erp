@@ -18,12 +18,14 @@ class Requisition extends Model
         'req_date',
         'due_date',
         'note',
-        'approved_by'
+        'approved_by',
+        'return_images'
     ];
 
     protected $casts = [
         'req_date' => 'date',
         'due_date' => 'date',
+        'return_images' => 'array',
     ];
 
     public function employee()

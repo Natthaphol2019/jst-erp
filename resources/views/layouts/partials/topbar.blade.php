@@ -54,17 +54,20 @@
     </button>
 
     {{-- Notification Bell --}}
-    <div class="dropdown">
+    <div class="dropdown" style="z-index: 1060;">
         <button class="d-flex align-items-center justify-content-center position-relative border-0"
                 type="button" id="notificationDropdown" data-bs-toggle="dropdown" aria-expanded="false"
                 style="width: 36px; height: 36px; border-radius: 10px; background: var(--input-bg);
                        border: 1px solid var(--input-border);
-                       color: var(--text-secondary); cursor: pointer; transition: all 0.15s;">
-            <i class="fas fa-bell" style="font-size: 15px;"></i>
+                       color: var(--text-secondary); cursor: pointer; transition: all 0.15s;
+                       pointer-events: auto; z-index: 1060;"
+                onclick="event.stopPropagation();">
+            <i class="fas fa-bell" style="font-size: 15px; pointer-events: none;"></i>
             @if($unreadCount > 0)
                 <span class="position-absolute bg-danger rounded-circle border"
                       style="width: 8px; height: 8px; top: 6px; right: 6px;
-                             border-color: var(--topbar-bg) !important; border-width: 1.5px !important;"></span>
+                             border-color: var(--topbar-bg) !important; border-width: 1.5px !important;
+                             pointer-events: none;"></span>
             @endif
         </button>
 
@@ -72,7 +75,8 @@
             aria-labelledby="notificationDropdown"
             style="width: 360px; max-height: 460px; overflow-y: auto;
                    background: var(--dropdown-bg);
-                   border: 1px solid var(--border); border-radius: 12px; padding: 4px;">
+                   border: 1px solid var(--border); border-radius: 12px; padding: 4px;
+                   z-index: 1060;">
 
             <li class="d-flex justify-content-between align-items-center px-3 py-2">
                 <span style="font-size: 13px; font-weight: 600; color: var(--text-primary);">การแจ้งเตือน</span>
@@ -91,9 +95,22 @@
             <li><hr class="dropdown-divider" style="border-color: var(--border); margin: 2px 0;"></li>
 
             @forelse($recentUnread ?? collect() as $notification)
+                @php
+                    // แปลง URL สำหรับ notification (ทุกคนเข้าได้)
+                    $displayUrl = $notification->data['action_url'] ?? route('notifications.index');
+                    
+                    // แปลง /approve เป็นหน้า show
+                    $displayUrl = str_replace('/approve', '', $displayUrl);
+                    
+                    // แปลง inventory borrowing URL เป็น employee borrowing URL
+                    if (auth()->user()->role === 'employee') {
+                        $displayUrl = str_replace('/inventory/borrowing/', '/employee/borrowings/', $displayUrl);
+                    }
+                @endphp
                 <li>
                     <form action="{{ route('notifications.read', $notification->id) }}" method="POST" class="m-0">
                         @csrf
+                        <input type="hidden" name="redirect_url" value="{{ $displayUrl }}">
                         <button type="submit"
                                 class="dropdown-item py-2 px-3 rounded-2"
                                 style="{{ $notification->read_at ? 'opacity: 0.5;' : 'background: rgba(99,102,241,0.08); border-left: 2px solid ' . ($notification->data['color'] ?? '#6366f1') . ';' }} color: var(--text-secondary);">

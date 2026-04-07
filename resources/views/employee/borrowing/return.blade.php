@@ -10,7 +10,7 @@
         </h4>
         <p style="font-size: 13px; color: var(--text-muted); margin: 0;">บันทึกการคืนสินค้ายืม</p>
     </div>
-    <a href="{{ route('inventory.borrowing.show', $borrowing->id) }}" class="erp-btn-secondary">
+    <a href="{{ route('employee.borrowing.show', $borrowing->id) }}" class="erp-btn-secondary">
         <i class="fas fa-arrow-left me-2"></i>กลับ
     </a>
 </div>
@@ -21,7 +21,7 @@
     </div>
 @endif
 
-<form action="{{ route('inventory.borrowing.return.store', $borrowing->id) }}" method="POST" enctype="multipart/form-data">
+<form action="{{ route('employee.borrowing.return.store', $borrowing->id) }}" method="POST" enctype="multipart/form-data">
     @csrf
 
     <div class="row g-3">
@@ -210,19 +210,7 @@
                                 <div style="color: var(--text-muted); font-size: 11px; margin-top: 4px;">รองรับไฟล์: JPG, PNG, GIF (สูงสุด 5 รูป, รูปละไม่เกิน 5MB)</div>
                             </label>
                         </div>
-                        <div id="imagePreviewContainer" class="d-flex flex-wrap gap-2 mt-2" style="min-height: 20px;">
-                            @if(old('return_images'))
-                                @foreach(old('return_images') as $key => $file)
-                                    <div class="position-relative" style="width: 80px; height: 80px;">
-                                        <img src="{{ $file instanceof \Illuminate\Http\UploadedFile ? $file->temporaryUrl() : asset('storage/' . $file) }}" 
-                                             class="img-thumbnail" style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px;">
-                                        <button type="button" class="btn-close position-absolute top-0 end-0" 
-                                                style="font-size: 8px; background: white; border-radius: 50%;" 
-                                                onclick="removeImagePreview(this, {{ $key }})"></button>
-                                    </div>
-                                @endforeach
-                            @endif
-                        </div>
+                        <div id="imagePreviewContainer" class="d-flex flex-wrap gap-2 mt-2" style="min-height: 20px;"></div>
                         @error('return_images.*')
                             <div class="invalid-feedback d-block">{{ $message }}</div>
                         @enderror
@@ -238,7 +226,7 @@
             <div class="erp-card">
                 <div class="erp-card-body">
                     <div class="d-flex justify-content-end gap-2">
-                        <a href="{{ route('inventory.borrowing.show', $borrowing->id) }}" class="erp-btn-secondary">
+                        <a href="{{ route('employee.borrowing.show', $borrowing->id) }}" class="erp-btn-secondary">
                             <i class="fas fa-times me-2"></i>ยกเลิก
                         </a>
                         <button type="submit" class="erp-btn-primary" style="background: #22c55e; border-color: #22c55e;">
@@ -256,7 +244,7 @@
 // Preview รูปภาพที่เลือก
 function previewReturnImages(input) {
     const container = document.getElementById('imagePreviewContainer');
-    container.innerHTML = ''; // ล้าง preview เก่า
+    container.innerHTML = '';
     
     if (input.files && input.files.length > 5) {
         alert('สามารถอัพโหลดได้สูงสุด 5 รูปเท่านั้น');
@@ -264,7 +252,7 @@ function previewReturnImages(input) {
         return;
     }
     
-    Array.from(input.files).forEach((file, index) => {
+    Array.from(input.files).forEach((file) => {
         if (file.size > 5 * 1024 * 1024) {
             alert(`ไฟล์ ${file.name} มีขนาดเกิน 5MB`);
             return;

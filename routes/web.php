@@ -149,7 +149,9 @@ Route::middleware('auth')->group(function () {
         Route::get('/borrowings', [BorrowingController::class, 'myBorrowings'])->name('borrowings');
         Route::get('/borrowings/create', [BorrowingController::class, 'createForEmployee'])->name('borrowing.create');
         Route::post('/borrowings', [BorrowingController::class, 'store'])->name('borrowing.store');
-        Route::get('/borrowings/{borrowing}', [BorrowingController::class, 'show'])->name('borrowing.show');
+        Route::get('/borrowings/{borrowing}', [BorrowingController::class, 'showForEmployee'])->name('borrowing.show');
+        Route::get('/borrowings/{borrowing}/return', [BorrowingController::class, 'returnFormForEmployee'])->name('borrowing.return');
+        Route::post('/borrowings/{borrowing}/return', [BorrowingController::class, 'returnStoreForEmployee'])->name('borrowing.return.store');
 
         // Employee requisition history (ดูเฉพาะของตัวเอง)
         Route::get('/requisitions', [RequisitionController::class, 'myRequisitions'])->name('requisitions');
@@ -173,7 +175,6 @@ Route::middleware('auth')->group(function () {
 
         // ระบบบันทึกเวลาทำงาน (Time Records)
         Route::get('/time-records/batch', [TimeRecordController::class, 'batchCreate'])->name('time-records.batch');
-        Route::post('/time-records/batch', [TimeRecordController::class, 'batchStore'])->name('time-records.batch.store');
         // รายงานสรุปเวลาทำงานรายเดือน
         Route::get('/time-records/batch-select', [TimeRecordController::class, 'batchSelect'])->name('time-records.batch.select');
         Route::get('/time-records/batch-form', [TimeRecordController::class, 'batchForm'])->name('time-records.batch.form');

@@ -100,7 +100,7 @@ class BorrowingController extends Controller
             ->where('due_date', '<', Carbon::today())
             ->count();
 
-        return view('inventory.borrowing.my_borrowings', compact('borrowings', 'overdueCount'));
+        return view('employee.borrowing.index', compact('borrowings', 'overdueCount'));
     }
 
     /**
@@ -123,7 +123,7 @@ class BorrowingController extends Controller
             ->orderBy('name')
             ->get();
 
-        return view('inventory.borrowing.create_employee', compact('employees', 'items'));
+        return view('employee.borrowing.create', compact('employees', 'items'));
     }
 
     /**
@@ -336,15 +336,30 @@ class BorrowingController extends Controller
             abort(404, 'ไม่พบข้อมูลใบยืม');
         }
 
-        // ถ้าเป็น employee พยายามเข้าหน้า admin ให้ redirect ไปหน้า employee
+        $borrowing->load(['employee.department', 'employee.position', 'items.item', 'approver']);
+
+        return view('inventory.borrowing.show', compact('borrowing'));
+    }
+
+    /**
+     * แสดงรายละเอียดใบยืมสำหรับ employee (ดูเฉพาะของตัวเอง)
+     */
+    public function showForEmployee(Requisition $borrowing)
+    {
+        if ($borrowing->req_type !== 'borrow') {
+            abort(404, 'ไม่พบข้อมูลใบยืม');
+        }
+
         $user = auth()->user();
-        if ($user->role === 'employee' && $user->employee_id == $borrowing->employee_id) {
-            return redirect()->route('employee.borrowing.show', $borrowing->id);
+        
+        // ตรวจสอบว่าเป็นของ employee คนนี้จริงๆ
+        if ($borrowing->employee_id != $user->employee_id) {
+            abort(403, 'ไม่มีสิทธิ์เข้าถึงใบยืมนี้');
         }
 
         $borrowing->load(['employee.department', 'employee.position', 'items.item', 'approver']);
 
-        return view('inventory.borrowing.show', compact('borrowing'));
+        return view('employee.borrowing.show', compact('borrowing'));
     }
 
     /**
@@ -484,7 +499,7 @@ class BorrowingController extends Controller
     }
 
     /**
-     * ฟอร์มคืนสินค้า
+     * ฟอร์มคืนสินค้า (admin/inventory)
      */
     public function returnForm(Requisition $borrowing)
     {
@@ -502,6 +517,34 @@ class BorrowingController extends Controller
     }
 
     /**
+     * ฟอร์มคืนสินค้าสำหรับ employee
+     */
+    public function returnFormForEmployee(Requisition $borrowing)
+    {
+        if ($borrowing->req_type !== 'borrow') {
+            abort(404, 'ไม่พบข้อมูลใบยืม');
+        }
+
+        $user = auth()->user();
+        
+        if ($borrowing->employee_id != $user->employee_id) {
+            abort(403, 'ไม่มีสิทธิ์คืนสินค้านี้');
+        }
+
+        if ($borrowing->status === 'returned_all') {
+            return back()->withErrors(['error' => 'ใบยืมนี้คืนสินค้าครบแล้ว']);
+        }
+
+        if (!in_array($borrowing->status, ['approved', 'returned_partial'])) {
+            return back()->withErrors(['error' => 'ไม่สามารถคืนสินค้าในสถานะนี้ได้']);
+        }
+
+        $borrowing->load(['employee', 'items.item']);
+
+        return view('employee.borrowing.return', compact('borrowing'));
+    }
+
+    /**
      * บันทึกการคืนสินค้า
      */
     public function returnStore(Request $request, Requisition $borrowing)
@@ -516,7 +559,17 @@ class BorrowingController extends Controller
             'return_items.*.return_quantity' => 'required|integer|min:1',
             'actual_return_date' => 'required|date',
             'return_note' => 'nullable|string|max:500',
+            'return_images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120',
         ]);
+
+        // อัพโหลดรูปภาพ
+        $uploadedPaths = [];
+        if ($request->hasFile('return_images')) {
+            foreach ($request->file('return_images') as $image) {
+                $path = $image->store('borrowing-returns', 'public');
+                $uploadedPaths[] = $path;
+            }
+        }
 
         DB::beginTransaction();
         try {
@@ -563,6 +616,13 @@ class BorrowingController extends Controller
                 ]);
             }
 
+            // บันทึกรูปหลักฐานการคืน
+            if (!empty($uploadedPaths)) {
+                $borrowing->update([
+                    'return_images' => $uploadedPaths,
+                ]);
+            }
+
             DB::commit();
 
             return redirect()->route('inventory.borrowing.show', $borrowing->id)
@@ -572,6 +632,113 @@ class BorrowingController extends Controller
             DB::rollBack();
 
             Log::error('BorrowingController@returnStore failed', [
+                'error' => $e->getMessage(),
+                'borrowing_id' => $borrowing->id,
+                'return_items' => $validated['return_items'] ?? null,
+            ]);
+
+            return back()->withErrors(['error' => 'เกิดข้อผิดพลาด: ' . $e->getMessage()])->withInput();
+        }
+    }
+
+    /**
+     * บันทึกการคืนสินค้าสำหรับ employee
+     */
+    public function returnStoreForEmployee(Request $request, Requisition $borrowing)
+    {
+        if ($borrowing->req_type !== 'borrow') {
+            abort(404, 'ไม่พบข้อมูลใบยืม');
+        }
+
+        $user = auth()->user();
+        
+        if ($borrowing->employee_id != $user->employee_id) {
+            abort(403, 'ไม่มีสิทธิ์คืนสินค้านี้');
+        }
+
+        if (!in_array($borrowing->status, ['approved', 'returned_partial'])) {
+            return back()->withErrors(['error' => 'ไม่สามารถคืนสินค้าในสถานะนี้ได้']);
+        }
+
+        $validated = $request->validate([
+            'return_items' => 'required|array|min:1',
+            'return_items.*.requisition_item_id' => 'required|exists:requisition_items,id',
+            'return_items.*.return_quantity' => 'required|integer|min:1',
+            'actual_return_date' => 'required|date',
+            'return_note' => 'nullable|string|max:500',
+            'return_images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120',
+        ]);
+
+        // อัพโหลดรูปภาพ
+        $uploadedPaths = [];
+        if ($request->hasFile('return_images')) {
+            foreach ($request->file('return_images') as $image) {
+                $path = $image->store('borrowing-returns', 'public');
+                $uploadedPaths[] = $path;
+            }
+        }
+
+        DB::beginTransaction();
+        try {
+            $allReturned = true;
+
+            foreach ($validated['return_items'] as $returnData) {
+                $requisitionItem = RequisitionItem::findOrFail($returnData['requisition_item_id']);
+
+                // ตรวจสอบจำนวนคืน
+                $canReturn = $requisitionItem->quantity_requested - $requisitionItem->quantity_returned;
+                if ($returnData['return_quantity'] > $canReturn) {
+                    throw new Exception("จำนวนคืนเกินที่ยืมไว้ (สินค้า ID: {$requisitionItem->item_id})");
+                }
+
+                // อัปเดตจำนวนที่คืน
+                $newReturnedQty = $requisitionItem->quantity_returned + $returnData['return_quantity'];
+                $requisitionItem->update(['quantity_returned' => $newReturnedQty]);
+
+                // คืนสต๊อกโดยใช้ StockService (มี lockForUpdate ภายใน transaction)
+                $item = Item::find($requisitionItem->item_id);
+                $this->stockService->addStock(
+                    itemId: $requisitionItem->item_id,
+                    quantity: $returnData['return_quantity'],
+                    transactionType: 'borrow_return',
+                    requisitionId: $borrowing->id,
+                    userId: auth()->id(),
+                    remark: "คืนสินค้า: {$item->name}" . ($validated['return_note'] ? " - {$validated['return_note']}" : '')
+                );
+
+                // ตรวจสอบว่าคืนครบหรือยัง
+                if ($newReturnedQty < $requisitionItem->quantity_requested) {
+                    $allReturned = false;
+                }
+            }
+
+            // อัปเดตสถานะใบยืม
+            if ($allReturned) {
+                $borrowing->update([
+                    'status' => 'returned_all',
+                ]);
+            } else {
+                $borrowing->update([
+                    'status' => 'returned_partial',
+                ]);
+            }
+
+            // บันทึกรูปหลักฐานการคืน
+            if (!empty($uploadedPaths)) {
+                $borrowing->update([
+                    'return_images' => $uploadedPaths,
+                ]);
+            }
+
+            DB::commit();
+
+            return redirect()->route('employee.borrowings')
+                ->with('success', 'บันทึกการคืนสินค้าเรียบร้อยแล้ว');
+
+        } catch (Exception $e) {
+            DB::rollBack();
+
+            Log::error('BorrowingController@returnStoreForEmployee failed', [
                 'error' => $e->getMessage(),
                 'borrowing_id' => $borrowing->id,
                 'return_items' => $validated['return_items'] ?? null,

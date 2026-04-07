@@ -386,17 +386,38 @@
                     <table class="erp-table">
                         <thead>
                             <tr>
+                                <th width="50" style="text-align: center;">รูป</th>
                                 <th>สินค้า</th>
-                                <th width="80" style="text-align: center;">ยืม</th>
-                                <th width="80" style="text-align: center;">คืนแล้ว</th>
-                                <th width="80" style="text-align: center;">คงเหลือยืม</th>
+                                <th width="70" style="text-align: center;">ยืม</th>
+                                <th width="70" style="text-align: center;">คืนแล้ว</th>
+                                <th width="70" style="text-align: center;">คงเหลือ</th>
                                 <th width="80" style="text-align: center;">สถานะ</th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach($borrowing->items as $item)
                                 <tr>
-                                    <td style="color: var(--text-secondary);">{{ $item->item->name }}</td>
+                                    <td style="text-align: center;">
+                                        @if($item->item && $item->item->image_url)
+                                            <img src="{{ asset('storage/' . $item->item->image_url) }}" 
+                                                 alt="{{ $item->item->name }}"
+                                                 style="width: 40px; height: 40px; object-fit: cover; border-radius: 6px; border: 1px solid var(--border);"
+                                                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                            <div style="display: none; width: 40px; height: 40px; border-radius: 6px; background: var(--input-bg); align-items: center; justify-content: center; color: var(--text-muted); margin: 0 auto;">
+                                                <i class="fas fa-image" style="font-size: 14px;"></i>
+                                            </div>
+                                        @else
+                                            <div style="width: 40px; height: 40px; border-radius: 6px; background: var(--input-bg); display: flex; align-items: center; justify-content: center; color: var(--text-muted); margin: 0 auto;">
+                                                <i class="fas fa-image" style="font-size: 14px;"></i>
+                                            </div>
+                                        @endif
+                                    </td>
+                                    <td style="color: var(--text-secondary);">
+                                        <div style="font-weight: 500;">{{ $item->item->name }}</div>
+                                        @if($item->item && $item->item->item_code)
+                                            <small style="color: var(--text-muted);">{{ $item->item->item_code }}</small>
+                                        @endif
+                                    </td>
                                     <td style="text-align: center; color: var(--text-secondary);">{{ $item->quantity_requested }}</td>
                                     <td style="text-align: center; color: var(--text-secondary);">{{ $item->quantity_returned }}</td>
                                     <td style="text-align: center; color: var(--text-primary);"><strong>{{ $item->quantity_requested - $item->quantity_returned }}</strong></td>
@@ -412,7 +433,7 @@
                         </tbody>
                         <tfoot>
                             <tr>
-                                <th style="color: var(--text-primary);">รวม</th>
+                                <th colspan="2" style="color: var(--text-primary);">รวม</th>
                                 <th style="text-align: center; color: var(--text-primary);">{{ $borrowing->items->sum('quantity_requested') }}</th>
                                 <th style="text-align: center; color: var(--text-primary);">{{ $borrowing->items->sum('quantity_returned') }}</th>
                                 <th style="text-align: center; color: var(--text-primary);">{{ $borrowing->items->sum(fn($i) => $i->quantity_requested - $i->quantity_returned) }}</th>
@@ -421,6 +442,28 @@
                         </tfoot>
                     </table>
                 </div>
+
+                {{-- แสดงรูปหลักฐานการคืน (ถ้ามี) --}}
+                @if($borrowing->return_images && is_array($borrowing->return_images) && count($borrowing->return_images) > 0)
+                    <div style="margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--border);">
+                        <h6 style="font-size: 13px; font-weight: 600; color: var(--text-primary); margin-bottom: 12px;">
+                            <i class="fas fa-camera me-2" style="color: #6366f1;"></i>หลักฐานการคืน
+                        </h6>
+                        <div class="d-flex flex-wrap gap-2">
+                            @foreach($borrowing->return_images as $image)
+                                <a href="{{ asset('storage/' . $image) }}" target="_blank"
+                                   style="width: 80px; height: 80px; border-radius: 8px; overflow: hidden; border: 2px solid var(--border); display: block; flex-shrink: 0;">
+                                    <img src="{{ asset('storage/' . $image) }}"
+                                         style="width: 100%; height: 100%; object-fit: cover;"
+                                         onerror="this.parentElement.style.display='none';">
+                                </a>
+                            @endforeach
+                        </div>
+                        <small style="color: var(--text-muted); font-size: 11px; margin-top: 8px; display: block;">
+                            <i class="fas fa-info-circle me-1"></i>คลิกรูปเพื่อดูขนาดเต็ม
+                        </small>
+                    </div>
+                @endif
             </div>
         </div>
     </div>
@@ -432,12 +475,14 @@
         <div class="erp-card">
             <div class="erp-card-body">
                 <div class="d-flex justify-content-end gap-2">
-                    @if(!in_array($borrowing->status, ['returned_all', 'returned_partial', 'rejected']))
+                    @if(in_array($borrowing->status, ['approved', 'returned_partial']))
+                        <a href="{{ route('inventory.borrowing.return', $borrowing->id) }}" class="erp-btn-primary">
+                            <i class="fas fa-undo me-2"></i>คืนสินค้า
+                        </a>
+                    @endif
+                    @if(!in_array($borrowing->status, ['returned_all', 'rejected']))
                         <a href="{{ route('inventory.borrowing.edit', $borrowing->id) }}" class="erp-btn-secondary" style="border-color: #f59e0b; color: #f59e0b;">
                             <i class="fas fa-edit me-2"></i>แก้ไข
-                        </a>
-                        <a href="{{ route('inventory.borrowing.return', $borrowing->id) }}" class="erp-btn-secondary" style="border-color: #34d399; color: #34d399;">
-                            <i class="fas fa-undo me-2"></i>คืนสินค้า
                         </a>
                     @endif
                     <a href="{{ route('inventory.borrowing.index') }}" class="erp-btn-secondary">

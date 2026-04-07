@@ -130,7 +130,7 @@ class RequisitionController extends Controller
 
         $requisitions = $query->paginate(15);
 
-        return view('inventory.requisition.my_requisitions', compact('requisitions'));
+        return view('employee.requisition.index', compact('requisitions'));
     }
 
     /**

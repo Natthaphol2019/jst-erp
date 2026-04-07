@@ -15,7 +15,12 @@ class RequisitionItem extends Model
         'requisition_id',
         'item_id',
         'quantity_requested',
-        'quantity_returned'
+        'quantity_returned',
+        'return_images'
+    ];
+
+    protected $casts = [
+        'return_images' => 'array',
     ];
 
     public function requisition()
